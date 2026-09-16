@@ -1,12 +1,19 @@
 # Agent Identity Landscape
 
-A documentation-style Next.js app that maps the **2025–2026 IETF / OIDF / W3C / protocol** work on **AI agent identity, authentication, and authorization**.
+A field guide to **AI agent identity, authentication, and authorization**: OAuth 2.1, OIDC, AAuth, related IETF / OIDF / W3C / protocol work, deployment patterns, and interactive boards.
 
 It exists to answer a concrete question: when people say *AAuth*, *p2p*, *OIDC*, and *OAuth 2.1* in the same breath, **what documents do they actually mean**, how do those documents nest, and what is stable versus draft versus a vendor protocol?
+
+- **Live demo:** [https://agent-id-x.testopen.workers.dev](https://agent-id-x.testopen.workers.dev)
+- **Source:** [https://github.com/salehmashal/agent-id-x](https://github.com/salehmashal/agent-id-x)
 
 This is an educational reference. It is **not** a standards document and **not** legal or security advice.
 
 Hard topics are taught with **interactive boards** (HTML/CSS, a little client state): four principals as seats, AAuth access-mode restaging, OAuth 2.1 “what got banned,” token-exchange `act` versus WIMSE hop re-bind, and four doors for delegated / AAuth p2p / A2A / did:peer. Tokens are passes, signatures are wax seals, Bearer is a photocopy, DPoP is a pass glued to a key. There is no course overlay, XP, or quiz hub.
+
+## Stack
+
+Next.js App Router, TypeScript, Tailwind CSS v4, shadcn/ui.
 
 ## How to run locally
 
@@ -15,9 +22,9 @@ npm install
 npm run dev
 ```
 
-The dev script binds **0.0.0.0:43173** (an uncommon port, not 3000).
+The dev script binds **0.0.0.0:43173**. Open [http://localhost:43173](http://localhost:43173).
 
-Then open `http://localhost:43173`.
+## Build
 
 ```bash
 npm run build
@@ -29,34 +36,35 @@ By default `next build` (and `npm run export`, which is the same command) writes
 npx serve out --listen tcp://0.0.0.0:43173
 ```
 
-`next start` is not used for a static export. Cloudflare’s OpenNext/Workers path is different: it runs `npx opennextjs-cloudflare build` (or `npm run cf:build`), which must **not** use `output: "export"`. `next.config.ts` detects that path and skips the export. Preview the Worker locally with `npm run preview`.
+`next start` is not used for a static export.
 
-## Share / Deploy
+## Deploy
 
-This is a static educational reference: **no auth, no database, no secrets**. Host it on a free HTTPS CDN and share the **HTTPS** URL only (do not send an `http://` link).
+This is a static educational reference: **no auth, no database, no secrets**. Host it over HTTPS.
 
-Ranked options:
+### Static export (Vercel, Netlify, GitHub Pages, Cloudflare Pages)
 
-1. **Easiest — Vercel Hobby (free HTTPS)**  
-   In [vercel.com](https://vercel.com): **Add New… → Project → Import** a Git repository you control → deploy. Hobby includes automatic HTTPS. The repo already has `output: "export"` and `vercel.json` security headers. Vercel detects Next.js; you do not need a custom output directory.
+`npm run build` produces `out/`. Point the host at that directory.
 
-2. **Best lock-in-free — Cloudflare (free HTTPS)**  
-   In [dash.cloudflare.com](https://dash.cloudflare.com) → **Workers & Pages → Create**. Pick **one** of these; they are not interchangeable.
+- **Vercel:** import the Git repo. The project uses `output: "export"` and `vercel.json` security headers; no custom output directory is required.
+- **Netlify:** import the repo (`netlify.toml` is included) or upload `out/`.
+- **GitHub Pages:** publish `out/` (keep `public/.nojekyll` so `_next` assets are not ignored). For a project-site subpath (`https://<user>.github.io/<repo>/`), set `basePath` in `next.config.ts` and rebuild.
+- **Cloudflare Pages (static):** framework preset **None**, build command `npm run build`, output directory `out`. Security headers come from `public/_headers`.
 
-   **A. If Cloudflare injected `npx opennextjs-cloudflare build` (Workers / OpenNext)** — this is what the Next.js framework preset often selects automatically. Leave that custom build command. **Do not set an output directory of `out`.** OpenNext is incompatible with `output: "export"`; this repo now skips export when that command (or `CLOUDFLARE` / `OPEN_NEXT` / `STATIC_EXPORT=0`) runs, and includes `@opennextjs/cloudflare`, `wrangler.jsonc`, and `open-next.config.ts`. After this commit, that dashboard build should succeed. Local check: `npx opennextjs-cloudflare build` or `npm run cf:build`.
+### Cloudflare Workers (OpenNext)
 
-   **B. Pure static Pages** — Framework preset **None** (not Next.js). Build command `npm run build`, output directory `out`. Do **not** use OpenNext with `output: "export"`. Cloudflare copies `public/_headers` into the deploy so security headers apply. You can also **Upload assets** and drag-and-drop the `out/` folder after `npm run build`.
+OpenNext is **not** the static `out/` pipeline. Do not combine `output: "export"` with OpenNext.
 
-   **Netlify** (free HTTPS) is the static idea: import the Git repo (this tree has `netlify.toml`) or drag-and-drop `out/`.
+```bash
+npm run cf:build
+npx wrangler deploy
+```
 
-3. **GitHub Pages — only if you already use GitHub**  
-   This project may not have a public GitHub repository yet. Create a repo on GitHub (pick your own name), push this tree, then either connect that repo to Cloudflare Pages / Vercel as above, or enable **Settings → Pages** and publish the `out/` folder (keep the committed `public/.nojekyll` file so the `_next` assets are not ignored). If the site is served from a subpath (`https://<user>.github.io/<repo>/`) rather than a custom domain, set `basePath` in `next.config.ts` to that repo path and rebuild. Do not share the GitHub Pages URL until it is HTTPS (GitHub Pages is HTTPS by default).
+`wrangler.jsonc` names the Worker **`agent-id-x`**. `next.config.ts` skips static export when OpenNext / `cf:build` is detected (or when `CLOUDFLARE` / `OPEN_NEXT` / `STATIC_EXPORT=0` is set). Preview locally with `npm run preview`.
 
-All of these give **HTTPS for free**. After you have a git remote you control, connect that remote in the Cloudflare or Vercel dashboard. For Cloudflare, use **A** or **B** above — not a mix of OpenNext and `out/`.
+There is no analytics, cookie banner, or third-party script, so the Content-Security-Policy stays locked to `'self'` plus the inline script/style Next and Tailwind require.
 
-There is no analytics, cookie banner, or third-party script, so the Content-Security-Policy can stay locked to `'self'` plus the inline script/style Next and Tailwind require.
-
-## Spec status changes
+## Spec status
 
 Internet-Drafts expire, get renamed, and move from individual to working-group to RFC Editor. OpenID Final specs get errata. MCP and A2A version independently of the IETF.
 
@@ -106,7 +114,3 @@ Interactive boards live in `components/explainers/`. Main spec slugs with a boar
 **P2P** is not a single I-D title in this cluster. Next to AAuth it usually means identity-based or two-party (resource-managed) access: agent and resource, no authorization server. Elsewhere it means A2A (agent-to-agent tasks) or `did:peer` / DIDComm. Those are not the same protocol.
 
 **OIDC** remains the user identity layer on OAuth. **OAuth 2.1** (`draft-ietf-oauth-v2-1-16`, 3 September 2026) consolidates OAuth 2.0 with RFC 9700 practices; it was still a WG draft in September 2026. MCP authorization (2026-07-28) is an OAuth 2.1 profile that still cites older draft numbers.
-
-## Stack
-
-Next.js App Router, TypeScript, Tailwind CSS v4, shadcn/ui.
