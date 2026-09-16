@@ -21,6 +21,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { SOCIAL_LINKS } from "@/lib/socials";
 import { cn } from "@/lib/utils";
 
 const nav = [
@@ -75,41 +76,81 @@ export function SiteHeader() {
             );
           })}
         </nav>
-        <Sheet open={open} onOpenChange={setOpen}>
-          <SheetTrigger
-            render={
-              <Button
-                variant="outline"
-                size="icon"
-                className="lg:hidden"
-                aria-label="Open menu"
-              />
-            }
-          >
-            <Menu />
-          </SheetTrigger>
-          <SheetContent side="right" className="w-72">
-            <SheetHeader>
-              <SheetTitle>Navigate</SheetTitle>
-            </SheetHeader>
-            <nav className="mt-4 flex flex-col gap-1 px-4">
-              {nav.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    onClick={() => setOpen(false)}
-                    className="inline-flex items-center gap-2 rounded-md px-2 py-2 text-sm hover:bg-muted"
-                  >
-                    <Icon className="size-4" aria-hidden />
-                    {item.label}
-                  </Link>
-                );
-              })}
-            </nav>
-          </SheetContent>
-        </Sheet>
+        <div className="flex items-center gap-0.5">
+          {SOCIAL_LINKS.map((item) => {
+            const Icon = item.icon;
+            return (
+              <a
+                key={item.href}
+                href={item.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={item.label}
+                className="inline-flex size-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              >
+                <Icon className="size-4" aria-hidden />
+              </a>
+            );
+          })}
+          <Sheet open={open} onOpenChange={setOpen}>
+            <SheetTrigger
+              render={
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="lg:hidden"
+                  aria-label="Open menu"
+                />
+              }
+            >
+              <Menu />
+            </SheetTrigger>
+            <SheetContent side="right" className="w-72">
+              <SheetHeader>
+                <SheetTitle>Navigate</SheetTitle>
+              </SheetHeader>
+              <nav className="mt-4 flex flex-col gap-1 px-4">
+                {nav.map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={() => setOpen(false)}
+                      className="inline-flex items-center gap-2 rounded-md px-2 py-2 text-sm hover:bg-muted"
+                    >
+                      <Icon className="size-4" aria-hidden />
+                      {item.label}
+                    </Link>
+                  );
+                })}
+              </nav>
+              <div className="mt-6 border-t border-border px-4 pt-4">
+                <p className="mb-2 font-mono text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+                  Source & author
+                </p>
+                <nav className="flex flex-col gap-1" aria-label="Outbound links">
+                  {SOCIAL_LINKS.map((item) => {
+                    const Icon = item.icon;
+                    return (
+                      <a
+                        key={item.href}
+                        href={item.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={item.label}
+                        className="inline-flex items-center gap-2 rounded-md px-2 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground"
+                      >
+                        <Icon className="size-4" aria-hidden />
+                        {item.text}
+                      </a>
+                    );
+                  })}
+                </nav>
+              </div>
+            </SheetContent>
+          </Sheet>
+        </div>
       </div>
     </header>
   );
