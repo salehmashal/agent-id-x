@@ -4,7 +4,7 @@ A field guide to **AI agent identity, authentication, and authorization**: OAuth
 
 It exists to answer a concrete question: when people say *AAuth*, *p2p*, *OIDC*, and *OAuth 2.1* in the same breath, **what documents do they actually mean**, how do those documents nest, and what is stable versus draft versus a vendor protocol?
 
-- **Live demo:** [https://agent-id-x.testopen.workers.dev](https://agent-id-x.testopen.workers.dev)
+- **Live demo:** [https://agent-id-x.demooie.com/](https://agent-id-x.demooie.com/)
 - **Source:** [https://github.com/salehmashal/agent-id-x](https://github.com/salehmashal/agent-id-x)
 
 This is an educational reference. It is **not** a standards document and **not** legal or security advice.
