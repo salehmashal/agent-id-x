@@ -1,0 +1,13 @@
+# Cloudflare Pages (and Netlify, if used instead of netlify.toml) read this
+# file from the published directory. Next.js copies public/ into out/.
+#
+# CSP: Next.js App Router inlines bootstrap scripts; Tailwind/Next inject
+# inline styles. Static hosts cannot mint per-request nonces, so script-src
+# and style-src allow 'unsafe-inline'. No analytics or third-party scripts.
+/*
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Frame-Options: DENY
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), display-capture=()
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests

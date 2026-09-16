@@ -1,0 +1,195 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-serif);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-brass: var(--brass);
+  --color-moss: var(--moss);
+  --color-ink-rule: var(--ink-rule);
+  --color-user: var(--user);
+  --color-agent: var(--agent);
+  --color-workload: var(--workload);
+  --color-resource: var(--resource);
+  --color-grant: var(--grant);
+  --color-session: var(--session);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+/*
+  Study desk: warm paper, cool ink, distinct semantic hues.
+  Principals stay stable across the site so they can be remembered.
+*/
+:root {
+  --background: oklch(0.975 0.012 85);
+  --foreground: oklch(0.24 0.028 260);
+  --card: oklch(0.995 0.006 85);
+  --card-foreground: oklch(0.24 0.028 260);
+  --popover: oklch(0.995 0.006 85);
+  --popover-foreground: oklch(0.24 0.028 260);
+  --primary: oklch(0.42 0.14 264);
+  --primary-foreground: oklch(0.99 0.01 85);
+  --secondary: oklch(0.94 0.012 85);
+  --secondary-foreground: oklch(0.26 0.03 260);
+  --muted: oklch(0.945 0.01 85);
+  --muted-foreground: oklch(0.4 0.025 260);
+  --accent: oklch(0.93 0.02 264);
+  --accent-foreground: oklch(0.28 0.08 264);
+  --destructive: oklch(0.5 0.18 25);
+  --border: oklch(0.84 0.02 80);
+  --input: oklch(0.84 0.02 80);
+  --ring: oklch(0.45 0.14 264);
+  --brass: oklch(0.38 0.04 260);
+  --moss: oklch(0.42 0.1 150);
+  --ink-rule: oklch(0.86 0.018 80);
+  --user: oklch(0.44 0.16 264);
+  --agent: oklch(0.42 0.09 195);
+  --workload: oklch(0.4 0.035 250);
+  --resource: oklch(0.5 0.13 55);
+  --grant: oklch(0.42 0.11 150);
+  --session: oklch(0.42 0.02 260);
+  --chart-1: oklch(0.44 0.16 264);
+  --chart-2: oklch(0.42 0.09 195);
+  --chart-3: oklch(0.4 0.035 250);
+  --chart-4: oklch(0.5 0.13 55);
+  --chart-5: oklch(0.42 0.11 150);
+  --radius: 0.4rem;
+  --sidebar: oklch(0.96 0.01 85);
+  --sidebar-foreground: oklch(0.24 0.028 260);
+  --sidebar-primary: oklch(0.42 0.14 264);
+  --sidebar-primary-foreground: oklch(0.99 0.01 85);
+  --sidebar-accent: oklch(0.93 0.02 264);
+  --sidebar-accent-foreground: oklch(0.28 0.08 264);
+  --sidebar-border: oklch(0.84 0.02 80);
+  --sidebar-ring: oklch(0.45 0.14 264);
+}
+
+.dark {
+  --background: oklch(0.22 0.02 260);
+  --foreground: oklch(0.95 0.01 85);
+  --card: oklch(0.26 0.02 260);
+  --card-foreground: oklch(0.95 0.01 85);
+  --popover: oklch(0.26 0.02 260);
+  --popover-foreground: oklch(0.95 0.01 85);
+  --primary: oklch(0.72 0.1 264);
+  --primary-foreground: oklch(0.18 0.04 264);
+  --secondary: oklch(0.3 0.02 260);
+  --secondary-foreground: oklch(0.95 0.01 85);
+  --muted: oklch(0.3 0.018 260);
+  --muted-foreground: oklch(0.78 0.02 250);
+  --accent: oklch(0.32 0.04 264);
+  --accent-foreground: oklch(0.95 0.01 85);
+  --destructive: oklch(0.7 0.14 25);
+  --border: oklch(0.95 0.01 85 / 14%);
+  --input: oklch(0.95 0.01 85 / 16%);
+  --ring: oklch(0.72 0.1 264);
+  --brass: oklch(0.82 0.03 250);
+  --moss: oklch(0.74 0.08 150);
+  --ink-rule: oklch(0.95 0.01 85 / 14%);
+  --user: oklch(0.74 0.1 264);
+  --agent: oklch(0.74 0.08 195);
+  --workload: oklch(0.78 0.03 250);
+  --resource: oklch(0.78 0.1 55);
+  --grant: oklch(0.76 0.08 150);
+  --session: oklch(0.78 0.02 250);
+  --chart-1: oklch(0.74 0.1 264);
+  --chart-2: oklch(0.74 0.08 195);
+  --chart-3: oklch(0.78 0.03 250);
+  --chart-4: oklch(0.78 0.1 55);
+  --chart-5: oklch(0.76 0.08 150);
+  --sidebar: oklch(0.24 0.02 260);
+  --sidebar-foreground: oklch(0.95 0.01 85);
+  --sidebar-primary: oklch(0.72 0.1 264);
+  --sidebar-primary-foreground: oklch(0.18 0.04 264);
+  --sidebar-accent: oklch(0.32 0.04 264);
+  --sidebar-accent-foreground: oklch(0.95 0.01 85);
+  --sidebar-border: oklch(0.95 0.01 85 / 14%);
+  --sidebar-ring: oklch(0.72 0.1 264);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    @apply font-sans;
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-background text-foreground;
+    background-image:
+      linear-gradient(180deg, oklch(0.985 0.01 85) 0%, oklch(0.965 0.016 80) 100%);
+  }
+  button:not(:disabled),
+  [role="tab"],
+  [role="button"],
+  a[href] {
+    cursor: pointer;
+  }
+  h1,
+  h2,
+  h3,
+  .font-heading {
+    font-family: var(--font-serif), ui-serif, Georgia, serif;
+    letter-spacing: -0.02em;
+    font-weight: 600;
+  }
+  code,
+  kbd,
+  samp,
+  .font-mono {
+    font-family: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+}
+
+@utility rule-top {
+  box-shadow: inset 0 1px 0 oklch(0.44 0.16 264 / 0.25);
+}
+
+@utility prose-study {
+  max-width: 42rem;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--foreground);
+}
