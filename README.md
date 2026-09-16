@@ -23,13 +23,13 @@ Then open `http://localhost:43173`.
 npm run build
 ```
 
-`next build` (and `npm run export`, which is the same command) writes a static site to **`out/`**. There is no Node server in production. Preview the export with any static file server, for example:
+By default `next build` (and `npm run export`, which is the same command) writes a static site to **`out/`**. Preview that export with any static file server, for example:
 
 ```bash
 npx serve out --listen tcp://0.0.0.0:43173
 ```
 
-`next start` is not used for this app once `output: "export"` is set.
+`next start` is not used for a static export. Cloudflare’s OpenNext/Workers path is different: it runs `npx opennextjs-cloudflare build` (or `npm run cf:build`), which must **not** use `output: "export"`. `next.config.ts` detects that path and skips the export. Preview the Worker locally with `npm run preview`.
 
 ## Share / Deploy
 
@@ -40,15 +40,19 @@ Ranked options:
 1. **Easiest — Vercel Hobby (free HTTPS)**  
    In [vercel.com](https://vercel.com): **Add New… → Project → Import** a Git repository you control → deploy. Hobby includes automatic HTTPS. The repo already has `output: "export"` and `vercel.json` security headers. Vercel detects Next.js; you do not need a custom output directory.
 
-2. **Best lock-in-free — Cloudflare Pages (free HTTPS)**  
-   In [dash.cloudflare.com](https://dash.cloudflare.com) → **Workers & Pages → Create → Pages → Connect to Git**, or **Upload assets** and drag-and-drop the `out/` folder after `npm run build`.  
-   If connecting Git: framework preset **Next.js (Static HTML Export)**, build command `npm run build`, output directory `out`. Cloudflare copies `public/_headers` into the deploy so security headers apply.  
-   **Netlify** (free HTTPS) is the same idea: import the Git repo (this tree has `netlify.toml`) or drag-and-drop `out/`.
+2. **Best lock-in-free — Cloudflare (free HTTPS)**  
+   In [dash.cloudflare.com](https://dash.cloudflare.com) → **Workers & Pages → Create**. Pick **one** of these; they are not interchangeable.
+
+   **A. If Cloudflare injected `npx opennextjs-cloudflare build` (Workers / OpenNext)** — this is what the Next.js framework preset often selects automatically. Leave that custom build command. **Do not set an output directory of `out`.** OpenNext is incompatible with `output: "export"`; this repo now skips export when that command (or `CLOUDFLARE` / `OPEN_NEXT` / `STATIC_EXPORT=0`) runs, and includes `@opennextjs/cloudflare`, `wrangler.jsonc`, and `open-next.config.ts`. After this commit, that dashboard build should succeed. Local check: `npx opennextjs-cloudflare build` or `npm run cf:build`.
+
+   **B. Pure static Pages** — Framework preset **None** (not Next.js). Build command `npm run build`, output directory `out`. Do **not** use OpenNext with `output: "export"`. Cloudflare copies `public/_headers` into the deploy so security headers apply. You can also **Upload assets** and drag-and-drop the `out/` folder after `npm run build`.
+
+   **Netlify** (free HTTPS) is the static idea: import the Git repo (this tree has `netlify.toml`) or drag-and-drop `out/`.
 
 3. **GitHub Pages — only if you already use GitHub**  
    This project may not have a public GitHub repository yet. Create a repo on GitHub (pick your own name), push this tree, then either connect that repo to Cloudflare Pages / Vercel as above, or enable **Settings → Pages** and publish the `out/` folder (keep the committed `public/.nojekyll` file so the `_next` assets are not ignored). If the site is served from a subpath (`https://<user>.github.io/<repo>/`) rather than a custom domain, set `basePath` in `next.config.ts` to that repo path and rebuild. Do not share the GitHub Pages URL until it is HTTPS (GitHub Pages is HTTPS by default).
 
-All of these give **HTTPS for free**. After you have a git remote you control, connect that remote in the Cloudflare or Vercel dashboard — there is nothing to configure in this repo except the files already here.
+All of these give **HTTPS for free**. After you have a git remote you control, connect that remote in the Cloudflare or Vercel dashboard. For Cloudflare, use **A** or **B** above — not a mix of OpenNext and `out/`.
 
 There is no analytics, cookie banner, or third-party script, so the Content-Security-Policy can stay locked to `'self'` plus the inline script/style Next and Tailwind require.
 
