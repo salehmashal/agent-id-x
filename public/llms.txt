@@ -2,7 +2,7 @@
 
 > Educational field guide to AI agent identity, authentication, and authorization. Not a standards document, not legal or security advice. Read the source RFCs and drafts before you implement.
 
-Site: https://agent-id-x.testopen.workers.dev
+Site: https://agent-id-x.demooie.com
 Source: https://github.com/salehmashal/agent-id-x
 Research as of: 18 September 2026
 

@@ -78,6 +78,10 @@ Internet-Drafts expire, get renamed, and move from individual to working-group t
 
 The copy in this repo was researched **15 September 2026**. AAuth draft-10 versus the editor’s copy already disagreed on four vs five access modes; that kind of drift will continue.
 
+## Search / indexing
+
+Submit the sitemap in [Google Search Console](https://search.google.com/search-console) for the live host: `https://agent-id-x.demooie.com/sitemap.xml`. Verify the property `https://agent-id-x.demooie.com`. This repo does not include Search Console tokens. Default `NEXT_PUBLIC_SITE_URL` is `https://agent-id-x.demooie.com` (no trailing slash — matches OpenNext canonicals and sitemap `<loc>` values).
+
 ## Content map
 
 | Route | What it is |

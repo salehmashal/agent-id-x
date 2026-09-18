@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import type { Spec } from "@/lib/types";
 import { STATUS_LABEL } from "@/lib/types";
 
-/** Live Worker URL. OpenNext production has no trailing slash. */
-export const DEFAULT_SITE_URL = "https://agent-id-x.testopen.workers.dev";
+/** Public site URL. OpenNext production has no trailing slash. */
+export const DEFAULT_SITE_URL = "https://agent-id-x.demooie.com";
 export const SITE_NAME = "Agent Identity Landscape";
 export const SITE_SOURCE = "https://github.com/salehmashal/agent-id-x";
 
