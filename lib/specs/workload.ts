@@ -184,7 +184,7 @@ export const workloadSpecs: Spec[] = [
     ],
     related: ["wimse-arch", "aims", "aauth"],
     implementerNotes:
-      "Informational individual draft. Check datatracker for expiry/renewal after 1 September 2026. Not a WG item. Useful as problem statement more than as a wire protocol.",
+      "Expired 1 September 2026 and was not renewed as of 18 September 2026 (still draft-02). Informational individual draft, not a WG item. Useful as a problem statement more than as a wire protocol.",
     whyAgentCares:
       "States clearly why SPIFFE-style 'the binary is payment-api' is insufficient for 'this agent is Alice's tax bot'.",
     urls: [
@@ -197,18 +197,23 @@ export const workloadSpecs: Spec[] = [
   {
     slug: "aims",
     shortName: "AIMS (agent auth BCP)",
-    officialName: "AI Agent Authentication and Authorization",
-    id: "draft-klrc-aiagent-auth-03",
-    status: "individual-draft",
+    officialName: "AI Identity Management System",
+    id: "draft-ietf-wimse-aims-00",
+    status: "wg-draft",
     stability: "draft",
-    date: "6 July 2026",
+    date: "15 September 2026",
     authors:
       "P. Kasselman, J. Lombardo, Y. Rosomakho, B. Campbell, N. Steele, A. Parecki",
     org: "IETF",
     layer: "mixed",
     relevance: "agent-specific",
     featured: true,
-    aliases: ["aims", "agent identity management system"],
+    aliases: [
+      "aims",
+      "agent identity management system",
+      "draft-klrc-aiagent-auth",
+      "klrc",
+    ],
     problem:
       "The industry is reinventing agent auth in incompatible silos. This draft does not define a new protocol. It maps existing IETF/OIDF/CNCF work onto agent needs and names the functional gaps.",
     identityVsAuthnVsAuthz:
@@ -225,17 +230,21 @@ export const workloadSpecs: Spec[] = [
       "aauth",
     ],
     implementerNotes:
-      "Individual informational draft. Presented in WIMSE meetings (IETF 126). Read this before inventing an 'agent auth standard'. It will tell you which existing RFC you are duplicating.",
+      "WIMSE working-group draft as of 15 September 2026 (replaces individual draft-klrc-aiagent-auth-03). Informational BCP-style map — still not a protocol RFC and it still does not mint an 'AIMS token'. Read this before inventing an agent-auth standard; it will tell you which existing RFC you are duplicating.",
     whyAgentCares:
       "Best current map of 'use this RFC for that agent problem'. Complementary to AAuth: AIMS says compose the old tools; AAuth says the old tools are insufficient for open-world HTTP clients.",
     urls: [
       {
-        label: "Datatracker",
-        href: "https://datatracker.ietf.org/doc/draft-klrc-aiagent-auth/",
+        label: "Datatracker (WIMSE WG)",
+        href: "https://datatracker.ietf.org/doc/draft-ietf-wimse-aims/",
       },
       {
-        label: "HTML of draft-03",
-        href: "https://datatracker.ietf.org/doc/html/draft-klrc-aiagent-auth-03",
+        label: "HTML of draft-ietf-wimse-aims-00",
+        href: "https://datatracker.ietf.org/doc/html/draft-ietf-wimse-aims-00",
+      },
+      {
+        label: "Replaced individual draft-03",
+        href: "https://datatracker.ietf.org/doc/draft-klrc-aiagent-auth/",
       },
     ],
   },
