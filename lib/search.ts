@@ -61,7 +61,8 @@ export function searchAll(query: string): SearchHit[] {
   }
 
   for (const flow of flows) {
-    const hay = `${flow.title} ${flow.summary} ${flow.caveats} ${flow.detail?.join(" ") ?? ""}`.toLowerCase();
+    const hay =
+      `${flow.title} ${flow.summary} ${flow.caveats} ${flow.question ?? ""} ${flow.takeaway ?? ""} ${flow.protocol ?? ""} ${flow.detail?.join(" ") ?? ""}`.toLowerCase();
     if (hay.includes(q)) {
       hits.push({
         kind: "flow",
