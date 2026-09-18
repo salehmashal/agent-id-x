@@ -2,6 +2,7 @@ import Link from "next/link";
 import { FourCousinsBoard } from "@/components/explainers/four-cousins-board";
 import { MetaphorLegend } from "@/components/explainers/shared";
 import { PrincipalsBoard } from "@/components/explainers/principals-board";
+import { JsonLd } from "@/components/json-ld";
 import { LandscapeMap } from "@/components/landscape-map";
 import {
   MapSection,
@@ -13,22 +14,31 @@ import {
 import { SpecCard } from "@/components/spec-card";
 import { buttonVariants } from "@/components/ui/button";
 import { GitBranch, Library, Users } from "lucide-react";
+import { faqPageJsonLd, HOME_FAQ, pageMetadata, ROUTE_META } from "@/lib/seo";
 import { featuredSpecs, SPEC_COUNT } from "@/lib/specs";
 import { mentalModel } from "@/lib/mental-model";
 import { RESEARCH_AS_OF } from "@/lib/types";
 import { cn } from "@/lib/utils";
+
+export const metadata = pageMetadata(ROUTE_META.home);
 
 export default function HomePage() {
   const featured = featuredSpecs();
 
   return (
     <PageShell>
+      <JsonLd data={faqPageJsonLd()} />
       <PageKicker>IETF · OIDF · W3C · 2025–2026</PageKicker>
-      <PageTitle>Identity, authentication, and authorization for AI agents</PageTitle>
+      <PageTitle>
+        AI agent identity, authentication, and authorization
+      </PageTitle>
       <PageLead>
-        Four principals. Nested specs. Four doors people call p2p. A readable
-        map of the documents — {SPEC_COUNT} of them, researched {RESEARCH_AS_OF}{" "}
-        — not a course, and not a substitute for the source.
+        What people search for when they say <em>AAuth</em>,{" "}
+        <em>OAuth 2.1</em>, and <em>OIDC</em> in the same breath: which
+        documents they mean, how those documents nest, and what is stable versus
+        draft. Four principals. Four doors called p2p. {SPEC_COUNT} documents,
+        researched {RESEARCH_AS_OF} — a map, not a course, and not a substitute
+        for the source.
       </PageLead>
 
       <div className="mt-8 flex flex-wrap items-center gap-x-3 gap-y-2">
@@ -53,6 +63,7 @@ export default function HomePage() {
       </div>
 
       <MapSection
+        id="principals"
         index="01"
         title="Four principals"
         remember="User, agent, workload, resource. Four names, four proofs. Do not smash them into one string."
@@ -125,6 +136,55 @@ export default function HomePage() {
             <SpecCard key={spec.slug} spec={spec} />
           ))}
         </div>
+      </MapSection>
+
+      <MapSection
+        id="faq"
+        index="06"
+        title="Questions people actually ask"
+        remember="Short answers you can quote. The compare pages and catalog carry the rest."
+      >
+        <dl className="divide-y divide-border/70 rounded-xl border border-border/80 bg-card/40">
+          {HOME_FAQ.map((item) => (
+            <div key={item.question} className="px-5 py-4 md:px-6">
+              <dt className="font-heading text-lg">{item.question}</dt>
+              <dd className="mt-2 max-w-3xl text-sm leading-relaxed text-muted-foreground md:text-[15px]">
+                {item.answer}
+              </dd>
+            </div>
+          ))}
+        </dl>
+        <p className="mt-4 text-sm text-muted-foreground">
+          See{" "}
+          <Link
+            href="/specs/aauth"
+            className="text-foreground underline decoration-primary/40 underline-offset-4 hover:decoration-primary"
+          >
+            AAuth
+          </Link>
+          ,{" "}
+          <Link
+            href="/compare/oauth-2-0-vs-2-1"
+            className="text-foreground underline decoration-primary/40 underline-offset-4 hover:decoration-primary"
+          >
+            OAuth 2.0 vs 2.1
+          </Link>
+          ,{" "}
+          <Link
+            href="/compare/delegated-vs-p2p"
+            className="text-foreground underline decoration-primary/40 underline-offset-4 hover:decoration-primary"
+          >
+            delegated vs p2p
+          </Link>
+          , and the{" "}
+          <Link
+            href="/glossary"
+            className="text-foreground underline decoration-primary/40 underline-offset-4 hover:decoration-primary"
+          >
+            glossary
+          </Link>
+          .
+        </p>
       </MapSection>
     </PageShell>
   );
