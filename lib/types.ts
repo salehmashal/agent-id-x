@@ -1,4 +1,4 @@
-export const RESEARCH_AS_OF = "15 September 2026";
+export const RESEARCH_AS_OF = "18 September 2026";
 
 export type SpecStatus =
   | "rfc"
@@ -119,6 +119,8 @@ export interface FlowStep {
   to: string;
   action: string;
   note?: string;
+  /** Optional hop length for the animated sequence player. */
+  durationMs?: number;
 }
 
 export interface AgentFlow {
@@ -178,7 +180,7 @@ export type ProtocolFit = "primary" | "optional" | "anti-pattern";
 
 /**
  * A protocol (or named anti-practice) that applies to a deployment pattern.
- * Prefer `slug` so the UI can link into `/specs/[slug]`. Unknown slugs are skipped at render.
+ * Prefer `slug` so the UI can link into `/specs/[slug]`.
  */
 export interface PatternProtocol {
   slug?: string;
