@@ -1,0 +1,36 @@
+# Agent Identity Landscape
+
+> Educational field guide to AI agent identity, authentication, and authorization. Not a standards document, not legal or security advice. Read the source RFCs and drafts before you implement.
+
+Site: https://agent-id-x.testopen.workers.dev
+Source: https://github.com/salehmashal/agent-id-x
+Research as of: 18 September 2026
+
+## Map
+
+- [/](/) Home map: four principals, nested specs, four doors people call p2p. No 16-hop player.
+- [/catalog](/catalog) Filterable catalog of the documents on this site.
+- [/glossary](/glossary) Overloaded terms (p2p, act, person server, MCP host, sidecar).
+- [/search](/search) Client-side search over the bundled catalog.
+
+## Core specs
+
+- [/specs/aauth](/specs/aauth) AAuth Protocol (draft-hardt-oauth-aauth-protocol-10) — individual draft, cryptographic agent identity, HTTP Message Signatures.
+- [/specs/oauth-2-1](/specs/oauth-2-1) OAuth 2.1 (draft-ietf-oauth-v2-1-16) — still a WG draft as of September 2026.
+- [/specs/oidc-core](/specs/oidc-core) OpenID Connect Core — user identity on OAuth, not an API access token.
+- [/specs/mcp-auth](/specs/mcp-auth) MCP HTTP authorization — OAuth 2.1 profile for MCP servers.
+- [/specs/a2a](/specs/a2a) Agent2Agent (A2A) — agent-to-agent tasks; not AAuth p2p.
+
+## Compare
+
+- [/compare/oauth-2-0-vs-2-1](/compare/oauth-2-0-vs-2-1) What 2.1 actually removes.
+- [/compare/oidc-vs-oauth](/compare/oidc-vs-oauth) Identity layer vs authorization layer.
+- [/compare/aauth-vs-oauth](/compare/aauth-vs-oauth) Signed agent identity vs AS-issued client_id.
+- [/compare/delegated-vs-p2p](/compare/delegated-vs-p2p) Four doors named p2p.
+
+## Other indexes
+
+- [/patterns](/patterns) Deployment topology → protocol matrix.
+- [/flows](/flows) Hop-by-hop sequences (OAuth delegated, AAuth p2p, MCP, A2A, CIBA, OBO).
+
+Drafts move. Check https://datatracker.ietf.org/ and the issuing SDO for the snapshot you pin.
