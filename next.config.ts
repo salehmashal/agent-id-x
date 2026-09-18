@@ -46,6 +46,7 @@ function isOpenNextBuild(): boolean {
 }
 
 const useStaticExport = !isOpenNextBuild();
+const isProd = process.env.NODE_ENV === "production";
 
 const nextConfig: NextConfig = {
   ...(useStaticExport ? { output: "export" as const } : {}),
@@ -53,7 +54,14 @@ const nextConfig: NextConfig = {
   // export and OpenNext work even if someone adds <Image> later.
   images: { unoptimized: true },
   // Directory index files (`about/index.html`) work on GitHub Pages and most CDNs.
-  trailingSlash: true,
+  // Only enable the slash at production export time. In `next dev`,
+  // `trailingSlash: true` 308s `/_next/hmr` → `/_next/hmr/`, the WebSocket
+  // handshake fails, Turbopack never hydrates, and clicks hit static HTML.
+  trailingSlash: useStaticExport && isProd,
+  skipTrailingSlashRedirect: !isProd,
+  // `next dev --hostname 0.0.0.0` treats 127.0.0.1 as cross-origin, which
+  // blocks `/_next/hmr` and leaves pages as static HTML with no handlers.
+  allowedDevOrigins: ["127.0.0.1"],
   // next.config `headers()` is ignored with `output: "export"`. Security headers
   // live in vercel.json, public/_headers (Cloudflare Pages), and netlify.toml.
 };
