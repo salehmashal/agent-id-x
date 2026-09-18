@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { SequencePlayer } from "@/components/animations/sequence-player";
 import { LandscapeMap } from "@/components/landscape-map";
 import { FourCousinsBoard } from "@/components/explainers/four-cousins-board";
 import { MetaphorLegend } from "@/components/explainers/shared";
@@ -7,6 +8,7 @@ import { PageKicker, PageLead, PageShell, PageTitle } from "@/components/page-sh
 import { SpecCard } from "@/components/spec-card";
 import { buttonVariants } from "@/components/ui/button";
 import { LayoutGrid, Library, Users } from "lucide-react";
+import { delegatedCallTeaser } from "@/lib/animations";
 import { featuredSpecs, SPEC_COUNT } from "@/lib/specs";
 import { landscapeNotes, mentalModel } from "@/lib/mental-model";
 import { RESEARCH_AS_OF } from "@/lib/types";
@@ -89,6 +91,21 @@ export default function HomePage() {
           </p>
         </article>
       </section>
+
+      <div className="mt-14">
+        <SequencePlayer
+          sequence={delegatedCallTeaser}
+          compact
+          footer={
+            <Link
+              href="/flows/user-delegated-api"
+              className="text-sm text-primary underline decoration-primary/40 underline-offset-4 hover:decoration-primary"
+            >
+              Open the full delegated flow
+            </Link>
+          }
+        />
+      </div>
 
       <div className="mt-14">
         <FourCousinsBoard />

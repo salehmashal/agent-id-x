@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { SequencePlayer } from "@/components/animations/sequence-player";
 import { PageKicker, PageShell } from "@/components/page-shell";
 import { SequenceList } from "@/components/sequence-list";
+import { animationFromFlow } from "@/lib/animations";
 import { flows, getFlow } from "@/lib/flows";
 import { getSpec } from "@/lib/specs";
 
@@ -50,6 +52,10 @@ export default async function FlowDetailPage({
 
       <section className="mt-8">
         <h2 className="font-heading text-lg">Sequence</h2>
+        <div className="mt-4">
+          <SequencePlayer sequence={animationFromFlow(flow)} />
+        </div>
+        <h3 className="mt-8 font-heading text-base">Transcript</h3>
         <div className="mt-4">
           <SequenceList steps={flow.steps} />
         </div>
