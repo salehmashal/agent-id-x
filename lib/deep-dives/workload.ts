@@ -240,7 +240,7 @@ export const workloadDeepDives: Record<string, SpecDeepDive> = {
   },
   aims: {
     agentGap: [
-      "The industry is reinventing agent auth in incompatible silos. draft-klrc-aiagent-auth-03 (6 July 2026) does not define a new protocol. It maps existing IETF/OIDF/CNCF work onto agent needs and names the functional gaps. Read this before inventing an 'agent auth standard' — it will tell you which existing RFC you are duplicating.",
+      "The industry is reinventing agent auth in incompatible silos. draft-ietf-wimse-aims-00 (15 September 2026) — adopted by the WIMSE WG, replacing individual draft-klrc-aiagent-auth-03 — does not define a new protocol. It maps existing IETF/OIDF/CNCF work onto agent needs and names the functional gaps. Read this before inventing an 'agent auth standard' — it will tell you which existing RFC you are duplicating.",
       "Complementary to AAuth: AIMS says compose the old tools; AAuth says the old tools are insufficient for open-world HTTP clients. Both can be true in different deployments.",
     ],
     trustBoundaries: [
@@ -285,7 +285,7 @@ export const workloadDeepDives: Record<string, SpecDeepDive> = {
       },
     ],
     stabilityDetail: [
-      "draft-klrc-aiagent-auth-03, 6 July 2026, expires 7 January 2027, individual informational. https://datatracker.ietf.org/doc/draft-klrc-aiagent-auth/. Use as a reading list, not as a wire spec.",
+      "draft-ietf-wimse-aims-00, 15 September 2026, expires 19 March 2027, WIMSE WG informational. Replaces draft-klrc-aiagent-auth-03. https://datatracker.ietf.org/doc/draft-ietf-wimse-aims/. Use as a reading list, not as a wire spec.",
     ],
   },
   spiffe: {
@@ -507,7 +507,7 @@ export const workloadDeepDives: Record<string, SpecDeepDive> = {
   "wimse-ai-agent": {
     agentGap: [
       "A WIMSE workload identity names the agent process but not its owner. draft-ni-wimse-ai-agent-identity-02 (28 February 2026, expires 1 September 2026) states why SPIFFE-style 'the binary is payment-api' is insufficient for 'this agent is Alice's tax bot' and proposes a dual-identity credential binding agent to owner.",
-      "Useful as a problem statement more than as a wire protocol. Not a WG item. Check datatracker for expiry/renewal after 1 September 2026 — as of 15 September 2026 it may have expired.",
+      "Useful as a problem statement more than as a wire protocol. Not a WG item. Confirmed expired 1 September 2026 and not renewed as of 18 September 2026 (still draft-02).",
     ],
     trustBoundaries: [
       "Owner keys are pre-provisioned as trust anchors. Issuance models in the draft include owner-mediated (gateway) and server-mediated (challenge-response). Authorization still needs OAuth/AAuth/policy on top.",
@@ -546,7 +546,7 @@ export const workloadDeepDives: Record<string, SpecDeepDive> = {
     pitfalls: [
       {
         title: "Expired individual draft",
-        body: "Expiry 1 September 2026. Confirm renewal before citing as current.",
+        body: "Expired 1 September 2026; not renewed as of 18 September 2026. Confirm datatracker before citing as current.",
       },
       {
         title: "Not a registered token type",
@@ -554,7 +554,7 @@ export const workloadDeepDives: Record<string, SpecDeepDive> = {
       },
     ],
     stabilityDetail: [
-      "draft-ni-wimse-ai-agent-identity-02, 28 February 2026, expires 1 September 2026, individual informational. https://datatracker.ietf.org/doc/html/draft-ni-wimse-ai-agent-identity-02",
+      "draft-ni-wimse-ai-agent-identity-02, 28 February 2026, expired 1 September 2026 and not renewed as of 18 September 2026. Individual informational. https://datatracker.ietf.org/doc/html/draft-ni-wimse-ai-agent-identity-02",
     ],
   },
 };
