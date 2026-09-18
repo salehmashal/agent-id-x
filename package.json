@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --hostname 0.0.0.0 --port 43173",
-    "build": "next build",
+    "build": "node scripts/run-build.mjs",
     "export": "next build",
     "start": "next start --hostname 0.0.0.0 --port 43173",
     "lint": "eslint",

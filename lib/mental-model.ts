@@ -136,21 +136,25 @@ export const mentalModel = {
   honestStatus: [
     {
       kind: "Stable enough to ship",
+      line: "You can implement these without pinning a moving draft.",
       examples:
         "RFC 6749 family as constrained by RFC 9700; OIDC Core; PKCE; PAR; DPoP; mTLS; RFC 9068; RFC 8693; RFC 9728; RFC 9421; GNAP RFCs; FAPI 2.0; CIBA; SSF/CAEP; MCP-over-OAuth as a protocol (while its cited OAuth 2.1 revision lags).",
     },
     {
       kind: "Late-stage drafts",
+      line: "Close to done. Still cite the revision you implemented.",
       examples:
         "OAuth 2.1 (WG, Dec 2026 IESG milestone), identity chaining (RFC Editor queue), transaction tokens (write-up), SD-JWT VC (Last Call ended 15 Sep 2026; Waiting for AD Go-Ahead, still -19), CIMD, WIMSE suite, AIMS (WIMSE WG aims-00).",
     },
     {
       kind: "Individual drafts — expect churn",
+      line: "The table of modes will move. Pin a snapshot.",
       examples:
         "AAuth (draft-10 vs editor's five-mode copy), HTTP Signature Keys, AAuth R3, agent-grants, AAP, WIMSE AI-agent identity (expired 1 Sep 2026, not renewed).",
     },
     {
       kind: "Vendor / foundation protocols",
+      line: "Real and deployed. They are not RFCs.",
       examples:
         "MCP specification, A2A v1.0 under AAIF/Linux Foundation, SPIFFE, DIDComm, did:peer. These are real and deployed; they are not RFCs.",
     },

@@ -15,6 +15,7 @@ function envFlag(name: string): boolean {
  * Opt out of export when:
  * - `STATIC_EXPORT=0` (explicit)
  * - `OPEN_NEXT` / `CLOUDFLARE` is set
+ * - Cloudflare Workers Builds (`WORKERS_CI=1`) — dashboard runs `npm run build`
  * - OpenNext invoked `next build` (`NEXT_PRIVATE_STANDALONE=true`)
  * - the npm script is `opennextjs-cloudflare` / `cf:build`
  */
@@ -22,7 +23,12 @@ function isOpenNextBuild(): boolean {
   if (process.env.STATIC_EXPORT === "0" || process.env.STATIC_EXPORT === "false") {
     return true;
   }
-  if (envFlag("OPEN_NEXT") || envFlag("OPENNEXT") || envFlag("CLOUDFLARE")) {
+  if (
+    envFlag("OPEN_NEXT") ||
+    envFlag("OPENNEXT") ||
+    envFlag("CLOUDFLARE") ||
+    envFlag("WORKERS_CI")
+  ) {
     return true;
   }
   if (
@@ -62,6 +68,8 @@ const nextConfig: NextConfig = {
   // `next dev --hostname 0.0.0.0` treats 127.0.0.1 as cross-origin, which
   // blocks `/_next/hmr` and leaves pages as static HTML with no handlers.
   allowedDevOrigins: ["127.0.0.1"],
+  // Canonical URLs in lib/seo.ts match OpenNext / wrangler (no trailing slash),
+  // even when static export sets trailingSlash in production.
   // next.config `headers()` is ignored with `output: "export"`. Security headers
   // live in vercel.json, public/_headers (Cloudflare Pages), and netlify.toml.
 };
