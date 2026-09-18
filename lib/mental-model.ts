@@ -115,12 +115,13 @@ export const mentalModel = {
     },
     {
       layer: "Workload identity",
-      items: "SPIFFE/SPIRE, WIMSE architecture/credentials/WPT, SPIFFE OAuth client auth.",
+      items:
+        "SPIFFE/SPIRE, WIMSE architecture/credentials/WPT, AIMS (WIMSE WG BCP, aims-00), SPIFFE OAuth client auth.",
     },
     {
       layer: "Agent-native drafts",
       items:
-        "AAuth + HTTP Signature Keys + R3, AIMS BCP, WIMSE-for-agents individual draft, AAP profiles.",
+        "AAuth + HTTP Signature Keys + R3, WIMSE-for-agents individual draft (expired), AAP profiles.",
     },
     {
       layer: "Application protocols",
@@ -141,12 +142,12 @@ export const mentalModel = {
     {
       kind: "Late-stage drafts",
       examples:
-        "OAuth 2.1 (WG, Dec 2026 IESG milestone), identity chaining (RFC Editor queue), transaction tokens (write-up), SD-JWT VC (Last Call as of 15 Sep 2026), CIMD, WIMSE suite.",
+        "OAuth 2.1 (WG, Dec 2026 IESG milestone), identity chaining (RFC Editor queue), transaction tokens (write-up), SD-JWT VC (Last Call ended 15 Sep 2026; Waiting for AD Go-Ahead, still -19), CIMD, WIMSE suite, AIMS (WIMSE WG aims-00).",
     },
     {
       kind: "Individual drafts — expect churn",
       examples:
-        "AAuth (draft-10 vs editor's five-mode copy), HTTP Signature Keys, AAuth R3, AIMS, agent-grants, AAP, WIMSE AI-agent identity.",
+        "AAuth (draft-10 vs editor's five-mode copy), HTTP Signature Keys, AAuth R3, agent-grants, AAP, WIMSE AI-agent identity (expired 1 Sep 2026, not renewed).",
     },
     {
       kind: "Vendor / foundation protocols",

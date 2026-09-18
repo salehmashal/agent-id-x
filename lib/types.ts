@@ -180,7 +180,7 @@ export type ProtocolFit = "primary" | "optional" | "anti-pattern";
 
 /**
  * A protocol (or named anti-practice) that applies to a deployment pattern.
- * Prefer `slug` so the UI can link into `/specs/[slug]`.
+ * Prefer `slug` so the UI can link into `/specs/[slug]`. Unknown slugs are skipped at render.
  */
 export interface PatternProtocol {
   slug?: string;
