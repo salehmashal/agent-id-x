@@ -51,8 +51,11 @@ function isOpenNextBuild(): boolean {
   return false;
 }
 
-const useStaticExport = !isOpenNextBuild();
 const isProd = process.env.NODE_ENV === "production";
+// `output: "export"` cannot load middleware (or proxy). Keep it off in
+// `next dev` so the workers.dev host redirect can run locally; production
+// static builds still export. OpenNext / Workers CI already skip export.
+const useStaticExport = !isOpenNextBuild() && isProd;
 
 const nextConfig: NextConfig = {
   ...(useStaticExport ? { output: "export" as const } : {}),
