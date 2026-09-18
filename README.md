@@ -9,7 +9,7 @@ It exists to answer a concrete question: when people say *AAuth*, *p2p*, *OIDC*,
 
 This is an educational reference. It is **not** a standards document and **not** legal or security advice.
 
-Hard topics are taught with **interactive boards** (HTML/CSS, a little client state): four principals as seats, AAuth access-mode restaging, OAuth 2.1 “what got banned,” token-exchange `act` versus WIMSE hop re-bind, and four doors for delegated / AAuth p2p / A2A / did:peer. Tokens are passes, signatures are wax seals, Bearer is a photocopy, DPoP is a pass glued to a key. There is no course overlay, XP, or quiz hub.
+Hard topics are taught with **interactive boards** and **animated sequences** (CSS/SVG + a little React state): four principals as seats, AAuth access-mode restaging, OAuth 2.1 “what got banned,” token-exchange `act` versus WIMSE hop re-bind, four doors for delegated / AAuth p2p / A2A / did:peer, and motion that shows messages hopping — 401 challenges, PKCE verifiers, Agent Cards, nested `act`. Tokens are passes, signatures are wax seals, Bearer is a photocopy, DPoP is a pass glued to a key. There is no course overlay, XP, or quiz hub.
 
 ## Stack
 
@@ -76,7 +76,7 @@ Internet-Drafts expire, get renamed, and move from individual to working-group t
 - MCP: [modelcontextprotocol.io](https://modelcontextprotocol.io/)
 - A2A: [a2a-protocol.org](https://a2a-protocol.org/)
 
-The copy in this repo was researched **15 September 2026**. AAuth draft-10 versus the editor’s copy already disagreed on four vs five access modes; that kind of drift will continue.
+The copy in this repo was researched **15 September 2026** and re-checked **18 September 2026**. AAuth draft-10 versus the editor’s copy already disagreed on four vs five access modes; AIMS moved from an individual draft to WIMSE WG `draft-ietf-wimse-aims-00` on 15 September. That kind of drift will continue.
 
 ## Content map
 
@@ -84,11 +84,11 @@ The copy in this repo was researched **15 September 2026**. AAuth draft-10 versu
 | --- | --- |
 | `/` | Landscape map, four-principal board, four-doors explainer |
 | `/catalog` | Filterable catalog (status, layer, relevance, stability) |
-| `/specs/[slug]` | One document: at-a-glance plus, for main specs, a compact interactive board and a field-guide chapter (agent gap, trust boundaries, mechanics, numbered flows, composition, pitfalls, stability). Non-main specs stay as catalog entries. |
+| `/specs/[slug]` | One document: at-a-glance plus, for main specs, an **animated sequence** of how the protocol works, a compact interactive board, and a field-guide chapter (agent gap, trust boundaries, mechanics, numbered flows, composition, pitfalls, stability). Non-main specs stay as catalog entries. |
 | `/patterns` | Deployment topology → protocol matrix (each row has a tiny actor toy), plus a “what is your shape?” explainer |
 | `/patterns/[slug]` | One deployment pattern (unknown slugs 404) |
 | `/compare` | OAuth 2.0 vs 2.1; OIDC vs OAuth; AAuth vs OAuth; user-delegated vs p2p — each pair opens with the matching board |
-| `/flows` | Sequence-style protocol walkthroughs |
+| `/flows` | Sequence-style protocol walkthroughs with the same animated player (play / pause / step / speed) |
 | `/glossary` | Overloaded terms (p2p, act, person server, MCP host, sidecar, …) |
 | `/search` | Client-side search over the bundled data |
 
@@ -99,13 +99,14 @@ Typed modules live in:
 - `lib/deep-dives/*.ts` — field-guide chapters attached by slug
 - `lib/patterns.ts` — deployment topology → protocol matrix
 - `lib/flows.ts` — sequence walkthroughs
+- `lib/animations.ts` — data-driven animated sequences (main specs + every flow)
 - `lib/compares.ts` — side-by-side views
 - `lib/glossary.ts` — terms
 - `lib/mental-model.ts` — principals and nesting
 - `lib/search.ts` — client search index
 - `lib/pattern-picker.ts` — deployment-shape decision tree
 
-Interactive boards live in `components/explainers/`. Main spec slugs with a board: `aauth`, `oauth-2-1`, `oidc-core`, `token-exchange`, `dpop`, `wimse-arch`, `mcp-auth`, `a2a`.
+Interactive boards live in `components/explainers/`. Animated sequences live in `components/animations/` and play on main spec pages plus every `/flows/[slug]`. Main spec slugs with a dedicated sequence: `aauth`, `oauth-2-1`, `oidc-core`, `token-exchange`, `dpop`, `wimse-arch`, `mcp-auth`, `a2a`, `ciba`, `pkce`, `par`.
 
 ## Named topics (short)
 
