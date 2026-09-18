@@ -1,3 +1,4 @@
+import { SequencePlayer } from "@/components/animations/sequence-player";
 import { AauthModesBoard } from "@/components/explainers/aauth-modes-board";
 import { Oauth21Board } from "@/components/explainers/oauth-21-board";
 import { TokenHopBoard } from "@/components/explainers/token-hop-board";
@@ -7,8 +8,9 @@ import {
   McpBoard,
   OidcBoard,
 } from "@/components/explainers/spec-boards";
+import { getSpecAnimation, specHasAnimation } from "@/lib/animations";
 
-const MAIN_EXPLAINERS = new Set([
+const MAIN_BOARDS = new Set([
   "aauth",
   "oauth-2-1",
   "oidc-core",
@@ -20,10 +22,10 @@ const MAIN_EXPLAINERS = new Set([
 ]);
 
 export function isMainExplainerSpec(slug: string): boolean {
-  return MAIN_EXPLAINERS.has(slug);
+  return MAIN_BOARDS.has(slug) || specHasAnimation(slug);
 }
 
-export function SpecExplainer({ slug }: { slug: string }) {
+function SpecBoard({ slug }: { slug: string }) {
   switch (slug) {
     case "aauth":
       return <AauthModesBoard />;
@@ -44,4 +46,18 @@ export function SpecExplainer({ slug }: { slug: string }) {
     default:
       return null;
   }
+}
+
+export function SpecExplainer({ slug }: { slug: string }) {
+  const animation = getSpecAnimation(slug);
+  const board = <SpecBoard slug={slug} />;
+
+  return (
+    <div className="space-y-6">
+      {animation ? (
+        <SequencePlayer key={animation.id} sequence={animation} />
+      ) : null}
+      {board}
+    </div>
+  );
 }
