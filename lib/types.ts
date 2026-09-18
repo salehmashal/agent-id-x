@@ -114,19 +114,62 @@ export interface Spec {
   agentAdjacentNote?: string;
 }
 
+/** Payload chip on a sequence hop. from-spec = protocol noun; illustrative = example value. */
+export type ChipSource = "from-spec" | "illustrative";
+
+export interface PayloadChip {
+  label: string;
+  source: ChipSource;
+  hint?: string;
+}
+
+export function specChip(label: string, hint?: string): PayloadChip {
+  return hint
+    ? { label, source: "from-spec", hint }
+    : { label, source: "from-spec" };
+}
+
+export function egChip(label: string, hint?: string): PayloadChip {
+  return hint
+    ? { label, source: "illustrative", hint }
+    : { label, source: "illustrative" };
+}
+
 export interface FlowStep {
   from: string;
   to: string;
+  /** Who sends what, to whom — short hop label. */
   action: string;
   note?: string;
   /** Optional hop length for the animated sequence player. */
   durationMs?: number;
+  /** Why this hop exists (one sentence). */
+  why?: string;
+  /** One-line site metaphor (pass / wax seal / photocopy / glued-to-a-key). */
+  caption?: string;
+  /** Short RFC or draft name shown on the hop, e.g. RFC 7636. */
+  citation?: string;
+  /** Payload chips: codes, token typ, header names. */
+  chips?: PayloadChip[];
+  /** Sticky “now” line: plain language plus the spec term. */
+  now?: string;
+  chapter?: string;
+  challenge?: boolean;
+  fail?: boolean;
+  /** Tokens that appear on an actor after this hop (actor = FlowStep name). */
+  held?: { actor: string; label: string }[];
 }
 
 export interface AgentFlow {
   slug: string;
   title: string;
   summary: string;
+  /** Protocol or cluster name for the sequence title, e.g. OAuth 2.1. */
+  protocol?: string;
+  /** Question this sequence answers. */
+  question?: string;
+  /** Line shown when the last hop of a loop finishes. */
+  takeaway?: string;
   pattern:
     | "user-delegated"
     | "p2p"
@@ -180,7 +223,8 @@ export type ProtocolFit = "primary" | "optional" | "anti-pattern";
 
 /**
  * A protocol (or named anti-practice) that applies to a deployment pattern.
- * Prefer `slug` so the UI can link into `/specs/[slug]`. Unknown slugs are skipped at render.
+ * Prefer `slug` so the UI can link into `/specs/[slug]`.
+ Unknown slugs are skipped at render.
  */
 export interface PatternProtocol {
   slug?: string;
