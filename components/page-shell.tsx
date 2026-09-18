@@ -37,3 +37,37 @@ export function PageLead({ children }: { children: ReactNode }) {
     </p>
   );
 }
+
+/** Numbered home-map block: one memorable sentence, then the board. */
+export function MapSection({
+  id,
+  index,
+  title,
+  remember,
+  children,
+}: {
+  id?: string;
+  index: string;
+  title: string;
+  remember: string;
+  children: ReactNode;
+}) {
+  return (
+    <section id={id} className="mt-16 scroll-mt-24 md:mt-20">
+      <header className="mb-6 flex gap-4 border-b border-dashed border-border pb-4">
+        <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-brass">
+          {index}
+        </p>
+        <div className="min-w-0">
+          <h2 className="font-heading text-2xl leading-tight md:text-3xl">
+            {title}
+          </h2>
+          <p className="mt-2 max-w-2xl text-base leading-relaxed text-foreground/85">
+            {remember}
+          </p>
+        </div>
+      </header>
+      {children}
+    </section>
+  );
+}
