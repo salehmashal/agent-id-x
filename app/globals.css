@@ -193,3 +193,30 @@
   line-height: 1.7;
   color: var(--foreground);
 }
+
+@keyframes sequence-challenge-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 oklch(0.5 0.18 25 / 0);
+  }
+  50% {
+    box-shadow: 0 0 0 6px oklch(0.5 0.18 25 / 0.28);
+  }
+}
+
+.sequence-challenge {
+  animation: sequence-challenge-pulse 1.2s ease-in-out infinite;
+}
+
+.sequence-packet {
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sequence-challenge {
+    animation: none;
+  }
+  .sequence-packet {
+    transition: none !important;
+  }
+}
