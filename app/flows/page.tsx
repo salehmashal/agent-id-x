@@ -25,9 +25,10 @@ export default function FlowsIndexPage() {
       <PageLead>
         Sequence-style walkthroughs of the patterns that show up in design
         reviews: user-delegated API calls, AAuth p2p modes, MCP as an OAuth
-        client, A2A, on-behalf-of chaining, CIBA, and workload-plus-user. For
-        the other cut — how the agent is deployed, and which protocols attach to
-        that runtime — see{" "}
+        client, A2A, on-behalf-of chaining, CIBA, and workload-plus-user. Each
+        flow page plays an animated sequence from the same steps, then a
+        transcript. For the other cut — how the agent is deployed, and which
+        protocols attach to that runtime — see{" "}
         <Link
           href="/patterns"
           className="text-primary underline decoration-primary/40 underline-offset-4 hover:decoration-primary"
