@@ -76,7 +76,7 @@ Internet-Drafts expire, get renamed, and move from individual to working-group t
 - MCP: [modelcontextprotocol.io](https://modelcontextprotocol.io/)
 - A2A: [a2a-protocol.org](https://a2a-protocol.org/)
 
-The copy in this repo was researched **15 September 2026**. AAuth draft-10 versus the editor’s copy already disagreed on four vs five access modes; that kind of drift will continue.
+The copy in this repo was researched **15 September 2026** and re-checked **22 September 2026**. Datatracker I-Ds in this window did not pick up new revision numbers. AAuth's editor's copy and R3 HTML moved from 14 September to 20 September 2026; `draft-ietf-oauth-rfc7523bis-11` advanced in the RFC Editor queue to In Progress (First Edit) without an RFC number. AAuth draft-10 versus the editor's copy still disagrees on four vs five access modes. That kind of drift will continue.
 
 ## Search / indexing
 
