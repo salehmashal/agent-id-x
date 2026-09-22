@@ -14,7 +14,7 @@ export const aauthSpecs: Spec[] = [
     layer: "mixed",
     relevance: "agent-specific",
     featured: true,
-    aliases: ["aauth protocol", "agent authorization", "draft-hardt-oauth-aauth"],
+    aliases: ["aauth protocol", "agent authorization", "draft-hardt-oauth-aauth", "p2p"],
     problem:
       "OAuth 2.0 and OpenID Connect assume pre-registered clients, browser redirects, bearer tokens, and static scopes. Agents discover resources at runtime, need their own cryptographic identity (not just a client_id minted by each AS), must prove possession of a key on every call, and often need mid-task human governance that cannot be reduced to a scope string.",
     identityVsAuthnVsAuthz:
@@ -67,7 +67,7 @@ export const aauthSpecs: Spec[] = [
       "mcp-auth",
     ],
     implementerNotes:
-      "Individual Internet-Draft: not a WG document, not endorsed by the IETF, no RFC number. Draft-10 (6 August 2026) describes four resource access modes. The editor's copy and aauth.dev describe five (adding person-identity) — treat the datatracker HTML as the published snapshot and the editor's copy as moving. Replaces earlier draft-hardt-aauth-protocol. Complements OAuth: where pre-registered clients and bearer tokens work, keep them. Implementations exist (TypeScript @aauth/*, .NET samples) but several features (call chaining, four-party federation) were still incomplete in the JS packages at research time. Do not implement from blog posts; read the draft.",
+      "Individual Internet-Draft: not a WG document, not endorsed by the IETF, no RFC number. Draft-10 (6 August 2026) describes four resource access modes. The editor's copy (published 20 September 2026, expires 24 March 2027) and aauth.dev describe five (adding person-identity) — treat the datatracker HTML as the published snapshot and the editor's copy as moving. Replaces earlier draft-hardt-aauth-protocol. Complements OAuth: where pre-registered clients and bearer tokens work, keep them. Implementations exist (TypeScript @aauth/*, .NET samples) but several features (call chaining, four-party federation) were still incomplete in the JS packages at research time. Do not implement from blog posts; read the draft.",
     whyAgentCares:
       "This is the draft people mean by 'AAuth'. It is the most complete attempt at agent-native identity plus authorization that still reuses OIDC claim vocabulary and HTTP. If you are evaluating whether agents can skip OAuth client registration, start here — and stay honest that it is an individual draft.",
     urls: [
@@ -142,7 +142,7 @@ export const aauthSpecs: Spec[] = [
     id: "draft-hardt-aauth-r3 (editor's copy; exploratory)",
     status: "individual-draft",
     stability: "draft",
-    date: "14 September 2026 (editor's copy)",
+    date: "20 September 2026 (editor's copy)",
     authors: "D. Hardt",
     org: "IETF",
     layer: "authz",
@@ -161,7 +161,7 @@ export const aauthSpecs: Spec[] = [
     ],
     related: ["aauth", "rar", "mcp-auth"],
     implementerNotes:
-      "Marked exploratory on aauth.dev. Confirm whether a given revision is on the datatracker; the canonical HTML at research time was the editor's copy. Do not confuse with OAuth RAR (RFC 9396), which is the stable structured-scope mechanism inside vanilla OAuth.",
+      "Editor's copy dated 20 September 2026 (expires 24 March 2027) still marks Status: Exploratory Draft. Confirm whether a given revision is on the datatracker; the canonical HTML at research time was the editor's copy. Do not confuse with OAuth RAR (RFC 9396), which is the stable structured-scope mechanism inside vanilla OAuth.",
     whyAgentCares:
       "If you want consent over 'create_invoice(amount=…)' rather than 'scope=invoices', this is the AAuth-shaped design. MCP tool lists are the obvious vocabulary.",
     urls: [
