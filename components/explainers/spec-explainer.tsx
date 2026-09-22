@@ -8,7 +8,9 @@ import {
   McpBoard,
   OidcBoard,
 } from "@/components/explainers/spec-boards";
+import { ShareBar } from "@/components/share-bar";
 import { getSpecAnimation, specHasAnimation } from "@/lib/animations";
+import type { ShareTarget } from "@/lib/share";
 
 const MAIN_BOARDS = new Set([
   "aauth",
@@ -48,14 +50,26 @@ function SpecBoard({ slug }: { slug: string }) {
   }
 }
 
-export function SpecExplainer({ slug }: { slug: string }) {
+export function SpecExplainer({
+  slug,
+  share,
+}: {
+  slug: string;
+  share?: ShareTarget;
+}) {
   const animation = getSpecAnimation(slug);
   const board = <SpecBoard slug={slug} />;
 
   return (
     <div className="space-y-6">
       {animation ? (
-        <SequencePlayer key={animation.id} sequence={animation} />
+        <SequencePlayer
+          key={animation.id}
+          sequence={animation}
+          share={share}
+        />
+      ) : share ? (
+        <ShareBar path={share.path} title={share.title} />
       ) : null}
       {board}
     </div>
