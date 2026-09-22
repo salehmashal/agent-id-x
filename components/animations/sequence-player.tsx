@@ -16,6 +16,7 @@ import {
   type ReactNode,
 } from "react";
 import { InOneBoard, Pass, Piece } from "@/components/explainers/shared";
+import { ShareBar } from "@/components/share-bar";
 import { Button } from "@/components/ui/button";
 import { boardFocusClass } from "@/lib/identity-visuals";
 import type {
@@ -25,6 +26,7 @@ import type {
   ProtocolAnimation,
 } from "@/lib/animations";
 import { DEFAULT_DURATION_MS } from "@/lib/animations";
+import { parseHopParam, replaceHopQuery, type ShareTarget } from "@/lib/share";
 import { cn } from "@/lib/utils";
 
 const SPEEDS = [0.5, 1, 2] as const;
@@ -155,11 +157,13 @@ export function SequencePlayer({
   autoPlay = true,
   compact = false,
   footer,
+  share,
 }: {
   sequence: ProtocolAnimation;
   autoPlay?: boolean;
   compact?: boolean;
   footer?: ReactNode;
+  share?: ShareTarget | null;
 }) {
   const reduced = usePrefersReducedMotion();
   const steps = sequence.steps;
@@ -192,11 +196,25 @@ export function SequencePlayer({
   }, [reduced]);
 
   useEffect(() => {
+    const index = parseHopParam(
+      new URLSearchParams(window.location.search).get("hop"),
+      stepCount,
+    );
+    if (index != null) {
+      stepIndexRef.current = index;
+      setStepIndex(index);
+      const p = reduced ? 1 : 0;
+      progressRef.current = p;
+      setProgress(p);
+      playingRef.current = false;
+      setPlaying(false);
+      return;
+    }
     setStepIndex(0);
     setProgress(reduced ? 1 : 0);
     progressRef.current = reduced ? 1 : 0;
     setPlaying(autoPlay && !reduced);
-  }, [sequence.id, autoPlay, reduced]);
+  }, [sequence.id, autoPlay, reduced, stepCount]);
 
   const registerActor = useCallback((id: string, node: HTMLElement | null) => {
     if (node) actorNodes.current.set(id, node);
@@ -304,6 +322,7 @@ export function SequencePlayer({
     setProgress(p);
     playingRef.current = startPlaying && !reduced;
     setPlaying(startPlaying && !reduced);
+    if (share?.path) replaceHopQuery(next + 1);
   }
 
   if (!step) return null;
@@ -475,6 +494,20 @@ export function SequencePlayer({
               {String(index + 1).padStart(2, "0")}
             </button>
           ))}
+        </div>
+      ) : null}
+
+      {share?.path ? (
+        <div className="mt-3">
+          <ShareBar
+            path={share.path}
+            title={share.title}
+            hop={{
+              number: stepIndex + 1,
+              now: step.action,
+              caption: step.note,
+            }}
+          />
         </div>
       ) : null}
 
