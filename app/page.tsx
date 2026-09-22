@@ -32,14 +32,24 @@ export default function HomePage() {
         AI agent identity, authentication, and authorization
       </PageTitle>
       <PageLead>
-        <span className="block leading-snug">Who is the user?</span>
-        <span className="block leading-snug">Who is the agent?</span>
-        <span className="block leading-snug">Which binary?</span>
-        <span className="block leading-snug">Which API?</span>
-        <span className="mt-3 block">
-          If those are four questions, not one, you can survive OAuth, MCP, and
-          AAuth. That is what this landscape is for.
-        </span>
+        <p>
+          <span className="block leading-snug">Who is the user?</span>
+          <span className="block leading-snug">Who is the agent?</span>
+          <span className="block leading-snug">Which binary?</span>
+          <span className="block leading-snug">Which API?</span>
+        </p>
+        <p>
+          If those collapse into one token, agent auth is already wrong. This
+          site is a <strong>map of the RFCs and drafts</strong> people mean by
+          OAuth 2.1, OIDC, AAuth, MCP, A2A, SPIFFE, and WIMSE: what each one is
+          for, how they nest, and which <strong>door</strong> you are in
+          (delegated OAuth vs AAuth p2p vs A2A vs did:peer).
+        </p>
+        <p>
+          <strong>Look for:</strong> the four seats below, then the four doors,
+          then a spec page when you need the hop-by-hop flow. Not a new
+          protocol. Not legal advice.
+        </p>
       </PageLead>
 
       <div className="mt-8 flex flex-wrap items-center gap-x-3 gap-y-2">

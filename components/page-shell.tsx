@@ -32,9 +32,9 @@ export function PageTitle({ children }: { children: ReactNode }) {
 
 export function PageLead({ children }: { children: ReactNode }) {
   return (
-    <p className="prose-study mt-4 text-base text-foreground/80 md:text-lg">
+    <div className="prose-study mt-4 space-y-4 text-base text-foreground/80 md:text-lg">
       {children}
-    </p>
+    </div>
   );
 }
 
