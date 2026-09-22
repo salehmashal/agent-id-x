@@ -4,7 +4,7 @@
 
 Site: https://agent-id-x.demooie.com
 Source: https://github.com/salehmashal/agent-id-x
-Research as of: 18 September 2026
+Research as of: 22 September 2026
 
 ## Map
 
