@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { Ban, Fingerprint, GitCompare, KeyRound } from "lucide-react";
 import { PageKicker, PageLead, PageShell, PageTitle } from "@/components/page-shell";
+import { ShareBar } from "@/components/share-bar";
 import { compares } from "@/lib/compares";
+import { ROUTE_META } from "@/lib/seo";
 
 export const metadata = {
   title: "Compare",
@@ -26,6 +28,9 @@ export default function CompareIndexPage() {
         is not OAuth, how AAuth differs from vanilla OAuth, and what people
         mean by p2p versus user-delegated agents.
       </PageLead>
+      <div className="mt-6">
+        <ShareBar path="/compare" title={ROUTE_META.compare.title} />
+      </div>
       <ul className="mt-8 grid gap-4 md:grid-cols-2">
         {compares.map((item) => {
           const Icon =

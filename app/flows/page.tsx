@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { PageKicker, PageLead, PageShell, PageTitle } from "@/components/page-shell";
+import { ShareBar } from "@/components/share-bar";
 import { flows } from "@/lib/flows";
+import { ROUTE_META } from "@/lib/seo";
 
 export const metadata = {
   title: "Flows",
@@ -37,6 +39,9 @@ export default function FlowsIndexPage() {
         </Link>
         .
       </PageLead>
+      <div className="mt-6">
+        <ShareBar path="/flows" title={ROUTE_META.flows.title} />
+      </div>
       <ul className="mt-8 grid gap-4 md:grid-cols-2">
         {flows.map((flow) => (
           <li key={flow.slug}>

@@ -4,6 +4,7 @@ import { MetaphorLegend } from "@/components/explainers/shared";
 import { PrincipalsBoard } from "@/components/explainers/principals-board";
 import { JsonLd } from "@/components/json-ld";
 import { LandscapeMap } from "@/components/landscape-map";
+import { ShareBar } from "@/components/share-bar";
 import {
   MapSection,
   PageKicker,
@@ -14,7 +15,7 @@ import {
 import { SpecCard } from "@/components/spec-card";
 import { buttonVariants } from "@/components/ui/button";
 import { GitBranch, LayoutGrid, Library } from "lucide-react";
-import { faqPageJsonLd, HOME_FAQ, pageMetadata, ROUTE_META } from "@/lib/seo";
+import { faqPageJsonLd, HOME_FAQ, HOME_TITLE, pageMetadata, ROUTE_META } from "@/lib/seo";
 import { featuredSpecs, SPEC_COUNT } from "@/lib/specs";
 import { mentalModel } from "@/lib/mental-model";
 import { cn } from "@/lib/utils";
@@ -90,6 +91,9 @@ export default function HomePage() {
         title="How the specs nest"
         remember="OAuth is the basement. Agent drafts are the attic. Do not skip floors."
       >
+        <div className="mb-4">
+          <ShareBar path="/" title={HOME_TITLE} />
+        </div>
         <LandscapeMap />
       </MapSection>
 

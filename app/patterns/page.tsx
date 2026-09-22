@@ -4,12 +4,14 @@ import { PatternMatrix } from "@/components/pattern-matrix";
 import { PatternPicker } from "@/components/pattern-picker";
 import { PatternSection } from "@/components/pattern-section";
 import { PageKicker, PageLead, PageShell, PageTitle } from "@/components/page-shell";
+import { ShareBar } from "@/components/share-bar";
 import {
   PATTERN_COUNT,
   patternScopeNotes,
   patterns,
   resolveSpec,
 } from "@/lib/patterns";
+import { ROUTE_META } from "@/lib/seo";
 import { RESEARCH_AS_OF } from "@/lib/types";
 
 export const metadata = {
@@ -38,6 +40,10 @@ export default function PatternsPage() {
         you are not sure which row you are on, the picker names the shape — it
         does not score you.
       </PageLead>
+
+      <div className="mt-6">
+        <ShareBar path="/patterns" title={ROUTE_META.patterns.title} />
+      </div>
 
       <div className="mt-8">
         <PatternPicker />
