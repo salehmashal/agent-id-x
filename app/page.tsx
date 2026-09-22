@@ -47,8 +47,7 @@ export default function HomePage() {
         </p>
         <p>
           <strong>Look for:</strong> the four seats below, then the four doors,
-          then a spec page when you need the hop-by-hop flow. Not a new
-          protocol. Not legal advice.
+          then a spec page when you need the hop-by-hop flow.
         </p>
       </PageLead>
 
