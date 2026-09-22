@@ -1,5 +1,5 @@
 export const mentalModel = {
-  asOf: "15 September 2026",
+  asOf: "22 September 2026",
   identities: [
     {
       name: "User / person / resource owner",
@@ -150,7 +150,7 @@ export const mentalModel = {
       kind: "Individual drafts — expect churn",
       line: "The table of modes will move. Pin a snapshot.",
       examples:
-        "AAuth (draft-10 vs editor's five-mode copy), HTTP Signature Keys, AAuth R3, agent-grants, AAP, WIMSE AI-agent identity (expired 1 Sep 2026, not renewed).",
+        "AAuth (draft-10 vs editor's five-mode copy dated 20 Sep 2026), HTTP Signature Keys, AAuth R3 (editor's copy 20 Sep 2026), agent-grants, AAP, WIMSE AI-agent identity (expired 1 Sep 2026, not renewed).",
     },
     {
       kind: "Vendor / foundation protocols",
@@ -163,6 +163,6 @@ export const mentalModel = {
 
 export const landscapeNotes = {
   aauth:
-    "AAuth is draft-hardt-oauth-aauth-protocol (rev 10, 6 August 2026), an individual IETF Internet-Draft by Dick Hardt. It is not draft-oauth-aauth as a working-group item and it is not an RFC. It gives every HTTP client a cryptographic identity. The published snapshot defines four resource access modes (identity-based, resource-managed two-party, PS-asserted three-party, federated four-party) plus optional missions. The editor's copy (September 2026) adds a fifth mode — person-identity — and aa-person+jwt. It builds on RFC 9421 and draft-hardt-httpbis-signature-key-09. It reuses OIDC claim vocabulary and says it complements OAuth rather than replacing it.",
+    "AAuth is draft-hardt-oauth-aauth-protocol (rev 10, 6 August 2026), an individual IETF Internet-Draft by Dick Hardt. It is not draft-oauth-aauth as a working-group item and it is not an RFC. It gives every HTTP client a cryptographic identity. The published snapshot defines four resource access modes (identity-based, resource-managed two-party, PS-asserted three-party, federated four-party) plus optional missions. The editor's copy (published 20 September 2026) adds a fifth mode — person-identity — and aa-person+jwt. It builds on RFC 9421 and draft-hardt-httpbis-signature-key-09. It reuses OIDC claim vocabulary and says it complements OAuth rather than replacing it.",
   p2p: "There is no current IETF RFC or WG draft whose title is simply 'P2P' in the AAuth cluster. When people list 'aauth, p2p, OIDC, OAuth 2.1' they usually mean AAuth's identity-based and two-party modes: the agent and the resource speak directly, with HTTP Message Signatures, without an authorization server in the path. Identity-based: the resource decides from the agent token alone. Two-party (resource-managed): the resource runs its own login and issues an opaque session bound to the agent's key. Separate meanings you will also hear, and must keep apart: (a) A2A agent-to-agent task protocol — Agent Cards and out-of-band HTTP auth, not AAuth signatures; (b) did:peer + DIDComm pairwise identity — not globally resolvable, not for a stranger's first HTTP call. The editor's AAuth person-identity mode is a fifth access mode that carries a user identifier without a grant — federated login, not identity-based p2p. This site labels those explicitly so they are not mashed together.",
 };
