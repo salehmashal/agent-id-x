@@ -53,7 +53,13 @@ export default async function FlowDetailPage({
       <section className="mt-8">
         <h2 className="font-heading text-lg">Sequence</h2>
         <div className="mt-4">
-          <SequencePlayer sequence={animationFromFlow(flow)} />
+          <SequencePlayer
+            sequence={animationFromFlow(flow)}
+            share={{
+              path: `/flows/${flow.slug}`,
+              title: flow.title,
+            }}
+          />
         </div>
         <h3 className="mt-8 font-heading text-base">Transcript</h3>
         <div className="mt-4">

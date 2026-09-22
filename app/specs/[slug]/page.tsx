@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SpecExplainer, isMainExplainerSpec } from "@/components/explainers/spec-explainer";
 import { PageKicker, PageShell } from "@/components/page-shell";
+import { ShareBar } from "@/components/share-bar";
 import { SpecDeepDiveGuide } from "@/components/spec-deep-dive";
 import {
   LayerBadge,
@@ -60,6 +61,10 @@ export default async function SpecDetailPage({
   if (!spec) notFound();
   const related = relatedSpecs(spec);
   const dive = spec.deepDive;
+  const share = {
+    path: `/specs/${spec.slug}`,
+    title: `${spec.shortName} (${spec.id})`,
+  };
 
   return (
     <PageShell>
@@ -130,9 +135,13 @@ export default async function SpecDetailPage({
 
       {isMainExplainerSpec(spec.slug) ? (
         <div className="mt-8">
-          <SpecExplainer slug={spec.slug} />
+          <SpecExplainer slug={spec.slug} share={share} />
         </div>
-      ) : null}
+      ) : (
+        <div className="mt-6">
+          <ShareBar path={share.path} title={share.title} />
+        </div>
+      )}
 
       {spec.agentAdjacentNote ? (
         <section className="mt-8 rounded-xl border border-agent/35 bg-agent/10 p-5">

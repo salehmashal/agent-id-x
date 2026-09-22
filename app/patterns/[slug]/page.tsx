@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PatternSection } from "@/components/pattern-section";
 import { PageKicker, PageShell } from "@/components/page-shell";
+import { ShareBar } from "@/components/share-bar";
 import { getPattern, patterns } from "@/lib/patterns";
 import { buttonVariants } from "@/components/ui/button";
 
@@ -42,6 +43,12 @@ export default async function PatternDetailPage({
           All patterns
         </Link>
       </p>
+      <div className="mt-4">
+        <ShareBar
+          path={`/patterns/${pattern.slug}`}
+          title={pattern.title}
+        />
+      </div>
       <div className="mt-6">
         <PatternSection pattern={pattern} titleAs="h1" />
       </div>

@@ -5,6 +5,7 @@ import { FourCousinsBoard } from "@/components/explainers/four-cousins-board";
 import { Oauth21Board } from "@/components/explainers/oauth-21-board";
 import { OidcBoard } from "@/components/explainers/spec-boards";
 import { PageKicker, PageShell } from "@/components/page-shell";
+import { ShareBar } from "@/components/share-bar";
 import { compares, getCompare } from "@/lib/compares";
 import { getSpec } from "@/lib/specs";
 
@@ -51,6 +52,13 @@ export default async function ComparePairPage({
       <p className="mt-4 max-w-3xl text-base leading-relaxed text-muted-foreground">
         {view.subtitle}
       </p>
+
+      <div className="mt-6">
+        <ShareBar
+          path={`/compare/${view.slug}`}
+          title={view.title}
+        />
+      </div>
 
       <div className="mt-8">
         <CompareExplainer slug={view.slug} />
