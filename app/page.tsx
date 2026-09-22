@@ -13,11 +13,10 @@ import {
 } from "@/components/page-shell";
 import { SpecCard } from "@/components/spec-card";
 import { buttonVariants } from "@/components/ui/button";
-import { GitBranch, Library, Users } from "lucide-react";
+import { GitBranch, LayoutGrid, Library } from "lucide-react";
 import { faqPageJsonLd, HOME_FAQ, pageMetadata, ROUTE_META } from "@/lib/seo";
 import { featuredSpecs, SPEC_COUNT } from "@/lib/specs";
 import { mentalModel } from "@/lib/mental-model";
-import { RESEARCH_AS_OF } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 export const metadata = pageMetadata(ROUTE_META.home);
@@ -33,22 +32,24 @@ export default function HomePage() {
         AI agent identity, authentication, and authorization
       </PageTitle>
       <PageLead>
-        What people search for when they say <em>AAuth</em>,{" "}
-        <em>OAuth 2.1</em>, and <em>OIDC</em> in the same breath: which
-        documents they mean, how those documents nest, and what is stable versus
-        draft. Four principals. Four doors called p2p. {SPEC_COUNT} documents,
-        researched {RESEARCH_AS_OF} — a map, not a course, and not a substitute
-        for the source.
+        <span className="block leading-snug">Who is the user?</span>
+        <span className="block leading-snug">Who is the agent?</span>
+        <span className="block leading-snug">Which binary?</span>
+        <span className="block leading-snug">Which API?</span>
+        <span className="mt-3 block">
+          If those are four questions, not one, you can survive OAuth, MCP, and
+          AAuth. That is what this landscape is for.
+        </span>
       </PageLead>
 
       <div className="mt-8 flex flex-wrap items-center gap-x-3 gap-y-2">
-        <Link href="#principals" className={buttonVariants()}>
-          <Users />
-          Four principals
-        </Link>
-        <Link href="/catalog" className={buttonVariants({ variant: "outline" })}>
+        <Link href="/catalog" className={buttonVariants()}>
           <Library />
           Open the catalog
+        </Link>
+        <Link href="/patterns" className={buttonVariants({ variant: "outline" })}>
+          <LayoutGrid />
+          Open the patterns
         </Link>
         <Link
           href="/flows/user-delegated-api"
