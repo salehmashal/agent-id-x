@@ -87,7 +87,7 @@ export const flows: AgentFlow[] = [
     ],
     specs: ["aauth", "http-signature-keys", "http-message-signatures"],
     caveats:
-      "The resource learns who the agent is, not necessarily which human it serves. For user claims, step up to two-party interaction or three-party PS-asserted mode. Individual draft — pin a revision. Draft-10 has four modes; the editor's copy adds person-identity as a fifth.",
+      "The resource learns who the agent is, not necessarily which human it serves. For a person identifier without a grant, use draft-11 person identity. For a grant, use PS authorization. Individual draft — pin draft-11. Five modes, not draft-10's four.",
     detail: [
       "This is the AAuth meaning of p2p: agent and resource, no authorization server, no person server. It is as complete as AAuth two-party for the identity question and weaker for the user question.",
       "It is not A2A (no Agent Card, no tasks). It is not did:peer (the identifier is published at a well-known URL so a stranger can verify a first request). It is not OAuth client-credentials (no client_id, no Bearer access token).",
@@ -132,7 +132,7 @@ export const flows: AgentFlow[] = [
     ],
     specs: ["aauth", "http-signature-keys", "oidc-core"],
     caveats:
-      "The resource may wrap an ordinary OAuth token inside the opaque session. Two-party is 'p2p' in the sense of agent↔resource, not in the DIDComm sense. Editor's copy calls the opaque credential a session token (session-token) rather than aauth-access-token.",
+      "The resource may wrap an ordinary OAuth token inside the opaque session. Two-party is 'p2p' in the sense of agent↔resource, not in the DIDComm sense. Draft-11 calls the opaque credential a session token (session-token) and returns it in AAuth-Access.",
     detail: [
       "Compare with identity-based: both are two HTTP parties and no AS. Identity-based stops at 'I know this agent'. Two-party adds 'the resource ran its own consent and issued a session bound to the agent's key'. Stolen session without the signing key should not replay.",
       "Compare with A2A: the resource here is an HTTP API, not an A2A server advertising skills. Compare with did:peer: the resource may never have seen the agent before; discovery is a 401 AAuth-Requirement, not an exchanged DID document.",
@@ -257,12 +257,12 @@ export const flows: AgentFlow[] = [
       {
         from: "Resource",
         to: "Agent",
-        action: "401 requirement=auth-token plus resource token (aud = PS)",
+        action: "401 requirement=auth-token plus resource token (aud = PS). Draft-11 sends this only after a person token or an auth token was verified; otherwise the challenge is requirement=person-token",
       },
       {
         from: "Agent",
         to: "Person server",
-        action: "Signed POST of the resource token to token_endpoint",
+        action: "Signed POST of the resource token to the person-server auth_token_endpoint",
         note: "May 202 + interaction if the user must approve a mission or scope",
       },
       {
@@ -278,7 +278,7 @@ export const flows: AgentFlow[] = [
     ],
     specs: ["aauth", "http-signature-keys", "oidc-core"],
     caveats:
-      "sub is directed per issuer. The same email from two person servers is two subjects. Draft-10 vs editor's copy may differ on person tokens and a fifth mode. Editor's copy splits token_endpoint into person_token_endpoint and auth_token_endpoint.",
+      "sub is directed per issuer. The same email from two person servers is two subjects. Draft-11 has five modes, including person identity, and splits the old token_endpoint into person_token_endpoint and auth_token_endpoint. A resource token is issued only after a person token or auth token has been verified.",
     detail: [
       "This is user-delegated AAuth, not p2p. The agent still signs every HTTP call; the grant comes from the PS as aa-auth+jwt (≤ 1 hour, cnf-bound to the agent key, aud = resource).",
       "Four-party adds a resource-side access server. The agent still only talks to the resource and its PS; the PS federates. That federation is not OpenID Federation and not OAuth identity chaining.",
