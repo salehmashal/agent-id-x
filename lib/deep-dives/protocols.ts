@@ -3,7 +3,7 @@ import type { SpecDeepDive } from "@/lib/types";
 export const protocolDeepDives: Record<string, SpecDeepDive> = {
   "mcp-auth": {
     agentGap: [
-      "An MCP client (often an agent host) must access a restricted MCP server on behalf of a resource owner over HTTP, without inventing a proprietary token scheme. The 2026-07-28 specification — still current when fetched 15 September 2026 — makes the MCP server an OAuth 2.1 resource server and the MCP client an OAuth 2.1 client.",
+      "An MCP client (often an agent host) must access a restricted MCP server on behalf of a resource owner over HTTP, without inventing a proprietary token scheme. The 2026-07-28 specification — still current when fetched 8 October 2026 — makes the MCP server an OAuth 2.1 resource server and the MCP client an OAuth 2.1 client.",
       "This is how most 'ChatGPT/Claude/Cursor calls my tools' auth actually works in 2026: vanilla OAuth 2.1 plus protected resource metadata. It does not give the MCP server an independent agent identity for the model — only a client token for the host. Stdio transports SHOULD NOT use this profile; they take credentials from the environment.",
     ],
     trustBoundaries: [
@@ -86,7 +86,7 @@ export const protocolDeepDives: Record<string, SpecDeepDive> = {
       },
     ],
     stabilityDetail: [
-      "Not an RFC. MCP specification revision 2026-07-28 is current as of 15 September 2026. Vendor/protocol stability: the MCP steering process versions independently of the IETF. https://modelcontextprotocol.io/specification/2026-07-28/basic/authorization — ship this profile for HTTP MCP; pin the revision date.",
+      "Not an RFC. MCP specification revision 2026-07-28 is current as of 8 October 2026. Vendor/protocol stability: the MCP steering process versions independently of the IETF. https://modelcontextprotocol.io/specification/2026-07-28/basic/authorization — ship this profile for HTTP MCP; pin the revision date.",
     ],
   },
   a2a: {
