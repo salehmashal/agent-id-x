@@ -8,7 +8,7 @@ export const protocolSpecs: Spec[] = [
     id: "MCP spec 2026-07-28 /basic/authorization",
     status: "protocol",
     stability: "vendor-protocol",
-    date: "2026-07-28 (current at research time)",
+    date: "2026-07-28 (current at 8 October 2026 research)",
     org: "MCP Steering",
     layer: "authz",
     relevance: "agent-specific",
