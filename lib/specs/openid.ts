@@ -408,7 +408,7 @@ export const openidSpecs: Spec[] = [
     ],
     related: ["openid4vp", "openid4vci", "jwt"],
     implementerNotes:
-      "IETF Last Call ended 15 September 2026. IESG state is Waiting for AD Go-Ahead — still draft-19, not an RFC. Related RFC 9901 covers generic SD-JWT. Confirm status on datatracker before citing as an RFC.",
+      "IETF Last Call ended 15 September 2026. IESG state is still Waiting for AD Go-Ahead as of 8 October 2026 — still draft-19, not an RFC. Related RFC 9901 covers generic SD-JWT. Confirm status on datatracker before citing as an RFC.",
     whyAgentCares:
       "Likely credential format if you bind an agent to an organization with selective disclosure (show role, hide home address).",
     urls: [
