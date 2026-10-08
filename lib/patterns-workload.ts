@@ -33,7 +33,7 @@ const multiHop: DeploymentPattern = {
     },
   ],
   whyThese:
-    "Inside one domain you do not need identity chaining across ASes. You do need a recorded actor (RFC 8693 act), a purpose that cannot grow (transaction tokens), and a workload identity that is re-bound at each hop (WIMSE). Agent-grants and AAP are individual OAuth profiles that try to say the same thing with extra claims — mark them draft/churn. If the fabric is AAuth, call chaining with upstream_token / subagent_token is the analogue: the sub-agent signs with its own key while nested act records the parent. Never expand scopes at a hop. Never forward the original user access token.",
+    "Inside one domain you do not need identity chaining across ASes. You do need a recorded actor (RFC 8693 act), a purpose that cannot grow (transaction tokens), and a workload identity that is re-bound at each hop (WIMSE). Agent-grants and AAP are individual OAuth profiles that try to say the same thing with extra claims — mark them draft/churn. If the fabric is AAuth, call chaining with upstream_token / subagent_token is the analogue: the sub-agent signs with its own key, and draft-11 dropped act so the person server holds the chain. Never expand scopes at a hop. Never forward the original user access token.",
   userPresent: "sometimes",
   asInPath: "yes",
   workloadIdentity: "yes",
