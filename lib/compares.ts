@@ -151,7 +151,7 @@ export const compares: CompareView[] = [
     subtitle:
       "AAuth is an individual IETF draft for agent-to-resource authorization with cryptographic client identity. It complements OAuth; it does not have an RFC number.",
     leftTitle: "Vanilla OAuth 2.x + OIDC",
-    rightTitle: "AAuth (draft-hardt-oauth-aauth-protocol-10)",
+    rightTitle: "AAuth (draft-hardt-oauth-aauth-protocol-11)",
     specSlugs: ["oauth-2-1", "oidc-core", "aauth", "http-signature-keys", "dcr"],
     rows: [
       {
@@ -191,13 +191,13 @@ export const compares: CompareView[] = [
         aspect: "Maturity",
         left: "RFCs plus a late-stage 2.1 draft. What MCP and banks actually run.",
         right:
-          "Individual Internet-Draft, not a WG item. Editor's copy is moving (four vs five access modes). Implement only with pinned revisions.",
+          "Individual Internet-Draft, not a WG item. Published snapshot is draft-11 (five access modes). Implement only with a pinned revision.",
       },
       {
         aspect: "Access modes",
         left: "Grants: authorization code, client credentials, refresh, plus extensions (CIBA, 8693, 7523).",
         right:
-          "Draft-10: four modes (identity-based, resource-managed, PS-asserted, federated). Editor's copy: five (adds person-identity). Governance (missions) is orthogonal.",
+          "Draft-11: five modes (agent identity, resource-managed, person identity, PS authorization, federated authorization). Governance (missions) is orthogonal. Draft-10's four-mode table is obsolete.",
       },
       {
         aspect: "Registration",
@@ -213,8 +213,8 @@ export const compares: CompareView[] = [
         body: "AAuth's own text says it complements OAuth. An MCP HTTP server in 2026 is still an OAuth 2.1 RS. Putting AAuth signatures on that same server is an extra profile, not what the MCP spec requires. CIMD is the OAuth WG's milder answer to 'no portal'.",
       },
       {
-        title: "Four vs five modes",
-        body: "Pin draft-10 if you need a datatracker snapshot. Pin the editor's copy if you need person tokens (aa-person+jwt) and person_token_endpoint. Interop between those two snapshots will fail on typ and endpoint names (token_endpoint vs auth_token_endpoint).",
+        title: "Pin draft-11",
+        body: "The datatracker snapshot is draft-11 (25 September 2026). It includes person tokens (aa-person+jwt), person_token_endpoint, and auth_token_endpoint. Draft-10 does not. Interop between those two snapshots fails on typ and endpoint names.",
       },
     ],
   },
@@ -292,8 +292,8 @@ export const compares: CompareView[] = [
         body: "Identity-based AAuth publishes an agent identifier at a well-known URL so a stranger can verify a first request. did:peer is deliberately not globally resolvable; the parties already exchanged DID documents. Use did:peer for private pairwise relationships; use AAuth identity-based for open-world HTTP APIs.",
       },
       {
-        title: "Editor's person-identity mode is still not 'just p2p'",
-        body: "The editor's copy adds person-identity: the resource accepts who the person is from a person server without a grant of operations. That hop has a user identifier and no AS, which confuses the delegated-vs-p2p binary. Treat it as federated login, not as identity-based agent access.",
+        title: "Person-identity is still not 'just p2p'",
+        body: "Draft-11 person identity: the resource accepts who the person is from a person server without a grant of operations. That hop has a user identifier and no AS, which confuses the delegated-vs-p2p binary. The draft calls it federated login. It is not agent-identity access.",
       },
     ],
   },
