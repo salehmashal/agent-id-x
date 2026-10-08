@@ -19,7 +19,7 @@ export default function CatalogPage() {
         draft vs related protocol), layer (identity / authentication /
         authorization), and whether the work is foundation, agent-specific, or
         adjacent. Copy is from primary sources researched 15 September 2026
-        and re-checked 22 September 2026.
+        and re-checked 8 October 2026.
       </PageLead>
 
       <Suspense
