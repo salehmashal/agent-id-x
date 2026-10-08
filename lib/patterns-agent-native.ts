@@ -223,7 +223,7 @@ const aauthP2p: DeploymentPattern = {
     ],
   },
   protocols: [
-    { slug: "aauth", fit: "primary", note: "Individual draft (draft-10 vs editor's copy). Pin a revision." },
+    { slug: "aauth", fit: "primary", note: "Individual draft-11 (five modes). Pin a revision." },
     { slug: "http-message-signatures", fit: "primary", note: "RFC 9421." },
     { slug: "http-signature-keys", fit: "primary", note: "Signature-Key header. Individual draft." },
     { slug: "aauth-r3", fit: "optional", note: "Fine-grained operations, including per-call. Individual draft." },
