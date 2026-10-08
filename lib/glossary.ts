@@ -244,7 +244,7 @@ export const glossary: GlossaryTerm[] = [
   {
     term: "Person token (AAuth)",
     definition:
-      "Editor's-copy JWT typ aa-person+jwt: a directed identifier of the person at one resource. Identifies, does not authorize. Absent from draft-10's four-mode table. Must not be accepted where an auth token is required.",
+      "Draft-11 JWT typ aa-person+jwt: a directed identifier of the person at one resource. Identifies, does not authorize. A resource MUST reject it where an auth token is required.",
     seeAlso: ["aauth"],
   },
   {
