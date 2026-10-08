@@ -76,7 +76,7 @@ Internet-Drafts expire, get renamed, and move from individual to working-group t
 - MCP: [modelcontextprotocol.io](https://modelcontextprotocol.io/)
 - A2A: [a2a-protocol.org](https://a2a-protocol.org/)
 
-The copy in this repo was researched **15 September 2026** and re-checked **22 September 2026**. Datatracker I-Ds in this window did not pick up new revision numbers. AAuth's editor's copy and R3 HTML moved from 14 September to 20 September 2026; `draft-ietf-oauth-rfc7523bis-11` advanced in the RFC Editor queue to In Progress (First Edit) without an RFC number. AAuth draft-10 versus the editor's copy still disagrees on four vs five access modes. That kind of drift will continue.
+The copy in this repo was researched **15 September 2026**, re-checked **22 September 2026**, and re-checked again **8 October 2026**. Since the September check, `draft-hardt-oauth-aauth-protocol` advanced to **-11** (25 September 2026, expires 29 March 2027): the published snapshot now has five access modes, including person identity, and no longer disagrees with the editor's copy on four versus five. `draft-hardt-aauth-r3-00` is on the datatracker (28 September 2026) and still marks itself exploratory. `draft-ni-wimse-ai-agent-identity` was renewed as **-03** (1 October 2026). `draft-ietf-oauth-rfc7523bis-11` moved from RFC Editor In Progress (First Edit) to In Progress (Second Edit), still without an RFC number. OAuth 2.1 remains `draft-ietf-oauth-v2-1-16`. MCP authorization remains 2026-07-28. That kind of drift will continue.
 
 ## Search / indexing
 
@@ -113,7 +113,7 @@ Interactive boards live in `components/explainers/`. Main spec slugs with a boar
 
 ## Named topics (short)
 
-**AAuth** is `draft-hardt-oauth-aauth-protocol-10` (6 August 2026), an **individual** Internet-Draft by Dick Hardt. It is not an RFC and not an OAuth WG document. It defines cryptographic agent identity and agent-to-resource authorization using HTTP Message Signatures. Draft-10 has four access modes; the editor's copy adds a fifth (person-identity). Pin a snapshot.
+**AAuth** is `draft-hardt-oauth-aauth-protocol-11` (25 September 2026), an **individual** Internet-Draft by Dick Hardt. It is not an RFC and not an OAuth WG document. It defines cryptographic agent identity and agent-to-resource authorization using HTTP Message Signatures. Draft-11 has five access modes, including person identity. Pin a snapshot.
 
 **P2P** is not a single I-D title in this cluster. Next to AAuth it usually means identity-based or two-party (resource-managed) access: agent and resource, no authorization server. Elsewhere it means A2A (agent-to-agent tasks) or `did:peer` / DIDComm. Those are not the same protocol.
 

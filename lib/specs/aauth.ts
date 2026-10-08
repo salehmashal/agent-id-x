@@ -5,10 +5,10 @@ export const aauthSpecs: Spec[] = [
     slug: "aauth",
     shortName: "AAuth",
     officialName: "AAuth Protocol",
-    id: "draft-hardt-oauth-aauth-protocol-10",
+    id: "draft-hardt-oauth-aauth-protocol-11",
     status: "individual-draft",
     stability: "draft",
-    date: "6 August 2026",
+    date: "25 September 2026",
     authors: "D. Hardt (Hellō)",
     org: "IETF",
     layer: "mixed",
@@ -28,7 +28,7 @@ export const aauthSpecs: Spec[] = [
       "User / person",
     ],
     flow:
-      "Identity-based (peer) mode: the agent signs the HTTP request with its agent token in Signature-Key (scheme=jwt). The resource verifies RFC 9421 signature + JWT, then applies local policy — no token exchange, no PS, no AS. Resource-managed (two-party): the resource runs its own interaction/consent and may issue an opaque session token in AAuth-Access. PS-asserted (three-party): the resource issues a resource token (aud = PS); the agent POSTs it to the PS token_endpoint; the PS returns an auth token with user claims and consent; the agent retries. Federated (four-party): the resource has its own access server; the PS federates to that AS. Orthogonal governance: missions (Markdown intent, immutable s256), permission, audit, and interaction relay through the PS. 401 responses carry AAuth-Requirement (and related AAuth-Capabilities) instead of a browser redirect.",
+      "Agent identity (the figure is still titled Identity-Based Access; this is the AAuth meaning of p2p): the agent signs the HTTP request with its agent token in Signature-Key (scheme=jwt). The resource verifies the RFC 9421 signature and the JWT, then applies local policy — no token exchange, no PS, no AS. Resource-managed (two-party): the resource runs its own interaction and may return an opaque session token in AAuth-Access. Person identity: the agent obtains aa-person+jwt from the PS person_token_endpoint and signs with that instead of the agent token. It identifies the person and does not authorize. PS authorization (three-party): a resource issues a resource token only after it has verified a person token or an auth token; otherwise it answers requirement=person-token. requirement=auth-token then carries aa-resource+jwt (aud = PS); the agent POSTs it to the PS auth_token_endpoint and retries with aa-auth+jwt in Signature-Key. Federated authorization (four-party): the resource token's audience is the resource's access server, and the PS is the only party that calls that AS. Orthogonal governance: missions (Markdown intent, immutable mission_s256), permission, audit, and interaction relay through the PS. Draft-11 dropped the act claim; the person server holds the delegation chain. 401 responses carry AAuth-Requirement (and AAuth-Capabilities) instead of a browser redirect.",
     tokensAndClaims: [
       {
         name: "aa-agent+jwt",
@@ -38,7 +38,7 @@ export const aauthSpecs: Spec[] = [
       {
         name: "aa-person+jwt",
         meaning:
-          "Directed identifier of the person at one resource. Identifies, does not authorize. Editor's copy discusses this more than draft-10's four-mode table.",
+          "Directed identifier of the person at one resource (draft-11 person-identity mode). Identifies, does not authorize. A resource MUST reject it where an auth token is required.",
       },
       {
         name: "aa-resource+jwt",
@@ -48,7 +48,7 @@ export const aauthSpecs: Spec[] = [
       {
         name: "aa-auth+jwt",
         meaning:
-          "The grant. Carries user claims (sub, optional email/tenant/groups/roles) and consented scope or R3 grants. Bound to the agent's key.",
+          "The grant. Required aud, ps, and a directed sub, bound to the agent's key. No agent identifier and no act chain. Optional scope, mission_s256, tenant, or R3 grants.",
       },
       {
         name: "AAuth-Requirement / AAuth-Access / AAuth-Capabilities",
@@ -67,7 +67,7 @@ export const aauthSpecs: Spec[] = [
       "mcp-auth",
     ],
     implementerNotes:
-      "Individual Internet-Draft: not a WG document, not endorsed by the IETF, no RFC number. Draft-10 (6 August 2026) describes four resource access modes. The editor's copy (published 20 September 2026, expires 24 March 2027) and aauth.dev describe five (adding person-identity) — treat the datatracker HTML as the published snapshot and the editor's copy as moving. Replaces earlier draft-hardt-aauth-protocol. Complements OAuth: where pre-registered clients and bearer tokens work, keep them. Implementations exist (TypeScript @aauth/*, .NET samples) but several features (call chaining, four-party federation) were still incomplete in the JS packages at research time. Do not implement from blog posts; read the draft.",
+      "Individual Internet-Draft: not a WG document, not endorsed by the IETF, no RFC number. Published snapshot is draft-11 (25 September 2026, expires 29 March 2027) and defines five resource access modes: agent identity, resource-managed (two-party), person identity, PS authorization (three-party), and federated authorization (four-party). Person tokens and auth_token_endpoint (renamed from token_endpoint) are in that snapshot; draft-10's four-mode table is obsolete. The editor HTML was regenerated 3 October 2026 (expires 6 April 2027); the protocol markdown last changed with the -11 submission, so pin draft-11. Replaces earlier draft-hardt-aauth-protocol. Complements OAuth: where pre-registered clients and bearer tokens work, keep them. Implementations exist (TypeScript @aauth/*, .NET samples); several features were still incomplete in the JS packages at the September 2026 research pass. Do not implement from blog posts; read the draft.",
     whyAgentCares:
       "This is the draft people mean by 'AAuth'. It is the most complete attempt at agent-native identity plus authorization that still reuses OIDC claim vocabulary and HTTP. If you are evaluating whether agents can skip OAuth client registration, start here — and stay honest that it is an individual draft.",
     urls: [
@@ -76,8 +76,8 @@ export const aauthSpecs: Spec[] = [
         href: "https://datatracker.ietf.org/doc/draft-hardt-oauth-aauth-protocol/",
       },
       {
-        label: "HTML of draft-10",
-        href: "https://datatracker.ietf.org/doc/html/draft-hardt-oauth-aauth-protocol-10",
+        label: "HTML of draft-11",
+        href: "https://datatracker.ietf.org/doc/html/draft-hardt-oauth-aauth-protocol-11",
       },
       {
         label: "Editor's copy",
@@ -139,10 +139,10 @@ export const aauthSpecs: Spec[] = [
     slug: "aauth-r3",
     shortName: "AAuth R3",
     officialName: "AAuth Rich Resource Requests (R3)",
-    id: "draft-hardt-aauth-r3 (editor's copy; exploratory)",
+    id: "draft-hardt-aauth-r3-00",
     status: "individual-draft",
     stability: "draft",
-    date: "20 September 2026 (editor's copy)",
+    date: "28 September 2026",
     authors: "D. Hardt",
     org: "IETF",
     layer: "authz",
@@ -161,10 +161,18 @@ export const aauthSpecs: Spec[] = [
     ],
     related: ["aauth", "rar", "mcp-auth"],
     implementerNotes:
-      "Editor's copy dated 20 September 2026 (expires 24 March 2027) still marks Status: Exploratory Draft. Confirm whether a given revision is on the datatracker; the canonical HTML at research time was the editor's copy. Do not confuse with OAuth RAR (RFC 9396), which is the stable structured-scope mechanism inside vanilla OAuth.",
+      "Published snapshot is draft-hardt-aauth-r3-00 (28 September 2026, expires 1 April 2027). The introduction still marks Status: Exploratory Draft. The editor HTML was regenerated 3 October 2026; the markdown last changed with the -00 submission, so pin -00. Not a WG item. Do not confuse with OAuth RAR (RFC 9396), which is the stable structured-scope mechanism inside vanilla OAuth.",
     whyAgentCares:
       "If you want consent over 'create_invoice(amount=…)' rather than 'scope=invoices', this is the AAuth-shaped design. MCP tool lists are the obvious vocabulary.",
     urls: [
+      {
+        label: "Datatracker",
+        href: "https://datatracker.ietf.org/doc/draft-hardt-aauth-r3/",
+      },
+      {
+        label: "HTML of draft-00",
+        href: "https://datatracker.ietf.org/doc/html/draft-hardt-aauth-r3-00",
+      },
       {
         label: "Editor's copy",
         href: "https://dickhardt.github.io/AAuth/draft-hardt-aauth-r3.html",

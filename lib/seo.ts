@@ -199,7 +199,7 @@ export const HOME_FAQ: FaqItem[] = [
   {
     question: "What is AAuth?",
     answer:
-      "AAuth is the AAuth Protocol, published as the individual Internet-Draft draft-hardt-oauth-aauth-protocol-10 (Dick Hardt, 6 August 2026). It defines cryptographic agent identity and agent-to-resource authorization using HTTP Message Signatures. It is not an RFC and not an OAuth Working Group document. Pin a snapshot before you implement.",
+      "AAuth is the AAuth Protocol, published as the individual Internet-Draft draft-hardt-oauth-aauth-protocol-11 (Dick Hardt, 25 September 2026). It defines cryptographic agent identity and agent-to-resource authorization using HTTP Message Signatures. It is not an RFC and not an OAuth Working Group document. Pin a snapshot before you implement.",
   },
   {
     question: "What is the difference between p2p and A2A?",
@@ -219,7 +219,7 @@ export const HOME_FAQ: FaqItem[] = [
   {
     question: "Is AAuth an RFC?",
     answer:
-      "No. It is an individual Internet-Draft: not endorsed by the IETF, no RFC number. Draft-10 describes four resource access modes; the editor’s copy has been known to add a fifth. Read the datatracker HTML for the snapshot you pin.",
+      "No. It is an individual Internet-Draft: not endorsed by the IETF, no RFC number. Draft-11 (25 September 2026) describes five resource access modes, including person identity. Read the datatracker HTML for the snapshot you pin.",
   },
   {
     question: "Does OpenID Connect replace OAuth for AI agents?",

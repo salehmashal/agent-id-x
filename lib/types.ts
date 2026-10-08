@@ -1,4 +1,4 @@
-export const RESEARCH_AS_OF = "22 September 2026";
+export const RESEARCH_AS_OF = "8 October 2026";
 
 export type SpecStatus =
   | "rfc"
