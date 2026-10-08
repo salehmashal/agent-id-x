@@ -72,7 +72,7 @@ export const workloadDeepDives: Record<string, SpecDeepDive> = {
       "The identifier is unique within a trust domain (the URI authority). Path semantics are deployment-specific. One identifier per credential — do not stuff both a user and a workload into a single URI.",
     ],
     mechanics: [
-      "draft-ietf-wimse-identifier-03 still current when fetched 15 September 2026. Absolute URI with a non-empty authority (trust domain). SPIFFE IDs are a conforming scheme. WIMSE also defines wimse://<trust-domain>/<path>.",
+      "draft-ietf-wimse-identifier-03 still current when fetched 8 October 2026. Absolute URI with a non-empty authority (trust domain). SPIFFE IDs are a conforming scheme. WIMSE also defines wimse://<trust-domain>/<path>.",
     ],
     claims: [
       {
@@ -413,7 +413,7 @@ export const workloadDeepDives: Record<string, SpecDeepDive> = {
       "Agent is the OAuth client; often client-credentials for M2M, plus extra claims the RS must evaluate. May integrate SPIFFE SVIDs as client auth. The RS that ignores AAP claims has unconstrained agents with extra JSON.",
     ],
     mechanics: [
-      "draft-aap-oauth-profile-01, 7 February 2026, expires 11 August 2026 — as of the 15 September 2026 research date this revision appears expired without a visible -02 on datatracker. Author A. Cruz. Standard OAuth issuance; RS must evaluate AAP claims before performing operations. Claim names are defined in the draft — verify against the text, do not invent from memory.",
+      "draft-aap-oauth-profile-01, 7 February 2026, expires 11 August 2026 — as of the 8 October 2026 research date this revision appears expired without a visible -02 on datatracker. Author A. Cruz. Standard OAuth issuance; RS must evaluate AAP claims before performing operations. Claim names are defined in the draft — verify against the text, do not invent from memory.",
     ],
     claims: [
       {
@@ -506,14 +506,14 @@ export const workloadDeepDives: Record<string, SpecDeepDive> = {
   },
   "wimse-ai-agent": {
     agentGap: [
-      "A WIMSE workload identity names the agent process but not its owner. draft-ni-wimse-ai-agent-identity-02 (28 February 2026, expires 1 September 2026) states why SPIFFE-style 'the binary is payment-api' is insufficient for 'this agent is Alice's tax bot' and proposes a dual-identity credential binding agent to owner.",
-      "Useful as a problem statement more than as a wire protocol. Not a WG item. Confirmed expired 1 September 2026 and not renewed as of 18 September 2026 (still draft-02).",
+      "A WIMSE workload identity names the agent process but not its owner. draft-ni-wimse-ai-agent-identity-03 (1 October 2026, expires 4 April 2027), titled WIMSE Applicability for AI Agents, states why SPIFFE-style 'the binary is payment-api' is insufficient for 'this agent is Alice's tax bot' and proposes a dual-identity credential binding agent to owner.",
+      "Useful as a problem statement more than as a wire protocol. Not a WG item. Draft-02 expired 1 September 2026; draft-03 renewed it on 1 October 2026.",
     ],
     trustBoundaries: [
-      "Owner keys are pre-provisioned as trust anchors. Issuance models in the draft include owner-mediated (gateway) and server-mediated (challenge-response). Authorization still needs OAuth/AAuth/policy on top.",
+      "Owner keys are pre-provisioned as trust anchors. Draft-03 issuance models are agent-mediated (owner-pre-signed), owner-mediated (gateway), and server-mediated (challenge-response). An identity proxy forwards the agent's credential request and attestation evidence. Authorization still needs OAuth/AAuth/policy on top.",
     ],
     mechanics: [
-      "Informational individual draft, Y. Ni (Huawei). Dual-identity credential format is a proposal, not a registered JWT typ. Three issuance models described; read the draft rather than implementing from this summary.",
+      "Informational individual draft-03, Y. Ni and C. P. Liu (Huawei) and M. Richardson (Sandelman Software Works). Dual-identity credential format is a proposal, not a registered JWT typ. Read the three issuance models in the draft rather than implementing from this summary.",
     ],
     claims: [
       {
@@ -545,8 +545,8 @@ export const workloadDeepDives: Record<string, SpecDeepDive> = {
     ],
     pitfalls: [
       {
-        title: "Expired individual draft",
-        body: "Expired 1 September 2026; not renewed as of 18 September 2026. Confirm datatracker before citing as current.",
+        title: "Renewed individual draft",
+        body: "Draft-02 expired 1 September 2026. Draft-03 (1 October 2026, expires 4 April 2027) replaced it. Still not a WG item. Confirm datatracker before citing a revision.",
       },
       {
         title: "Not a registered token type",
@@ -554,7 +554,7 @@ export const workloadDeepDives: Record<string, SpecDeepDive> = {
       },
     ],
     stabilityDetail: [
-      "draft-ni-wimse-ai-agent-identity-02, 28 February 2026, expired 1 September 2026 and not renewed as of 18 September 2026. Individual informational. https://datatracker.ietf.org/doc/html/draft-ni-wimse-ai-agent-identity-02",
+      "draft-ni-wimse-ai-agent-identity-03, 1 October 2026, expires 4 April 2027. Individual informational. https://datatracker.ietf.org/doc/html/draft-ni-wimse-ai-agent-identity-03",
     ],
   },
 };
