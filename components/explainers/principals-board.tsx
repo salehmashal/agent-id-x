@@ -28,7 +28,7 @@ const seats = [
     ],
     proofs: [
       { label: "ID Token", variant: "identity" as const, hint: "Nametag for the relying party — not a pass to the API" },
-      { label: "aa-person+jwt", token: "person" as const, hint: "Editor's AAuth: identifies, does not authorize" },
+      { label: "aa-person+jwt", token: "person" as const, hint: "AAuth draft-11: identifies, does not authorize" },
     ],
   },
   {
