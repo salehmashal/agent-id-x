@@ -381,7 +381,7 @@ export const foundationSpecs: Spec[] = [
     ],
     related: ["token-exchange", "identity-chaining", "xaa", "oauth-2-0"],
     implementerNotes:
-      "draft-ietf-oauth-rfc7523bis was in the RFC Editor queue in 2026 (awaiting first editor). New implementations should watch 7523bis for clarifications, especially around nested JWT handling.",
+      "draft-ietf-oauth-rfc7523bis-11 is still the latest revision (no RFC number). Datatracker last updated 30 September 2026; RFC Editor state is In Progress (Second Edit) as of 8 October 2026. New implementations should watch 7523bis for clarifications, especially around nested JWT handling.",
     whyAgentCares:
       "Cross-domain 'agent already has an identity assertion, needs an access token over here' is RFC 8693 then RFC 7523. Without 7523 there is no ID-JAG redemption step.",
     urls: [
