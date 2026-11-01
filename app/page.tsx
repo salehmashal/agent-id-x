@@ -4,7 +4,6 @@ import { MetaphorLegend } from "@/components/explainers/shared";
 import { PrincipalsBoard } from "@/components/explainers/principals-board";
 import { JsonLd } from "@/components/json-ld";
 import { LandscapeMap } from "@/components/landscape-map";
-import { ShareBar } from "@/components/share-bar";
 import {
   MapSection,
   PageKicker,
@@ -12,6 +11,7 @@ import {
   PageShell,
   PageTitle,
 } from "@/components/page-shell";
+import { ShareBar } from "@/components/share-bar";
 import { SpecCard } from "@/components/spec-card";
 import { buttonVariants } from "@/components/ui/button";
 import { GitBranch, LayoutGrid, Library } from "lucide-react";
@@ -48,7 +48,8 @@ export default function HomePage() {
         </p>
         <p>
           <strong>Look for:</strong> the four seats below, then the four doors,
-          then a spec page when you need the hop-by-hop flow.
+          then a spec page when you need the hop-by-hop flow. Not a new
+          protocol. Not legal advice.
         </p>
       </PageLead>
 
