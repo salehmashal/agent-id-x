@@ -4,6 +4,7 @@ import { PatternSection } from "@/components/pattern-section";
 import { PageKicker, PageShell } from "@/components/page-shell";
 import { ShareBar } from "@/components/share-bar";
 import { getPattern, patterns } from "@/lib/patterns";
+import { pageMetadata, patternPageTitle } from "@/lib/seo";
 import { buttonVariants } from "@/components/ui/button";
 
 export function generateStaticParams() {
@@ -20,7 +21,11 @@ export async function generateMetadata({
   const { slug } = await params;
   const pattern = getPattern(slug);
   if (!pattern) return { title: "Not found" };
-  return { title: pattern.title, description: pattern.summary };
+  return pageMetadata({
+    title: patternPageTitle(pattern.title),
+    description: pattern.summary,
+    path: `/patterns/${pattern.slug}`,
+  });
 }
 
 export default async function PatternDetailPage({
@@ -46,7 +51,7 @@ export default async function PatternDetailPage({
       <div className="mt-4">
         <ShareBar
           path={`/patterns/${pattern.slug}`}
-          title={pattern.title}
+          title={patternPageTitle(pattern.title)}
         />
       </div>
       <div className="mt-6">
