@@ -72,7 +72,7 @@ export const workloadDeepDives: Record<string, SpecDeepDive> = {
       "The identifier is unique within a trust domain (the URI authority). Path semantics are deployment-specific. One identifier per credential — do not stuff both a user and a workload into a single URI.",
     ],
     mechanics: [
-      "draft-ietf-wimse-identifier-03 still current when fetched 15 September 2026. Absolute URI with a non-empty authority (trust domain). SPIFFE IDs are a conforming scheme. WIMSE also defines wimse://<trust-domain>/<path>.",
+      "draft-ietf-wimse-identifier-04 (23 October 2026, expires 26 April 2027). Changes since -03 are editorial, identity-mapping, and workload-uniqueness clarifications. Absolute URI with a non-empty authority (trust domain). SPIFFE IDs are a conforming scheme. WIMSE also defines wimse://<trust-domain>/<path>.",
     ],
     claims: [
       {
@@ -108,7 +108,7 @@ export const workloadDeepDives: Record<string, SpecDeepDive> = {
       },
     ],
     stabilityDetail: [
-      "draft-ietf-wimse-identifier-03, WG document. HTML: https://datatracker.ietf.org/doc/html/draft-ietf-wimse-identifier",
+      "draft-ietf-wimse-identifier-04, 23 October 2026, expires 26 April 2027, WG document. HTML: https://datatracker.ietf.org/doc/html/draft-ietf-wimse-identifier-04",
     ],
   },
   "wimse-creds": {
@@ -116,10 +116,10 @@ export const workloadDeepDives: Record<string, SpecDeepDive> = {
       "Bind a public key to a workload identifier in a credential that must not be used as a bearer token. This is the 'agent identity document' in the WIMSE world, analogous to AAuth's agent token but scoped to workload trust domains that share configured trust anchors.",
     ],
     trustBoundaries: [
-      "Trust anchors for a trust domain are configured out of band. The iss claim MUST NOT be used to look up trust anchors from information carried only in the token (no 'fetch JWKS from whatever iss says'). Validators use the trust domain in sub. That is stricter than typical OAuth AS JWKS discovery — on purpose.",
+      "Trust anchors for a trust domain are configured out of band. Validators select them from the trust domain in sub. iss is recommended for audit and is not how you discover keys: resolving iss to a JWKS would accept any issuer that can publish one. That is stricter than typical OAuth AS JWKS discovery — on purpose.",
     ],
     mechanics: [
-      "draft-ietf-wimse-workload-creds-02, 2 July 2026. Workload Identity Token: JWS JWT, typ wit+jwt, sub = identifier, exp (hours-scale), cnf.jwk with alg (ES256 MUST be supported; none and symmetric/encryption algs forbidden). Conveyed in Workload-Identity-Token header — not Authorization. Workload Identity Certificate: X.509 with a single URI SAN, SPIFFE-compatible. Authors include B. Campbell, J. Salowey, A. Schwenkschuster, Y. Sheffer, Y. Rosomakho.",
+      "draft-ietf-wimse-workload-creds-03, 30 October 2026, expires 3 May 2027. Workload Identity Token: JWS JWT, typ wit+jwt, sub = identifier, exp (hours-scale), cnf.jwk with alg (ES256 MUST be supported; none and symmetric/encryption algs forbidden). Conveyed in Workload-Identity-Token header — not Authorization. Workload Identity Certificate: X.509 with a single URI SAN, SPIFFE-compatible. Draft-03 adds a WIT validation procedure. Authors include B. Campbell, J. Salowey, A. Schwenkschuster, Y. Sheffer, Y. Rosomakho.",
     ],
     claims: [
       {
@@ -152,7 +152,7 @@ export const workloadDeepDives: Record<string, SpecDeepDive> = {
           "Identity server mints wit+jwt with sub, cnf.jwk, exp on the order of hours.",
           "Workload presents Workload-Identity-Token plus a WPT (or HTTP signature) proving cnf.",
           "Recipient validates against configured trust anchors for the trust domain in sub, then the proof.",
-          "On WIT validation failure, prefer HTTP 400 with problem details, not 401 Bearer — 401's WWW-Authenticate/Authorization pairing is not how WIT works.",
+          "On WIT validation failure, HTTP 400 with RFC 9457 problem details is the typical response. HTTP 401 is only recommended when an acceptable WWW-Authenticate mechanism exists for that error.",
         ],
       },
     ],
@@ -177,7 +177,7 @@ export const workloadDeepDives: Record<string, SpecDeepDive> = {
       },
     ],
     stabilityDetail: [
-      "draft-ietf-wimse-workload-creds-02, 2 July 2026, expires 3 January 2027, standards-track WG. https://datatracker.ietf.org/doc/html/draft-ietf-wimse-workload-creds-02",
+      "draft-ietf-wimse-workload-creds-03, 30 October 2026, expires 3 May 2027, standards-track WG. https://datatracker.ietf.org/doc/html/draft-ietf-wimse-workload-creds-03",
     ],
   },
   "wimse-wpt": {
@@ -413,7 +413,7 @@ export const workloadDeepDives: Record<string, SpecDeepDive> = {
       "Agent is the OAuth client; often client-credentials for M2M, plus extra claims the RS must evaluate. May integrate SPIFFE SVIDs as client auth. The RS that ignores AAP claims has unconstrained agents with extra JSON.",
     ],
     mechanics: [
-      "draft-aap-oauth-profile-01, 7 February 2026, expires 11 August 2026 — as of the 15 September 2026 research date this revision appears expired without a visible -02 on datatracker. Author A. Cruz. Standard OAuth issuance; RS must evaluate AAP claims before performing operations. Claim names are defined in the draft — verify against the text, do not invent from memory.",
+      "draft-aap-oauth-profile-01, 7 February 2026, expires 11 August 2026 — as of the 1 November 2026 research date this revision appears expired without a visible -02 on datatracker. Author A. Cruz. Standard OAuth issuance; RS must evaluate AAP claims before performing operations. Claim names are defined in the draft — verify against the text, do not invent from memory.",
     ],
     claims: [
       {
@@ -466,12 +466,13 @@ export const workloadDeepDives: Record<string, SpecDeepDive> = {
       "Same as the WG transaction-tokens draft. The WG document is the one that will likely become the RFC; this is a usage profile.",
     ],
     mechanics: [
-      "draft-araut-oauth-transaction-tokens-for-agents-02, 21 May 2026. Same TTS issuance as the WG draft, with agent-specific guidance for purpose and context fields.",
+      "draft-araut-oauth-transaction-tokens-for-agents-03, 31 October 2026, expires 4 May 2027. Same TTS issuance as the WG draft. The profile adds agentic_ctx (originator, proximate_agent, hop count, optional min_assurance_level) and looks agents up in an Agent Attribute Store.",
     ],
     claims: [
       {
-        name: "tctx / purp",
-        meaning: "Quoted reuse: immutable task context and purpose.",
+        name: "agentic_ctx",
+        meaning:
+          "Quoted profile claim: originator, proximate_agent, hop tracking, and optional min_assurance_level. Parent tctx and purp stay in the WG transaction-tokens draft.",
         source: "quoted",
       },
     ],
@@ -482,7 +483,7 @@ export const workloadDeepDives: Record<string, SpecDeepDive> = {
         steps: [
           "Agent authenticates as a workload and, if needed, as a user delegate.",
           "Requests a Txn-Token with agent-appropriate purpose/context.",
-          "Tool calls inside the domain carry the Txn-Token. tctx stays immutable.",
+          "Tool calls inside the domain carry the Txn-Token. The profile updates agentic_ctx at agent hops; parent tctx stays immutable.",
         ],
       },
     ],
@@ -501,19 +502,19 @@ export const workloadDeepDives: Record<string, SpecDeepDive> = {
       },
     ],
     stabilityDetail: [
-      "Individual draft-02, 21 May 2026. https://datatracker.ietf.org/doc/search/?name=transaction-tokens-for-agents",
+      "Individual draft-03, 31 October 2026, expires 4 May 2027. https://datatracker.ietf.org/doc/draft-araut-oauth-transaction-tokens-for-agents/",
     ],
   },
   "wimse-ai-agent": {
     agentGap: [
-      "A WIMSE workload identity names the agent process but not its owner. draft-ni-wimse-ai-agent-identity-02 (28 February 2026, expires 1 September 2026) states why SPIFFE-style 'the binary is payment-api' is insufficient for 'this agent is Alice's tax bot' and proposes a dual-identity credential binding agent to owner.",
-      "Useful as a problem statement more than as a wire protocol. Not a WG item. Confirmed expired 1 September 2026 and not renewed as of 18 September 2026 (still draft-02).",
+      "A WIMSE workload identity names the agent process but not its owner. draft-ni-wimse-ai-agent-identity-04 (27 October 2026, expires 30 April 2027), titled WIMSE Applicability for AI Agents, states why SPIFFE-style 'the binary is payment-api' is insufficient for 'this agent is Alice's tax bot' and proposes a dual-identity credential binding agent to owner.",
+      "Useful as a problem statement more than as a wire protocol. Not a WG item. Draft-04 adds B. Wang (CESI). The three issuance models are unchanged from draft-03.",
     ],
     trustBoundaries: [
-      "Owner keys are pre-provisioned as trust anchors. Issuance models in the draft include owner-mediated (gateway) and server-mediated (challenge-response). Authorization still needs OAuth/AAuth/policy on top.",
+      "Owner keys are pre-provisioned as trust anchors. Draft-04 keeps the draft-03 issuance models: agent-mediated (owner-pre-signed), owner-mediated (gateway), and server-mediated (challenge-response). An identity proxy forwards the agent's credential request and attestation evidence. Authorization still needs OAuth/AAuth/policy on top.",
     ],
     mechanics: [
-      "Informational individual draft, Y. Ni (Huawei). Dual-identity credential format is a proposal, not a registered JWT typ. Three issuance models described; read the draft rather than implementing from this summary.",
+      "Informational individual draft-04, Y. Ni and C. P. Liu (Huawei), M. Richardson (Sandelman Software Works), and B. Wang (CESI). Dual-identity credential format is a proposal, not a registered JWT typ. Read the three issuance models in the draft rather than implementing from this summary.",
     ],
     claims: [
       {
@@ -545,8 +546,8 @@ export const workloadDeepDives: Record<string, SpecDeepDive> = {
     ],
     pitfalls: [
       {
-        title: "Expired individual draft",
-        body: "Expired 1 September 2026; not renewed as of 18 September 2026. Confirm datatracker before citing as current.",
+        title: "Renewed individual draft",
+        body: "Draft-04 (27 October 2026, expires 30 April 2027) is current. Still not a WG item. Confirm datatracker before citing a revision.",
       },
       {
         title: "Not a registered token type",
@@ -554,7 +555,7 @@ export const workloadDeepDives: Record<string, SpecDeepDive> = {
       },
     ],
     stabilityDetail: [
-      "draft-ni-wimse-ai-agent-identity-02, 28 February 2026, expired 1 September 2026 and not renewed as of 18 September 2026. Individual informational. https://datatracker.ietf.org/doc/html/draft-ni-wimse-ai-agent-identity-02",
+      "draft-ni-wimse-ai-agent-identity-04, 27 October 2026, expires 30 April 2027. Individual informational. https://datatracker.ietf.org/doc/html/draft-ni-wimse-ai-agent-identity-04",
     ],
   },
 };
