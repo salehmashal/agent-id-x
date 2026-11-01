@@ -3,13 +3,9 @@ import { Ban, Fingerprint, GitCompare, KeyRound } from "lucide-react";
 import { PageKicker, PageLead, PageShell, PageTitle } from "@/components/page-shell";
 import { ShareBar } from "@/components/share-bar";
 import { compares } from "@/lib/compares";
-import { ROUTE_META } from "@/lib/seo";
+import { pageMetadata, ROUTE_META } from "@/lib/seo";
 
-export const metadata = {
-  title: "Compare",
-  description:
-    "OAuth 2.0 vs 2.1, OIDC vs OAuth, AAuth vs OAuth, and user-delegated vs p2p agent access.",
-};
+export const metadata = pageMetadata(ROUTE_META.compare);
 
 const compareIcon = {
   "oauth-2-0-vs-2-1": Ban,
@@ -24,9 +20,10 @@ export default function CompareIndexPage() {
       <PageKicker>Compare</PageKicker>
       <PageTitle>Put two stories next to each other</PageTitle>
       <PageLead>
-        The questions that keep coming up: what 2.1 actually changes, why OIDC
-        is not OAuth, how AAuth differs from vanilla OAuth, and what people
-        mean by p2p versus user-delegated agents.
+        The questions that keep coming up, as two columns: what 2.1 actually
+        changes, why OIDC is not OAuth, how AAuth differs from vanilla OAuth,
+        and the four doors people call p2p. OAuth 2.0 vs 2.1 and the four-doors
+        page are the sharpest cuts.
       </PageLead>
       <div className="mt-6">
         <ShareBar path="/compare" title={ROUTE_META.compare.title} />
