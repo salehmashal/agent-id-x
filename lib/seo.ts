@@ -44,7 +44,7 @@ export function metaDescription(text: string, max = 160): string {
   const sliced = compact.slice(0, max - 1);
   const breakAt = sliced.lastIndexOf(" ");
   const cut = sliced.slice(0, breakAt > 80 ? breakAt : max - 1);
-  return `${cut.replace(/[.,;—–-]+$/, "")}…`;
+  return `${cut.replace(/[.,;:—–-]+$/, "")}…`;
 }
 
 export function pageMetadata({
@@ -209,7 +209,7 @@ export const HOME_FAQ: FaqItem[] = [
   {
     question: "What is the difference between OAuth 2.1 and OAuth 2.0?",
     answer:
-      "OAuth 2.1 is not a new protocol. It is OAuth 2.0 with the unsafe bits removed and current practice folded in: authorization code plus PKCE, no implicit grant, no password grant, no access tokens in URLs, exact redirect matching. As of September 2026 it was still a Working Group draft (draft-ietf-oauth-v2-1-16), not an RFC.",
+      "OAuth 2.1 is not a new protocol. It is OAuth 2.0 with the unsafe bits removed and current practice folded in: authorization code plus PKCE, no implicit grant, no password grant, no access tokens in URLs, exact redirect matching. As of 1 November 2026 it is still a Working Group draft (draft-ietf-oauth-v2-1-17, 31 October 2026), not an RFC.",
   },
   {
     question: "What are the four principals in agent identity?",
@@ -268,7 +268,7 @@ export function faqPageJsonLd() {
   };
 }
 
-export const SITEMAP_LASTMOD = "2026-09-18";
+export const SITEMAP_LASTMOD = "2026-09-22";
 
 export const INDEX_PATHS = [
   "/",
