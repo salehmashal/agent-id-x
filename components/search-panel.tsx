@@ -30,7 +30,7 @@ export function SearchPanel({
       <Input
         value={query}
         autoFocus={autoFocus}
-        placeholder="AAuth, MCP host, sidecar, p2p, DPoP, person server…"
+        placeholder="AAuth, PKCE, p2p, SPIFFE…"
         aria-label="Search the landscape"
         onChange={(event) => setQuery(event.target.value)}
       />
