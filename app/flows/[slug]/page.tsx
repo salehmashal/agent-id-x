@@ -5,6 +5,8 @@ import { PageKicker, PageShell } from "@/components/page-shell";
 import { SequenceList } from "@/components/sequence-list";
 import { animationFromFlow } from "@/lib/animations";
 import { flows, getFlow } from "@/lib/flows";
+import { patternsForFlow } from "@/lib/related";
+import { flowPageTitle, pageMetadata } from "@/lib/seo";
 import { getSpec } from "@/lib/specs";
 
 export function generateStaticParams() {
@@ -21,7 +23,11 @@ export async function generateMetadata({
   const { slug } = await params;
   const flow = getFlow(slug);
   if (!flow) return { title: "Not found" };
-  return { title: flow.title, description: flow.summary };
+  return pageMetadata({
+    title: flowPageTitle(flow.title, flow.protocol),
+    description: flow.summary,
+    path: `/flows/${flow.slug}`,
+  });
 }
 
 export default async function FlowDetailPage({
@@ -32,6 +38,7 @@ export default async function FlowDetailPage({
   const { slug } = await params;
   const flow = getFlow(slug);
   if (!flow) notFound();
+  const relatedPatterns = patternsForFlow(flow.slug);
 
   return (
     <PageShell>
@@ -41,6 +48,10 @@ export default async function FlowDetailPage({
       </h1>
       <p className="mt-4 max-w-3xl text-base leading-relaxed text-muted-foreground">
         {flow.summary}
+      </p>
+      <p className="mt-3 max-w-3xl text-sm leading-relaxed text-muted-foreground">
+        Use the hop list beside the stage, or the phase labels, to jump. Every
+        hop has Now, Why, the RFC, and chips — none are skipped.
       </p>
 
       <section className="mt-8">
@@ -54,10 +65,11 @@ export default async function FlowDetailPage({
         <h2 className="font-heading text-lg">Sequence</h2>
         <div className="mt-4">
           <SequencePlayer
+            key={flow.slug}
             sequence={animationFromFlow(flow)}
             share={{
               path: `/flows/${flow.slug}`,
-              title: flow.title,
+              title: flowPageTitle(flow.title, flow.protocol),
             }}
           />
         </div>
@@ -105,6 +117,24 @@ export default async function FlowDetailPage({
                 </li>
               );
             })}
+          </ul>
+        </section>
+      ) : null}
+
+      {relatedPatterns.length > 0 ? (
+        <section className="mt-8">
+          <h2 className="font-heading text-lg">Deployment patterns</h2>
+          <ul className="mt-3 flex flex-wrap gap-2">
+            {relatedPatterns.map((pattern) => (
+              <li key={pattern.slug}>
+                <Link
+                  href={`/patterns/${pattern.slug}`}
+                  className="inline-flex rounded-full border border-border px-3 py-1 font-mono text-xs hover:border-primary/50"
+                >
+                  {pattern.title}
+                </Link>
+              </li>
+            ))}
           </ul>
         </section>
       ) : null}
