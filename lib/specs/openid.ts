@@ -387,10 +387,10 @@ export const openidSpecs: Spec[] = [
     slug: "sd-jwt-vc",
     shortName: "SD-JWT VC",
     officialName: "SD-JWT-based Verifiable Digital Credentials (SD-JWT VC)",
-    id: "draft-ietf-oauth-sd-jwt-vc-19",
+    id: "draft-ietf-oauth-sd-jwt-vc-23",
     status: "wg-draft",
     stability: "draft",
-    date: "31 August 2026 (IETF Last Call ended 15 September 2026; Waiting for AD Go-Ahead)",
+    date: "31 October 2026 (IESG Evaluation; 5 November 2026 telechat)",
     org: "IETF",
     layer: "identity",
     relevance: "adjacent",
@@ -408,7 +408,7 @@ export const openidSpecs: Spec[] = [
     ],
     related: ["openid4vp", "openid4vci", "jwt"],
     implementerNotes:
-      "IETF Last Call ended 15 September 2026. IESG state is Waiting for AD Go-Ahead — still draft-19, not an RFC. Related RFC 9901 covers generic SD-JWT. Confirm status on datatracker before citing as an RFC.",
+      "IETF Last Call ended 15 September 2026. As of 1 November 2026 the IESG state is IESG Evaluation on draft-23 (31 October 2026, expires 4 May 2027), on the 5 November 2026 telechat agenda — not an RFC. Revisions -20 through -23 answer directorate and ballot comments; the presentation model is unchanged. Related RFC 9901 covers generic SD-JWT.",
     whyAgentCares:
       "Likely credential format if you bind an agent to an organization with selective disclosure (show role, hide home address).",
     urls: [

@@ -119,7 +119,7 @@ export const foundationDeepDives: Record<string, SpecDeepDive> = {
       },
     ],
     stabilityDetail: [
-      "RFC 6749, October 2012, D. Hardt (ed.), Proposed Standard, universally deployed. Still the baseline. Implement it only as constrained by RFC 9700 (January 2025) and, for new clients, OAuth 2.1 draft-16. Primary: https://www.rfc-editor.org/rfc/rfc6749.html",
+      "RFC 6749, October 2012, D. Hardt (ed.), Proposed Standard, universally deployed. Still the baseline. Implement it only as constrained by RFC 9700 (January 2025) and, for new clients, OAuth 2.1 draft-17. Primary: https://www.rfc-editor.org/rfc/rfc6749.html",
     ],
   },
   "oauth-bearer": {
@@ -210,7 +210,7 @@ export const foundationDeepDives: Record<string, SpecDeepDive> = {
   },
   "oauth-2-1": {
     agentGap: [
-      "OAuth 2.1 exists because implementing RFC 6749 from the 2012 text is how you get implicit flow, password grants, tokens in URLs, and loose redirect matching. draft-ietf-oauth-v2-1-16 (3 September 2026) consolidates 6749, 6750, RFC 8252, RFC 7636, RFC 9700, and the browser-based apps BCP, and omits what RFC 9700 found unsafe.",
+      "OAuth 2.1 exists because implementing RFC 6749 from the 2012 text is how you get implicit flow, password grants, tokens in URLs, and loose redirect matching. draft-ietf-oauth-v2-1-17 (31 October 2026) consolidates 6749, 6750, RFC 8252, RFC 7636, RFC 9700, and RFC 10017, and omits what RFC 9700 found unsafe.",
       "For agents, 'speak OAuth 2.1' is the security baseline MCP, FAPI-shaped thinking, and most host-as-client designs now assume: authorization code + PKCE always, no implicit, no password grant, exact redirects, no tokens in URIs, refresh tokens for public clients sender-constrained or rotated. It still does not give the agent a portable identity.",
     ],
     trustBoundaries: [
@@ -220,7 +220,7 @@ export const foundationDeepDives: Record<string, SpecDeepDive> = {
       "Three grant types: authorization code (with PKCE; S256 only; plain prohibited), refresh token, client credentials. Implicit (response_type=token) and resource owner password credentials are omitted. Authorization code at the token endpoint no longer includes redirect_uri — PKCE replaced that defense. Mixed-mode ASes MUST still accept redirect_uri from old 2.0 clients.",
       "Redirect URIs: exact string match (RFC 3986 simple string comparison), with a localhost port exception for native apps. If multiple redirect URIs are registered, the authorization request MUST include redirect_uri; if only one is registered, it is optional.",
       "PKCE is required for the authorization code grant, including confidential clients, because code injection hits them too. Refresh tokens remain opaque to the client and are never sent to resource servers. Public-client refresh tokens must be sender-constrained or one-time-use (rotated), following RFC 9700. Sender-constrained access tokens (DPoP, mTLS) are discussed as additional authentication when presenting a token; they are not mandatory for all 2.1 deployments (FAPI 2.0 does mandate them).",
-      "Draft-16 §7.2 still has 'TODO: Bring in the normative text of the browser-based apps BCP when it is finalized.' RFC 10017 published in August 2026; the 2.1 draft still cites draft-ietf-oauth-browser-based-apps-27 (6 July 2026). Implement RFC 10017 for SPAs while that TODO remains.",
+      "Draft-17 fills the browser-based applications section with the normative requirements from RFC 10017 and cites that RFC. The draft-16 TODO that pointed at draft-ietf-oauth-browser-based-apps-27 is gone. RFC 10017 remains the stable BCP citation.",
     ],
     claims: [
       {
@@ -271,13 +271,13 @@ export const foundationDeepDives: Record<string, SpecDeepDive> = {
       },
     ],
     layerDetail: [
-      "Still delegated authorization, not identity. Section 1 of draft-16 is explicit: OAuth is not an authentication protocol; use OpenID Connect if you need to authenticate users. An access token presented to a proprietary 'userinfo-ish' API is not OIDC.",
+      "Still delegated authorization, not identity. Section 1 of draft-17 is explicit: OAuth is not an authentication protocol; use OpenID Connect if you need to authenticate users. An access token presented to a proprietary 'userinfo-ish' API is not OIDC.",
       "Client authentication is how the AS knows which application is at the token endpoint. Resource-request authentication of the caller is Bearer or a sender-constraint proof.",
     ],
     composition: [
       {
         specSlug: "oauth-2-0",
-        how: "2.1 replaces and obsoletes 6749/6750 as a specification; the internet still runs 2.0. Compatibility notes in draft-16 §10.",
+        how: "2.1 replaces and obsoletes 6749/6750 as a specification; the internet still runs 2.0. Compatibility notes are in draft-17 §1.8. The draft header now lists Obsoletes: 6749, 6750 (if approved).",
       },
       {
         specSlug: "oauth-security-bcp",
@@ -293,7 +293,7 @@ export const foundationDeepDives: Record<string, SpecDeepDive> = {
       },
       {
         specSlug: "mcp-auth",
-        how: "MCP 2026-07-28 requires OAuth 2.1 but still cites draft-13. Implement current -16 + RFC 9700, and obey MCP MUST/SHOULD (resource parameter, PRM, CIMD).",
+        how: "MCP 2026-07-28 requires OAuth 2.1 but still cites draft-13. Implement current -17 + RFC 9700, and obey MCP MUST/SHOULD (resource parameter, PRM, CIMD).",
       },
       {
         specSlug: "aauth",
@@ -307,7 +307,7 @@ export const foundationDeepDives: Record<string, SpecDeepDive> = {
     pitfalls: [
       {
         title: "Not an RFC yet",
-        body: "WG Internet-Draft, milestone to submit to IESG December 2026. The OAuth WG document list still showed -15 (2 March 2026) in some views while datatracker HTML for -16 (3 September 2026) exists. Cite the revision you implemented.",
+        body: "WG Internet-Draft, milestone to submit to IESG December 2026. Datatracker HTML for draft-17 is dated 31 October 2026 and expires 4 May 2027. Cite the revision you implemented.",
       },
       {
         title: "Mix-up across many ASes",
@@ -318,12 +318,12 @@ export const foundationDeepDives: Record<string, SpecDeepDive> = {
         body: "A CLI agent that stores an unbound refresh token in a homedir file is the 2.1 public-client problem. Rotate or sender-constrain, or use a confidential BFF.",
       },
       {
-        title: "Browser TODO vs RFC 10017",
-        body: "Do not wait for 2.1 to finish importing browser-app text. RFC 10017 is published; XSS on a chat UI steals the agent's tokens.",
+        title: "Browser apps and RFC 10017",
+        body: "Draft-17 now includes the normative browser-app requirements from RFC 10017. XSS on a chat UI still steals the agent's tokens; the RFC remains the BCP to cite.",
       },
     ],
     stabilityDetail: [
-      "draft-ietf-oauth-v2-1-16, 3 September 2026, expires 7 March 2027, OAuth WG, intended standards track. Authors: D. Hardt, A. Parecki, T. Lodderstedt. HTML: https://datatracker.ietf.org/doc/html/draft-ietf-oauth-v2-1-16. Latest tracker: https://datatracker.ietf.org/doc/draft-ietf-oauth-v2-1/. You can ship the 2.1 shape today by implementing RFC 9700 + PKCE on 2.0; you cannot yet put 'OAuth 2.1 RFC' in a contract.",
+      "draft-ietf-oauth-v2-1-17, 31 October 2026, expires 4 May 2027, OAuth WG, intended standards track. Authors: D. Hardt, A. Parecki (ed.), T. Lodderstedt. HTML: https://datatracker.ietf.org/doc/html/draft-ietf-oauth-v2-1-17. Latest tracker: https://datatracker.ietf.org/doc/draft-ietf-oauth-v2-1/. You can ship the 2.1 shape today by implementing RFC 9700 + PKCE on 2.0; you cannot yet put 'OAuth 2.1 RFC' in a contract.",
     ],
   },
   pkce: {
@@ -642,7 +642,7 @@ export const foundationDeepDives: Record<string, SpecDeepDive> = {
   "browser-apps": {
     agentGap: [
       "RFC 10017 (BCP 212, August 2026) is the SPA story: code in the browser cannot hide a client secret or reliably hide tokens from XSS. Chat UIs that broker agent OAuth in the browser are browser-based OAuth clients. XSS in the chat page is equivalent to stealing the agent's tokens.",
-      "OAuth 2.1 draft-16 still TODOs importing this text and cites the -27 Internet-Draft (6 July 2026). The RFC itself is published — use the RFC.",
+      "OAuth 2.1 draft-17 (31 October 2026) includes this text and cites RFC 10017. The RFC itself is the stable citation.",
     ],
     trustBoundaries: [
       "The browser is hostile: XSS, malicious extensions, referrers. A Backend-for-Frontend that holds tokens in HTTP-only cookies moves the trust boundary to your server. Browser-only + PKCE keeps tokens in memory at best; localStorage is a gift to XSS.",
@@ -708,7 +708,7 @@ export const foundationDeepDives: Record<string, SpecDeepDive> = {
       "The assertion issuer (often the client itself for private_key_jwt, or an IdP for JWT bearer grants) is trusted by the receiving AS. The assertion MUST be audience-restricted to that AS. A stolen assertion replayed at another AS is the mix-up analogue.",
     ],
     mechanics: [
-      "Client authentication: client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer and client_assertion=<jwt>. Authorization grant: grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer and assertion=<jwt>. The JWT carries iss, sub, aud (the AS), exp, jti. Short-lived. draft-ietf-oauth-rfc7523bis was in the RFC Editor queue in 2026 — watch it for nested JWT clarifications.",
+      "Client authentication: client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer and client_assertion=<jwt>. Authorization grant: grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer and assertion=<jwt>. The JWT carries iss, sub, aud (the AS), exp, jti. Short-lived. draft-ietf-oauth-rfc7523bis-11 is in the RFC Editor queue with status “blocked: Final Approval Pending” as of 1 November 2026 — watch it for nested JWT clarifications; no RFC number yet.",
     ],
     claims: [
       {
@@ -767,7 +767,7 @@ export const foundationDeepDives: Record<string, SpecDeepDive> = {
       },
     ],
     stabilityDetail: [
-      "RFC 7523, May 2015. Stable. 7523bis in the RFC Editor queue in 2026 — watch for clarifications, do not wait to implement 7523. https://www.rfc-editor.org/rfc/rfc7523.html",
+      "RFC 7523, May 2015. Stable. 7523bis-11 is in the RFC Editor queue, status “blocked: Final Approval Pending” as of 1 November 2026 — watch for clarifications, do not wait to implement 7523. https://www.rfc-editor.org/rfc/rfc7523.html",
     ],
   },
 };

@@ -15,7 +15,10 @@ export function SiteFooter({ asOf }: { asOf: string }) {
             datatracker.ietf.org
           </a>{" "}
           and the issuing SDO before you implement. This is an educational map,
-          not a standards document.
+          not a standards document.{" "}
+          <Link href="/llms.txt" className="hover:text-foreground">
+            llms.txt
+          </Link>
         </p>
         <div className="flex flex-col gap-3 md:items-end">
           <p className="font-mono text-xs uppercase tracking-wider">

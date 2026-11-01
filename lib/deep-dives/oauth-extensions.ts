@@ -766,7 +766,7 @@ export const oauthExtensionDeepDives: Record<string, SpecDeepDive> = {
   cimd: {
     agentGap: [
       "DCR does not scale well for open-world clients (MCP clients, decentralized apps). CIMD lets the client_id be an HTTPS URL that the AS fetches for metadata. This is the OAuth WG's answer to 'my agent did not pre-register'. AAuth goes further and drops the AS-issued client_id; CIMD is the evolutionary step inside OAuth.",
-      "MCP 2026-07-28 prefers CIMD over DCR but still cites draft-00; the WG draft fetched 15 September 2026 remains draft-02 (expires 7 January 2027). Implement -02, not the MCP citation.",
+      "MCP 2026-07-28 prefers CIMD over DCR but still cites draft-00; the WG draft fetched 1 November 2026 remains draft-02 (expires 7 January 2027). Implement -02, not the MCP citation.",
     ],
     trustBoundaries: [
       "The AS fetches a URL the client named. That is SSRF. HTTPS only, no userinfo, must contain a path, no fragment, simple string comparison (https://example.com/client and https://example.com:443/client are not equal). Document client_id MUST match the fetched URL. Shared secrets as client auth are prohibited; public-key methods such as private_key_jwt are allowed.",
@@ -832,13 +832,13 @@ export const oauthExtensionDeepDives: Record<string, SpecDeepDive> = {
   "identity-chaining": {
     agentGap: [
       "A request that starts in trust domain A needs to call a resource in trust domain B, carrying who the user is and what was granted, without flattening everything into a single AS. Enterprise agents that read mail in tenant A and file tickets in SaaS B are exactly this pattern.",
-      "This draft combines RFC 8693 and RFC 7523. XAA is a profile of it for IdP-brokered app-to-app access. Still an I-D in the RFC Editor queue as of 19 July 2026 (rev 17) — cite the draft until an RFC number exists.",
+      "This draft combines RFC 8693 and RFC 7523. XAA is a profile of it for IdP-brokered app-to-app access. Still an I-D in the RFC Editor queue as of 1 November 2026 (rev 17, Awaiting First editor) — cite the draft until an RFC number exists.",
     ],
     trustBoundaries: [
       "AS A must be willing to mint a JWT authorization grant whose audience is AS B. AS B must trust AS A's signatures as a grant issuer (not as an access-token issuer). The client in A never presents A's access token to B's RS. Repeat at every domain hop; attenuate every time.",
     ],
     mechanics: [
-      "Client in A performs token exchange at AS A to obtain a JWT authorization grant audience-restricted to AS B. Client presents that JWT to AS B using the RFC 7523 JWT bearer grant. AS B issues an access token for its resource. draft-ietf-oauth-identity-chaining-17, 19 July 2026, intended Proposed Standard, RFC Editor state In Progress / awaiting first editor on the WG list.",
+      "Client in A performs token exchange at AS A to obtain a JWT authorization grant audience-restricted to AS B. Client presents that JWT to AS B using the RFC 7523 JWT bearer grant. AS B issues an access token for its resource. draft-ietf-oauth-identity-chaining-17, 19 July 2026, intended Proposed Standard, RFC Editor state Awaiting First editor as of 1 November 2026.",
     ],
     claims: [
       {
@@ -882,19 +882,19 @@ export const oauthExtensionDeepDives: Record<string, SpecDeepDive> = {
       },
     ],
     stabilityDetail: [
-      "draft-ietf-oauth-identity-chaining-17, 19 July 2026, expires 20 January 2027, OAuth WG, Proposed Standard target, RFC Editor In Progress. https://datatracker.ietf.org/doc/draft-ietf-oauth-identity-chaining/. Implement with pinned revision; expect an RFC number, not wire churn, if the queue completes cleanly.",
+      "draft-ietf-oauth-identity-chaining-17, 19 July 2026, expires 20 January 2027, OAuth WG, Proposed Standard target, RFC Editor Awaiting First editor (re-checked 1 November 2026). https://datatracker.ietf.org/doc/draft-ietf-oauth-identity-chaining/. Implement with pinned revision; expect an RFC number, not wire churn, if the queue completes cleanly.",
     ],
   },
   xaa: {
     agentGap: [
-      "An enterprise app or AI agent already has an SSO session with the company IdP and needs to call another app's API on the user's behalf without a second OAuth consent circus at every SaaS. draft-ietf-oauth-identity-assertion-authz-grant-04 (21 May 2026) provides that mechanism and is informally called Cross-App Access (XAA).",
+      "An enterprise app or AI agent already has an SSO session with the company IdP and needs to call another app's API on the user's behalf without a second OAuth consent circus at every SaaS. draft-ietf-oauth-identity-assertion-authz-grant-06 (31 October 2026, expires 4 May 2027) provides that mechanism and is informally called Cross-App Access (XAA).",
       "This does not replace CIBA: use CIBA when a specific action needs a human on a phone; XAA when IT policy already authorized the connection. Still a WG draft; vendors (Okta, Auth0) already document XAA for agents and MCP enterprise-managed authorization.",
     ],
     trustBoundaries: [
       "The enterprise IdP is the policy brain: it decides whether this requesting app may obtain a grant for that resource app. The resource app's AS already trusts the IdP for SSO; it now also trusts ID-JAGs as RFC 7523 assertions. The user is often not interactively prompted. That is a feature for IT and a hazard if policy is too broad.",
     ],
     mechanics: [
-      "Requesting app exchanges an ID Token (or refresh token) at the IdP via RFC 8693 for an Identity Assertion JWT Authorization Grant (ID-JAG) whose audience is the resource app's AS — not the requesting client (unlike an ID Token). It redeems the ID-JAG at that AS via RFC 7523 for an access token. Authors: A. Parecki, K. McGuinness, B. Campbell.",
+      "Requesting app exchanges an ID Token (or refresh token) at the IdP via RFC 8693 for an Identity Assertion JWT Authorization Grant (ID-JAG) whose audience is the resource app's AS — not the requesting client (unlike an ID Token). It redeems the ID-JAG at that AS via RFC 7523 for an access token. Draft-05 adds mTLS certificate binding beside DPoP, requires jwt-dpop for a DPoP-bound ID-JAG, and allows a key-bound ID-JAG to replace client authentication at the resource AS. Authors: A. Parecki, K. McGuinness, B. Campbell.",
     ],
     claims: [
       {
@@ -938,13 +938,13 @@ export const oauthExtensionDeepDives: Record<string, SpecDeepDive> = {
       },
     ],
     stabilityDetail: [
-      "draft-ietf-oauth-identity-assertion-authz-grant-04, 21 May 2026, expires 22 November 2026, OAuth WG. https://datatracker.ietf.org/doc/draft-ietf-oauth-identity-assertion-authz-grant/. Pin versions; test vendor interop. Not an RFC.",
+      "draft-ietf-oauth-identity-assertion-authz-grant-06, 31 October 2026, expires 4 May 2027, OAuth WG. https://datatracker.ietf.org/doc/draft-ietf-oauth-identity-assertion-authz-grant/. Draft-06 only changes the IdP subject-token validation error from invalid_grant to invalid_request. Pin versions; test vendor interop. Not an RFC.",
     ],
   },
   "transaction-tokens": {
     agentGap: [
       "Inside a trust domain, a user or external request fans out across many workloads. Each hop needs immutable user identity, workload identity, and authorization context that does not silently widen. An agent that orchestrates internal tools should pass a transaction token so every microservice sees the original user and the original purpose, not just the agent's workload identity.",
-      "Complements WIMSE (who is calling) rather than replacing it. draft-ietf-oauth-transaction-tokens-11, 30 July 2026. Individual draft-araut-oauth-transaction-tokens-for-agents profiles this for agents.",
+      "Complements WIMSE (who is calling) rather than replacing it. draft-ietf-oauth-transaction-tokens-11, 30 July 2026. Individual draft-araut-oauth-transaction-tokens-for-agents-03 (31 October 2026) profiles this for agents.",
     ],
     trustBoundaries: [
       "The Transaction Token Service (TTS) is trusted inside the domain. External callers never present a Txn-Token as their only credential. Downstream workloads may replace replaceable context (rctx) but must not mutate tctx immutables. Crossing a domain boundary is identity chaining, not a longer Txn-Token.",

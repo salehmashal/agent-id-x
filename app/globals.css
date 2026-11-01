@@ -212,6 +212,17 @@
   will-change: transform;
 }
 
+/* Keep hop packets inside the stage so they cannot paint over the intro copy. */
+.sequence-stage {
+  contain: paint;
+}
+
+@media (max-width: 767px) {
+  .sequence-packet {
+    max-width: min(18rem, calc(100% - 1.5rem));
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .sequence-challenge {
     animation: none;

@@ -536,7 +536,7 @@ export const oauthExtensionSpecs: Spec[] = [
     ],
     related: ["dcr", "mcp-auth", "as-metadata", "aauth"],
     implementerNotes:
-      "WG document, not an RFC. MCP 2026-07-28 prefers CIMD over DCR (the MCP spec still cites draft-00; the WG draft in July 2026 was -02). AS must consider SSRF when fetching client URLs.",
+      "WG document, not an RFC. MCP 2026-07-28 prefers CIMD over DCR (the MCP spec still cites draft-00; the WG draft remained -02 when fetched 1 November 2026). AS must consider SSRF when fetching client URLs.",
     whyAgentCares:
       "This is the OAuth WG's answer to 'my agent did not pre-register'. AAuth goes further and drops the AS-issued client_id altogether; CIMD is the evolutionary step inside OAuth.",
     urls: [
@@ -584,7 +584,7 @@ export const oauthExtensionSpecs: Spec[] = [
     ],
     related: ["token-exchange", "jwt-client-auth", "xaa", "transaction-tokens"],
     implementerNotes:
-      "As of 19 July 2026 this document was in the RFC Editor queue (awaiting first editor) targeting Proposed Standard. Still cite it as an I-D until an RFC number is assigned. Do not invent a private cross-domain token format if you can wait for this.",
+      "Still draft-17 in the RFC Editor queue (Awaiting First editor) as of 1 November 2026, targeting Proposed Standard. No RFC number. Still cite it as an I-D. Do not invent a private cross-domain token format if you can wait for this.",
     whyAgentCares:
       "Enterprise agents that read mail in tenant A and file tickets in SaaS B are exactly this pattern. XAA is a profile of this draft for IdP-brokered app-to-app access.",
     urls: [
@@ -602,10 +602,10 @@ export const oauthExtensionSpecs: Spec[] = [
     slug: "xaa",
     shortName: "Cross-App Access (ID-JAG)",
     officialName: "Identity Assertion JWT Authorization Grant",
-    id: "draft-ietf-oauth-identity-assertion-authz-grant-04",
+    id: "draft-ietf-oauth-identity-assertion-authz-grant-06",
     status: "wg-draft",
     stability: "draft",
-    date: "21 May 2026",
+    date: "31 October 2026",
     authors: "See draft (Parecki et al.; informally called XAA)",
     org: "IETF",
     layer: "authz",
@@ -632,7 +632,7 @@ export const oauthExtensionSpecs: Spec[] = [
     ],
     related: ["identity-chaining", "token-exchange", "oidc-core", "mcp-auth", "ciba"],
     implementerNotes:
-      "WG document. Vendors (Okta, Auth0) already document XAA for agents and MCP enterprise-managed authorization. This does not replace CIBA: use CIBA when a specific action needs a human on a phone, XAA when IT policy already authorized the connection.",
+      "Pin draft-06 (31 October 2026, expires 4 May 2027). Draft-05 (30 October 2026) added mTLS certificate binding beside DPoP for the ID-JAG, requires the jwt-dpop grant type for DPoP-bound ID-JAGs, and allows a key-bound ID-JAG to replace client authentication at the resource AS. Draft-06 changes the IdP error for a subject token that fails validation from invalid_grant to invalid_request. This does not replace CIBA: use CIBA when a specific action needs a human on a phone, XAA when IT policy already authorized the connection.",
     whyAgentCares:
       "This is the emerging 'enterprise agent may call SaaS APIs as the employee' path that scales past per-tool OAuth popups. Still a draft; pin versions and test interoperability.",
     urls: [
@@ -641,8 +641,8 @@ export const oauthExtensionSpecs: Spec[] = [
         href: "https://datatracker.ietf.org/doc/draft-ietf-oauth-identity-assertion-authz-grant/",
       },
       {
-        label: "HTML of draft-04",
-        href: "https://datatracker.ietf.org/doc/html/draft-ietf-oauth-identity-assertion-authz-grant-04",
+        label: "HTML of draft-06",
+        href: "https://datatracker.ietf.org/doc/html/draft-ietf-oauth-identity-assertion-authz-grant-06",
       },
     ],
   },

@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { HopList } from "@/components/hop-list";
 import { SpecExplainer, isMainExplainerSpec } from "@/components/explainers/spec-explainer";
 import { PageKicker, PageShell } from "@/components/page-shell";
 import { ShareBar } from "@/components/share-bar";
@@ -12,6 +13,14 @@ import {
   StatusBadge,
 } from "@/components/spec-badges";
 import { Badge } from "@/components/ui/badge";
+import { getSpecAnimation } from "@/lib/animations";
+import { comparesForSpec, flowsForSpec, patternsForSpec } from "@/lib/related";
+import {
+  pageMetadata,
+  specLede,
+  specPageDescription,
+  specPageTitle,
+} from "@/lib/seo";
 import { getSpec, relatedSpecs, specs } from "@/lib/specs";
 
 export function generateStaticParams() {
@@ -28,10 +37,11 @@ export async function generateMetadata({
   const { slug } = await params;
   const spec = getSpec(slug);
   if (!spec) return { title: "Not found" };
-  return {
-    title: `${spec.shortName} (${spec.id})`,
-    description: spec.whyAgentCares,
-  };
+  return pageMetadata({
+    title: specPageTitle(spec),
+    description: specPageDescription(spec),
+    path: `/specs/${spec.slug}`,
+  });
 }
 
 function Block({
@@ -60,10 +70,14 @@ export default async function SpecDetailPage({
   const spec = getSpec(slug);
   if (!spec) notFound();
   const related = relatedSpecs(spec);
+  const relatedPatterns = patternsForSpec(spec.slug);
+  const relatedFlows = flowsForSpec(spec.slug);
+  const relatedCompares = comparesForSpec(spec.slug);
   const dive = spec.deepDive;
+  const animation = getSpecAnimation(spec.slug);
   const share = {
     path: `/specs/${spec.slug}`,
-    title: `${spec.shortName} (${spec.id})`,
+    title: specPageTitle(spec),
   };
 
   return (
@@ -95,8 +109,14 @@ export default async function SpecDetailPage({
       </div>
 
       <p className="mt-6 max-w-3xl text-base leading-7 text-foreground/85 md:text-lg">
-        {spec.whyAgentCares}
+        {specLede(spec)}
       </p>
+
+      {isMainExplainerSpec(spec.slug) || animation ? null : (
+        <div className="mt-6">
+          <ShareBar path={share.path} title={share.title} />
+        </div>
+      )}
 
       <section className="mt-8 rounded-xl border border-border/80 bg-card/40 p-5">
         <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-brass">
@@ -133,15 +153,26 @@ export default async function SpecDetailPage({
         </div>
       </section>
 
-      {isMainExplainerSpec(spec.slug) ? (
-        <div className="mt-8">
-          <SpecExplainer slug={spec.slug} share={share} />
-        </div>
-      ) : (
-        <div className="mt-6">
-          <ShareBar path={share.path} title={share.title} />
-        </div>
-      )}
+      {isMainExplainerSpec(spec.slug) || animation ? (
+        <section className="mt-8">
+          <h2 className="font-heading text-xl">How {spec.shortName} works</h2>
+          {isMainExplainerSpec(spec.slug) ? (
+            <div className="mt-4">
+              <SpecExplainer slug={spec.slug} share={share} />
+            </div>
+          ) : null}
+          {animation ? (
+            <div className="mt-8">
+              <h3 className="font-heading text-lg">Hop list</h3>
+              <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
+                Sequence above; this list is the same hops for reading and
+                search. Each row is one message.
+              </p>
+              <HopList actors={animation.actors} steps={animation.steps} />
+            </div>
+          ) : null}
+        </section>
+      ) : null}
 
       {spec.agentAdjacentNote ? (
         <section className="mt-8 rounded-xl border border-agent/35 bg-agent/10 p-5">
@@ -200,20 +231,79 @@ export default async function SpecDetailPage({
         </Block>
       ) : null}
 
-      {related.length > 0 ? (
-        <Block title="Relationship to others">
-          <ul className="flex flex-wrap gap-2">
-            {related.map((item) => (
-              <li key={item.slug}>
-                <Link
-                  href={`/specs/${item.slug}`}
-                  className="inline-flex rounded-full border border-border px-3 py-1 font-mono text-xs hover:border-primary/50 hover:text-foreground"
-                >
-                  {item.shortName}
-                </Link>
-              </li>
-            ))}
-          </ul>
+      {related.length > 0 ||
+      relatedPatterns.length > 0 ||
+      relatedFlows.length > 0 ||
+      relatedCompares.length > 0 ? (
+        <Block title="Related">
+          {related.length > 0 ? (
+            <div>
+              <p className="font-heading text-sm">Specs</p>
+              <ul className="mt-2 flex flex-wrap gap-2">
+                {related.map((item) => (
+                  <li key={item.slug}>
+                    <Link
+                      href={`/specs/${item.slug}`}
+                      className="inline-flex rounded-full border border-border px-3 py-1 font-mono text-xs hover:border-primary/50 hover:text-foreground"
+                    >
+                      {item.shortName}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+          {relatedPatterns.length > 0 ? (
+            <div className="mt-4">
+              <p className="font-heading text-sm">Deployment patterns</p>
+              <ul className="mt-2 flex flex-wrap gap-2">
+                {relatedPatterns.map((item) => (
+                  <li key={item.slug}>
+                    <Link
+                      href={`/patterns/${item.slug}`}
+                      className="inline-flex rounded-full border border-border px-3 py-1 font-mono text-xs hover:border-primary/50 hover:text-foreground"
+                    >
+                      {item.title}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+          {relatedFlows.length > 0 ? (
+            <div className="mt-4">
+              <p className="font-heading text-sm">Flows</p>
+              <ul className="mt-2 flex flex-wrap gap-2">
+                {relatedFlows.map((item) => (
+                  <li key={item.slug}>
+                    <Link
+                      href={`/flows/${item.slug}`}
+                      className="inline-flex rounded-full border border-border px-3 py-1 font-mono text-xs hover:border-primary/50 hover:text-foreground"
+                    >
+                      {item.title}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+          {relatedCompares.length > 0 ? (
+            <div className="mt-4">
+              <p className="font-heading text-sm">Compare</p>
+              <ul className="mt-2 flex flex-wrap gap-2">
+                {relatedCompares.map((item) => (
+                  <li key={item.slug}>
+                    <Link
+                      href={`/compare/${item.slug}`}
+                      className="inline-flex rounded-full border border-border px-3 py-1 font-mono text-xs hover:border-primary/50 hover:text-foreground"
+                    >
+                      {item.title}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
         </Block>
       ) : null}
       <Block title="Primary sources">

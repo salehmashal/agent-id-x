@@ -11,7 +11,10 @@ export default function NotFound() {
         The slug may have been typed by hand, or a spec was renamed. The
         catalog and search are the reliable indexes.
       </p>
-      <div className="mt-6 flex gap-2">
+      <div className="mt-6 flex flex-wrap gap-2">
+        <Link href="/" className={buttonVariants({ variant: "outline" })}>
+          Map
+        </Link>
         <Link href="/catalog" className={buttonVariants()}>
           Catalog
         </Link>

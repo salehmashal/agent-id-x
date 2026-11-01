@@ -11,14 +11,10 @@ import {
   patterns,
   resolveSpec,
 } from "@/lib/patterns";
-import { ROUTE_META } from "@/lib/seo";
+import { pageMetadata, ROUTE_META } from "@/lib/seo";
 import { RESEARCH_AS_OF } from "@/lib/types";
 
-export const metadata = {
-  title: "Deployment patterns",
-  description:
-    "How an AI agent is deployed — browser, MCP host, mesh sidecar, p2p HTTP — and which identity and auth protocols actually apply.",
-};
+export const metadata = pageMetadata(ROUTE_META.patterns);
 
 export default function PatternsPage() {
   return (
@@ -26,49 +22,45 @@ export default function PatternsPage() {
       <PageKicker>Deployment · runtime shape</PageKicker>
       <PageTitle>How the agent is deployed, and which protocols apply</PageTitle>
       <PageLead>
-        Sequence diagrams live under{" "}
+        The matrix is the map: runtime shape on the rows, the questions that
+        decide a protocol on the columns. Sequences live under{" "}
         <Link
           href="/flows"
           className="text-foreground underline decoration-primary/40 underline-offset-4 hover:decoration-primary"
         >
           Flows
         </Link>
-        . This page is the other cut: the runtime topology — product UI, headless
-        worker, MCP host, mesh sidecar, true p2p HTTP — and the specs that
-        actually attach to that shape. {PATTERN_COUNT} patterns, researched{" "}
-        {RESEARCH_AS_OF}. Drafts are marked; RFC numbers are not invented. If
-        you are not sure which row you are on, the picker names the shape — it
-        does not score you.
+        . {PATTERN_COUNT} patterns, researched {RESEARCH_AS_OF}. The picker
+        below names the row — it does not score you.
       </PageLead>
 
       <div className="mt-6">
         <ShareBar path="/patterns" title={ROUTE_META.patterns.title} />
       </div>
 
-      <div className="mt-8">
-        <PatternPicker />
-      </div>
-
-      <div className="mt-10">
-        <FourCousinsBoard />
-      </div>
-
       <section className="mt-10">
         <h2 className="font-heading text-2xl">Overview matrix</h2>
         <p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted-foreground">
-          Rows are deployment patterns. Columns are the questions that decide
-          the protocol: is a user in the loop, is an authorization server minting
-          the credential, does a workload identity name the binary, and does the
-          agent have an identity that is not an AS-local{" "}
-          <span className="font-mono text-xs">client_id</span>. Each row is a
-          tiny topology of actors. Primary protocol names link into the catalog.
+          Is a user in the loop? Is an authorization server minting the
+          credential? Does a workload identity name the binary? Does the agent
+          have an identity that is not an AS-local{" "}
+          <span className="font-mono text-xs">client_id</span>? Each row is a
+          tiny topology. Protocol names link into the catalog.
         </p>
         <div className="mt-6">
           <PatternMatrix patterns={patterns} />
         </div>
       </section>
 
-      <nav aria-label="Pattern sections" className="mt-10">
+      <div className="mt-12">
+        <PatternPicker />
+      </div>
+
+      <div className="mt-12">
+        <FourCousinsBoard />
+      </div>
+
+      <nav aria-label="Pattern sections" className="mt-12">
         <h2 className="font-heading text-2xl">Jump to a pattern</h2>
         <ul className="mt-4 columns-1 gap-2 sm:columns-2">
           {patterns.map((pattern) => (

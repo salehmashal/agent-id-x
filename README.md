@@ -9,7 +9,7 @@ It exists to answer a concrete question: when people say *AAuth*, *p2p*, *OIDC*,
 
 This is an educational reference. It is **not** a standards document and **not** legal or security advice.
 
-Hard topics are taught with **interactive boards** (HTML/CSS, a little client state): four principals as seats, AAuth access-mode restaging, OAuth 2.1 “what got banned,” token-exchange `act` versus WIMSE hop re-bind, and four doors for delegated / AAuth p2p / A2A / did:peer. Tokens are passes, signatures are wax seals, Bearer is a photocopy, DPoP is a pass glued to a key. There is no course overlay, XP, or quiz hub.
+Hard topics are taught with **interactive boards** and **animated sequences** (CSS/SVG + a little React state): four principals as seats, AAuth access-mode restaging, OAuth 2.1 “what got banned,” token-exchange `act` versus WIMSE hop re-bind, four doors for delegated / AAuth p2p / A2A / did:peer, and motion that shows messages hopping — 401 challenges, PKCE verifiers, Agent Cards, nested `act`. Tokens are passes, signatures are wax seals, Bearer is a photocopy, DPoP is a pass glued to a key. Sequences play on spec, flow, and compare pages — not on the home map. There is no course overlay, XP, or quiz hub.
 
 ## Stack
 
@@ -76,7 +76,7 @@ Internet-Drafts expire, get renamed, and move from individual to working-group t
 - MCP: [modelcontextprotocol.io](https://modelcontextprotocol.io/)
 - A2A: [a2a-protocol.org](https://a2a-protocol.org/)
 
-The copy in this repo was researched **15 September 2026**, re-checked **22 September 2026**, and re-checked again **8 October 2026**. Since the September check, `draft-hardt-oauth-aauth-protocol` advanced to **-11** (25 September 2026, expires 29 March 2027): the published snapshot now has five access modes, including person identity, and no longer disagrees with the editor's copy on four versus five. `draft-hardt-aauth-r3-00` is on the datatracker (28 September 2026) and still marks itself exploratory. `draft-ni-wimse-ai-agent-identity` was renewed as **-03** (1 October 2026). `draft-ietf-oauth-rfc7523bis-11` moved from RFC Editor In Progress (First Edit) to In Progress (Second Edit), still without an RFC number. OAuth 2.1 remains `draft-ietf-oauth-v2-1-16`. MCP authorization remains 2026-07-28. That kind of drift will continue.
+The copy in this repo was researched **15 September 2026**, re-checked **22 September 2026**, **8 October 2026**, and **1 November 2026**. On the November check, OAuth 2.1 advanced to `draft-ietf-oauth-v2-1-17` (31 October 2026, expires 4 May 2027) and filled its browser-based applications section from RFC 10017. Cross-App Access advanced to `draft-ietf-oauth-identity-assertion-authz-grant-06` (31 October 2026). SD-JWT VC is `draft-ietf-oauth-sd-jwt-vc-23`, in IESG Evaluation, on the 5 November 2026 telechat agenda. `draft-ietf-oauth-rfc7523bis-11` is still the latest text; the RFC Editor status is now “blocked: Final Approval Pending”, with no RFC number. WIMSE identifier is **-04**, workload credentials **-03**, the individual AI-agent draft **-04**, and transaction tokens for agents **-03**. AAuth remains `draft-hardt-oauth-aauth-protocol-11`. Identity chaining remains **-17**, RFC Editor “Awaiting First editor”. MCP authorization remains 2026-07-28. That kind of drift will continue.
 
 ## Search / indexing
 
@@ -86,15 +86,15 @@ Submit the sitemap in [Google Search Console](https://search.google.com/search-c
 
 | Route | What it is |
 | --- | --- |
-| `/` | Landscape map, four-principal board, four-doors explainer |
+| `/` | Crystal map: four principals → nested specs → four doors → honest maturity → featured catalog → short FAQ. Quiet link to walk a delegated call. No 16-hop player. |
 | `/catalog` | Filterable catalog (status, layer, relevance, stability) |
-| `/specs/[slug]` | One document: at-a-glance plus, for main specs, a compact interactive board and a field-guide chapter (agent gap, trust boundaries, mechanics, numbered flows, composition, pitfalls, stability). Non-main specs stay as catalog entries. |
-| `/patterns` | Deployment topology → protocol matrix (each row has a tiny actor toy), plus a “what is your shape?” explainer |
+| `/specs/[slug]` | One document: at-a-glance plus, for main specs, an **animated sequence** of how the protocol works (phase labels, hop list, Now / Why / RFC), a compact interactive board, and a field-guide chapter. Non-main specs stay as catalog entries. |
+| `/patterns` | Deployment topology → protocol **matrix** (hero), plus a “what is your shape?” explainer |
 | `/patterns/[slug]` | One deployment pattern (unknown slugs 404) |
-| `/compare` | OAuth 2.0 vs 2.1; OIDC vs OAuth; AAuth vs OAuth; user-delegated vs p2p — each pair opens with the matching board |
-| `/flows` | Sequence-style protocol walkthroughs |
-| `/glossary` | Overloaded terms (p2p, act, person server, MCP host, sidecar, …) |
-| `/search` | Client-side search over the bundled data |
+| `/compare` | OAuth 2.0 vs 2.1; OIDC vs OAuth; AAuth vs OAuth; user-delegated vs p2p — each pair opens with the matching board, and 2.1 / OIDC / AAuth pairs play the sequence |
+| `/flows` | Sequence-style protocol walkthroughs with the animated player (phases, hop list, play / pause / step / speed) |
+| `/glossary` | Overloaded terms (p2p, act, person server, MCP host, sidecar, …) linking to the spec or flow that defines them |
+| `/search` | Client-side search over the bundled data (AAuth, PKCE, p2p, SPIFFE, …) |
 
 Typed modules live in:
 
@@ -103,13 +103,14 @@ Typed modules live in:
 - `lib/deep-dives/*.ts` — field-guide chapters attached by slug
 - `lib/patterns.ts` — deployment topology → protocol matrix
 - `lib/flows.ts` — sequence walkthroughs
+- `lib/animations.ts` — data-driven animated sequences (main specs + every flow)
 - `lib/compares.ts` — side-by-side views
 - `lib/glossary.ts` — terms
 - `lib/mental-model.ts` — principals and nesting
 - `lib/search.ts` — client search index
 - `lib/pattern-picker.ts` — deployment-shape decision tree
 
-Interactive boards live in `components/explainers/`. Main spec slugs with a board: `aauth`, `oauth-2-1`, `oidc-core`, `token-exchange`, `dpop`, `wimse-arch`, `mcp-auth`, `a2a`.
+Animated sequences live in `components/animations/` and play on main spec pages, every `/flows/[slug]`, and the OAuth 2.1 / OIDC / AAuth compare pages. Main spec slugs with a dedicated sequence: `aauth`, `oauth-2-1`, `oidc-core`, `token-exchange`, `dpop`, `wimse-arch`, `mcp-auth`, `a2a`, `ciba`, `pkce`, `par`.
 
 ## Named topics (short)
 
@@ -117,4 +118,4 @@ Interactive boards live in `components/explainers/`. Main spec slugs with a boar
 
 **P2P** is not a single I-D title in this cluster. Next to AAuth it usually means identity-based or two-party (resource-managed) access: agent and resource, no authorization server. Elsewhere it means A2A (agent-to-agent tasks) or `did:peer` / DIDComm. Those are not the same protocol.
 
-**OIDC** remains the user identity layer on OAuth. **OAuth 2.1** (`draft-ietf-oauth-v2-1-16`, 3 September 2026) consolidates OAuth 2.0 with RFC 9700 practices; it was still a WG draft in September 2026. MCP authorization (2026-07-28) is an OAuth 2.1 profile that still cites older draft numbers.
+**OIDC** remains the user identity layer on OAuth. **OAuth 2.1** (`draft-ietf-oauth-v2-1-17`, 31 October 2026) consolidates OAuth 2.0 with RFC 9700 practices; it was still a WG draft on 1 November 2026. MCP authorization (2026-07-28) is an OAuth 2.1 profile that still cites older draft numbers.

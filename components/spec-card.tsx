@@ -18,7 +18,7 @@ import { BookMarked } from "lucide-react";
 export function SpecCard({ spec }: { spec: Spec }) {
   return (
     <Link href={`/specs/${spec.slug}`} className="block h-full">
-      <Card className="h-full transition-colors hover:bg-muted/60 hover:ring-primary/25">
+      <Card className="h-full transition-colors hover:border-primary/35 hover:bg-muted/40">
         <CardHeader>
           <div className="flex flex-wrap items-center gap-1.5">
             <StatusBadge status={spec.status} />

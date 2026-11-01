@@ -4,70 +4,70 @@ export const aauthDeepDive: SpecDeepDive = {
   agentGap: [
     "OAuth 2.0 and OpenID Connect were designed for applications that a human installs or a developer pre-registers: a client_id minted by each authorization server, a browser redirect for consent, a bearer access token, and a static scope string. An AI agent that discovers a new HTTP resource at runtime has none of those luxuries. It is not a user. It is not a workload identity inside one mesh. It is an HTTP client that must prove who it is to a stranger, then obtain a grant that may involve a human mid-task.",
     "The gap AAuth names is therefore four principals, not one: the user (person), the agent instance (cryptographic identity), the resource (the tool or API), and optionally a resource-side access server. Vanilla OAuth collapses the agent into 'the client' and gives it no portable identity. SPIFFE/WIMSE name the binary inside a trust domain but do not, by themselves, get the agent accepted at an arbitrary internet resource or carry user consent. MCP authorization reuses OAuth 2.1 for host-to-tool access and still assumes an AS that will issue a client identifier.",
-    "AAuth's premise, quoted from draft-10's introduction, is that every agent has its own cryptographic identity: an identifier of the form aauth:local@domain bound to a signing key, published at a well-known URL, verifiable by any party — no pre-registration, no shared secrets, no dependency on a particular server. At its simplest the agent signs a request and the resource decides from who the agent is. That identity-based access is the foundation; authorization, governance, and federation are additive.",
+    "AAuth's premise, quoted from draft-11's introduction, is that every agent has its own cryptographic identity: an identifier of the form aauth:local@domain bound to a signing key, published at a well-known URL, verifiable by any party — no pre-registration, no shared secrets, no dependency on a particular server. At its simplest the agent signs a request and the resource decides from who the agent is. That agent-identity access (the figure is still titled Identity-Based Access) is the foundation; authorization, governance, and federation are additive.",
   ],
   trustBoundaries: [
     "The agent is any HTTP client with a key and an agent token. It trusts its agent provider (who issued the agent token and hosts JWKS) and, if it has one, its person server. It does not have to trust the resource's access server until a four-party hop; it never treats a resource-issued opaque session token as something it can inspect.",
     "The agent provider is an identity issuer, not an OAuth authorization server. It attests 'this key speaks for this agent identifier'. Compromise of the provider's signing key is compromise of every agent it vouches for. The resource fetches the provider's JWKS via the token's iss and dwk; that fetch is a trust-boundary crossing (SSRF, mix-up of iss, stale JWKS).",
     "The resource is the verifier of signatures and the enforcer of its own policy. In identity-based and resource-managed modes it never talks to a person server. In three-party mode it issues a resource token whose audience is the person server and later verifies an auth token whose issuer is that PS. In four-party mode the resource token's audience is the resource's own access server; the PS federates to that AS. The resource must not confuse a person token (identity of the user) with an auth token (a grant).",
-    "The person server represents the user: consent, missions, permission/audit/interaction relay. It is the only party that calls an access-server token endpoint in four-party mode. The user/person authenticates to the PS or to the resource's own login, never by handing a password to the agent. Draft-10 treats the PS as optional; an agent without a ps claim cannot complete auth-token flows.",
+    "The person server represents the user: consent, missions, permission/audit/interaction relay. It is the only party that calls an access-server token endpoint in four-party mode. The user/person authenticates to the PS or to the resource's own login, never by handing a password to the agent. An agent with no person server cannot satisfy requirement=person-token.",
     "The access server (AS in AAuth's vocabulary) is a resource-side policy engine, not the user's IdP. Do not mash it together with an OIDC OP. Four-party federation is PS → resource AS, which is also not OpenID Federation 1.1.",
   ],
   mechanics: [
-    "Wire authentication is HTTP Message Signatures (RFC 9421) plus HTTP Signature Keys (draft-hardt-httpbis-signature-key). Every signed request carries Signature-Key, Signature-Input, and Signature. AAuth presents the agent token (or, in the editor's copy, a person token or auth token) in Signature-Key with scheme=jwt. The cnf.jwk in that JWT is the signing key; a stolen JWT without the private key cannot produce a valid signature.",
-    "Challenges replace browser redirects. A 401 carries AAuth-Requirement (for example requirement=agent-token, interaction, or auth-token). AAuth-Capabilities advertises what the resource can do. Subsequent resource-managed calls may present an opaque session via Authorization: AAuth <token> and/or AAuth-Access. AAuth-Mission can bind a content-addressed mission. These header names are from the draft; do not invent parallel names.",
-    "Well-known documents are discovered with the dwk ('dot well-known') parameter from Signature-Key: aauth-agent.json, aauth-resource.json, aauth-person.json, aauth-access.json at {iss}/.well-known/{dwk}. Resource metadata may declare access_mode (advisory): in draft-10 the values are agent-token, aauth-access-token, and auth-token. The editor's copy adds person-token and renames the opaque credential a session token (session-token).",
-    "JWT types in draft-10: aa-agent+jwt (identity of the agent; sub is the agent identifier; cnf.jwk binds the key; optional ps names the person server), aa-resource+jwt (issued by the resource to describe the access that needs authorizing; aud is the PS or AS that may redeem it; recommended lifetime five minutes or less), aa-auth+jwt (the grant; iss is PS or AS; aud is the resource; user claims such as sub, optional email/tenant/groups/roles; consented scope or R3 grants; cnf bound to the agent's key; MUST NOT exceed one hour). The editor's copy adds aa-person+jwt: a directed identifier of the person at one resource. It identifies; it does not authorize. A recipient MUST reject aa-person+jwt wherever an auth token is required.",
-    "Person-server endpoints in draft-10 include a token_endpoint that accepts a resource token and returns an auth token (or 202 + interaction if the user must approve). The editor's copy splits this: person_token_endpoint (REQUIRED) and auth_token_endpoint (renamed from token_endpoint). Four-party: the PS discovers {aud}/.well-known/aauth-access.json and calls the AS token endpoint. Auth tokens reuse RFC 8693 act for delegation chains. Call chaining uses upstream_token / subagent_token so a sub-agent signs with its own key while nested act records the parent.",
+    "Wire authentication is HTTP Message Signatures (RFC 9421) plus HTTP Signature Keys (draft-hardt-httpbis-signature-key). Every signed request carries Signature-Key, Signature-Input, and Signature. AAuth presents the agent token, or a person token or auth token in its place, in Signature-Key with scheme=jwt. The cnf.jwk in that JWT is the signing key; a stolen JWT without the private key cannot produce a valid signature.",
+    "Challenges replace browser redirects. A 401 carries AAuth-Requirement (for example requirement=agent-token, person-token, interaction, or auth-token). AAuth-Capabilities advertises what the resource can do. Subsequent resource-managed calls may present an opaque session token via Authorization: AAuth <token> and/or AAuth-Access. Missions are bound by mission_s256, not by an AAuth-Mission header (draft-11 removed that header). These header names are from the draft; do not invent parallel names.",
+    "Well-known documents are discovered with the dwk ('dot well-known') parameter from Signature-Key: aauth-agent.json, aauth-resource.json, aauth-person.json, aauth-access.json at {iss}/.well-known/{dwk}. Resource metadata may declare access_mode (advisory). Draft-11's registry is agent-token, person-token, session-token, and auth-token. The older name aauth-access-token is gone.",
+    "JWT types in draft-11: aa-agent+jwt (identity of the agent; sub is the agent identifier; cnf.jwk binds the key; optional ps names the person server; SHOULD NOT live longer than 24 hours), aa-person+jwt (directed identifier of the person at one resource; identifies, does not authorize; MUST NOT exceed one hour), aa-resource+jwt (issued by the resource to describe the access that needs authorizing; aud is the PS or AS that may redeem it; SHOULD NOT exceed five minutes), aa-auth+jwt (the grant; iss is PS or AS; required aud, ps, and a directed sub; no agent identifier and no act; cnf bound to the agent's key; MUST NOT exceed one hour). Implementations MUST check typ and MUST reject aa-person+jwt where an auth token is required.",
+    "Person-server endpoints in draft-11 are person_token_endpoint and auth_token_endpoint (renamed from token_endpoint). A resource issues a resource token only after verifying a person token or an auth token; otherwise it answers requirement=person-token. The agent presents a resource token to auth_token_endpoint. Four-party: the PS discovers {aud}/.well-known/aauth-access.json and calls the AS token endpoint. Call chaining uses upstream_token / subagent_token so a sub-agent signs with its own key. Draft-11 removed act: the person server holds the chain. The agent identifier reaches a resource only in agent-identity and resource-managed modes; in the other three, no token the resource reads carries one, and an auth token carries no agent identifier.",
     "Governance is orthogonal to access mode. Missions are natural-language (Markdown) intent, immutable via s256. Permission, audit, and interaction relay through the PS even when the resource is in identity-based mode. R3 (companion draft) replaces coarse scopes with vocabulary operations, including per-call approval.",
   ],
   claims: [
     {
       name: "typ: aa-agent+jwt",
       meaning:
-        "Quoted from draft-10: agent identity JWT. sub is the agent identifier (aauth:local@domain). cnf.jwk is the signing key. Optional ps names the person server. Lifetime SHOULD NOT exceed 24 hours in the editor's copy.",
+        "Quoted from draft-11: agent identity JWT. sub is the agent identifier (aauth:local@domain). cnf.jwk is the signing key. Optional ps names the person server. Agent tokens SHOULD NOT live longer than 24 hours.",
       source: "quoted",
     },
     {
       name: "typ: aa-auth+jwt",
       meaning:
-        "Quoted from draft-10: the grant. Required payload claims include iss, dwk, aud (the resource), jti, agent, cnf.jwk, iat, exp. Lifetime MUST NOT exceed 1 hour. Optional act, user claims, scope / R3 fields, mission_s256.",
+        "Quoted from draft-11: the grant. Required payload claims include aud (the resource), ps, and a directed sub, plus iss, dwk, jti, iat, exp, and cnf.jwk. It carries no agent identifier and no act. Lifetime MUST NOT exceed 1 hour. Optional scope, account, mission_s256, and tenant; other IANA or OIDC Core §5.1 claims MAY be added. R3 adds its own claims.",
       source: "quoted",
     },
     {
       name: "typ: aa-resource+jwt",
       meaning:
-        "Quoted from draft-10: issued by the resource; aud is the PS (three-party) or AS (four-party). Short-lived (five minutes recommended). Carries what needs authorizing so the PS/AS can show consent UX.",
+        "Quoted from draft-11: issued by the resource; aud is the PS (three-party) or AS (four-party). SHOULD NOT exceed five minutes. Issued only after the resource has verified a person token or an auth token.",
       source: "quoted",
     },
     {
       name: "typ: aa-person+jwt",
       meaning:
-        "Quoted from the editor's copy (absent from draft-10's four-mode table): directed person identifier at one resource. Identifies, does not authorize. MUST NOT be accepted where an auth token is required.",
+        "Quoted from draft-11 §7.1 and §13.11: directed person identifier at one resource. Identifies, does not authorize. Implementations MUST reject aa-person+jwt where an auth token is required.",
       source: "quoted",
     },
     {
       name: "AAuth-Requirement / AAuth-Access / AAuth-Capabilities",
       meaning:
-        "Quoted header names from draft-10. Challenges, opaque session/auth presentation, and capability discovery. Not WWW-Authenticate: Bearer.",
+        "Quoted header names from draft-11. Challenges, opaque session presentation, and capability discovery. Not WWW-Authenticate: Bearer. There is no AAuth-Mission header.",
       source: "quoted",
     },
     {
       name: "Signature-Key: scheme=jwt",
       meaning:
-        "Quoted usage: the JWT (agent, and in the editor's copy person or auth token) rides in Signature-Key. Cover the signature-key component in the RFC 9421 signature base so the header cannot be swapped.",
+        "Quoted usage: the JWT (agent, person, or auth token) rides in Signature-Key. Cover the signature-key component in the RFC 9421 signature base so the header cannot be swapped.",
       source: "quoted",
     },
     {
-      name: "access_mode=agent-token | aauth-access-token | auth-token",
+      name: "access_mode=agent-token | person-token | session-token | auth-token",
       meaning:
-        "Quoted from draft-10 resource metadata. Advisory. Editor's copy registry: agent-token, person-token, session-token, auth-token (R3 adds per-call).",
+        "Quoted from draft-11 resource metadata. Advisory. The older value aauth-access-token is not in this registry. R3 annotates the same modes per operation.",
       source: "quoted",
     },
     {
       name: "Authorization: AAuth <session>",
       meaning:
-        "Illustrative of resource-managed presentation in draft-10 examples. The session is opaque to the agent; the signature still binds the request. Do not copy example token values from blogs as test vectors.",
+        "Illustrative of resource-managed presentation in draft-11 examples. The session token is opaque to the agent; the signature still binds the request. Do not copy example token values from blogs as test vectors.",
       source: "illustrative",
     },
   ],
@@ -75,7 +75,7 @@ export const aauthDeepDive: SpecDeepDive = {
     {
       id: "identity-based",
       title: "Identity-based (peer) — no PS, no AS",
-      when: "Draft-10 §4.1.1 / editor 'agent identity'. The resource decides from cryptographic agent identity alone. This is the AAuth meaning of p2p.",
+      when: "Draft-11 §4.2.1 Agent Identity Access. The figure is still titled Identity-Based Access. The resource decides from cryptographic agent identity alone. This is the AAuth meaning of p2p.",
       steps: [
         "Agent provider issues aa-agent+jwt bound to the agent's signing key and publishes JWKS at the well-known document named by dwk.",
         "Agent sends a signed HTTP request: Signature-Key (scheme=jwt, the agent token) + Signature-Input + Signature covering method, authority, path, and the key-identifying header.",
@@ -84,17 +84,17 @@ export const aauthDeepDive: SpecDeepDive = {
         "If the request lacked an AAuth agent token, the resource MAY 401 with requirement=agent-token.",
       ],
       notes:
-        "The resource learns who the agent is, not which human it serves. For user claims, step up to resource-managed, person-identity (editor), or PS-asserted mode.",
+        "The resource learns who the agent is, not which human it serves. For user claims, step up to resource-managed, person-identity, or PS-authorization mode.",
     },
     {
       id: "resource-managed",
       title: "Resource-managed (two-party)",
-      when: "Draft-10 §4.1.2. Still no external AS. The resource runs consent, account linking, or payment itself.",
+      when: "Draft-11 §4.2.2. Still no external AS. The resource runs consent, account linking, or payment itself.",
       steps: [
         "Agent makes a signed call with its agent token.",
         "Resource returns 401 or 202 with AAuth-Requirement describing interaction (URL, wait, etc.). First call can be registration.",
         "User completes the resource's own page — which MAY wrap ordinary OAuth/OIDC behind the resource.",
-        "Resource issues an opaque session (draft-10: via AAuth-Access; editor: session token) bound to the agent's signature.",
+        "Resource returns an opaque session token in AAuth-Access, bound to the agent's signature.",
         "Subsequent calls: HTTP signature plus the opaque credential. Stolen session without the key should not replay.",
       ],
       notes:
@@ -102,28 +102,29 @@ export const aauthDeepDive: SpecDeepDive = {
     },
     {
       id: "person-identity",
-      title: "Person-identity (editor's copy only)",
-      when: "Editor's fifth mode. Not in draft-10's four-mode table. Resource accepts who the person is from the PS, without a grant of operations.",
+      title: "Person identity",
+      when: "Draft-11 §4.2.3. Resource accepts who the person is from the PS, without a grant of operations. The draft calls this federated login for agents.",
       steps: [
-        "Agent token carries ps. Resource challenges with requirement=person-token (editor).",
+        "Agent token carries ps. Resource challenges with requirement=person-token. The header carries no parameters.",
         "Agent calls the PS person_token_endpoint with resource, mission_s256, optional subagent/upstream tokens.",
         "PS authenticates the person (if needed) and issues aa-person+jwt directed at that resource. Consent here is 'may this agent act at this resource as this person', not a scope list.",
         "Agent retries with the person token in Signature-Key. Resource verifies typ aa-person+jwt and serves whatever it serves to signed-in people.",
         "If a later operation needs a grant, the resource must demand an auth token; it MUST NOT treat the person token as one.",
       ],
       notes:
-        "Pin the editor's copy if you implement this. Interop against draft-10 implementations that never heard of person tokens will fail closed — or worse, fail open if typ is not checked.",
+        "Draft-11 §13.11: implementations MUST check typ and MUST reject aa-person+jwt where an auth token is required. Skipping typ fails open. Draft-10 peers that never heard of person tokens will not interoperate.",
     },
     {
       id: "three-party",
-      title: "PS-asserted (three-party)",
-      when: "Draft-10 §4.1.3 / editor 'PS authorization'. Resource has no AS. User claims and consent come from the agent's person server.",
+      title: "PS authorization (three-party)",
+      when: "Draft-11 §4.2.4. Resource has no AS. User claims and consent come from the agent's person server.",
       steps: [
-        "Agent signs a request. Resource sees ps on the agent token (or already has a relationship).",
-        "Resource 401s with requirement=auth-token and a resource token (aa-resource+jwt, aud = PS, ~five minutes).",
-        "Agent POSTs the resource token to the PS token_endpoint (editor: auth_token_endpoint), signed with the agent key.",
+        "If the request carries neither a person token nor an auth token, the resource 401s with requirement=person-token and does not yet issue a resource token.",
+        "Agent obtains aa-person+jwt from person_token_endpoint and retries with it in Signature-Key.",
+        "Resource, having verified that person token, 401s with requirement=auth-token and a resource token (aa-resource+jwt, aud = PS, SHOULD NOT exceed five minutes). The same requirement MAY arrive as a 202.",
+        "Agent POSTs the resource token to the PS auth_token_endpoint, signed with the agent key.",
         "If the user must approve a mission or scope, PS returns 202 + interaction. User approves at the PS, not at the resource.",
-        "PS issues aa-auth+jwt with user claims (sub, optional email/tenant/groups/roles) and consented scope or R3 grants, cnf-bound to the agent key, aud = resource, exp ≤ 1 hour.",
+        "PS issues aa-auth+jwt with aud = resource, a directed sub, ps, cnf bound to the agent key, and exp that MUST NOT exceed 1 hour. Optional scope or R3 grants. No agent identifier and no act.",
         "Agent retries; resource verifies the auth token (iss = PS, aud = itself, cnf matches the signature) and applies its own policy to (iss, sub).",
       ],
       notes:
@@ -132,10 +133,10 @@ export const aauthDeepDive: SpecDeepDive = {
     {
       id: "four-party",
       title: "Federated (four-party)",
-      when: "Draft-10 §4.1.4 / editor 'federated authorization'. Resource has its own access server. The agent still talks only to the resource and its PS.",
+      when: "Draft-11 §4.2.5. Resource has its own access server. The agent still talks only to the resource and its PS. The person-token prerequisite is the same as three-party.",
       steps: [
         "Same first call as three-party, but the resource token's aud is the resource's access server URL.",
-        "Agent still POSTs the resource token to its PS. The agent does not call the AS.",
+        "Agent still POSTs the resource token to its PS auth_token_endpoint. The agent does not call the AS.",
         "PS discovers {aud}/.well-known/aauth-access.json and federates to the AS token endpoint with the resource token and the agent token.",
         "AS evaluates resource policy and returns an auth token (iss = AS, dwk = aauth-access.json). PS may pass clarifications back via 202.",
         "Agent presents the auth token to the resource. Resource verifies against the AS JWKS.",
@@ -145,7 +146,7 @@ export const aauthDeepDive: SpecDeepDive = {
     },
   ],
   layerDetail: [
-    "Identity: the agent token says which agent; the person token (editor) and auth-token user claims say which person; (iss, sub) at the PS is the user identifier. The agent identifier is not a client_id and not a SPIFFE ID.",
+    "Identity: the agent token says which agent; the person token and the auth token's directed sub say which person; (iss, sub) at the PS is the user identifier. An auth token carries no agent identifier. The agent identifier is not a client_id and not a SPIFFE ID.",
     "Authentication: RFC 9421 signatures proving possession of cnf.jwk on every request. Not bearer possession of a JWT. Signature-Key is how the verifier gets the key; it is not itself a grant.",
     "Authorization: auth tokens, opaque sessions, missions, R3 grants, and the resource's local policy. Identity-based mode is authorization-by-identity-list at the resource. Do not call a person token an authorization.",
   ],
@@ -168,7 +169,7 @@ export const aauthDeepDive: SpecDeepDive = {
     },
     {
       specSlug: "token-exchange",
-      how: "AAuth auth tokens may carry RFC 8693 act for parent/sub-agent chains. That is not the OAuth token-exchange grant; there is no AS token endpoint in identity-based or two-party modes. Cross-domain OAuth hops still use RFC 8693 + 7523 / identity chaining.",
+      how: "Draft-11 removed act from AAuth tokens. Call chaining is upstream_token / subagent_token, and the person server holds the chain. That is not the OAuth token-exchange grant, and there is no AS token endpoint in agent-identity or two-party modes. Cross-domain OAuth hops still use RFC 8693 + 7523 / identity chaining, where nested act is still the actor record.",
     },
     {
       specSlug: "dpop",
@@ -193,12 +194,12 @@ export const aauthDeepDive: SpecDeepDive = {
   ],
   pitfalls: [
     {
-      title: "Draft-10 vs editor's five modes",
-      body: "Datatracker HTML of draft-hardt-oauth-aauth-protocol-10 (6 August 2026) defines four resource access modes. The editor's copy (fetched September 2026, expires 18 March 2027) defines five, adding person-identity, aa-person+jwt, person_token_endpoint, and renaming token_endpoint → auth_token_endpoint. Implement against a pinned snapshot. Interop will fail if one side expects person tokens.",
+      title: "Pin draft-11, not draft-10",
+      body: "Datatracker HTML of draft-hardt-oauth-aauth-protocol-11 (25 September 2026, expires 29 March 2027) defines five resource access modes, including person identity, aa-person+jwt, person_token_endpoint, and auth_token_endpoint. Draft-10's four-mode table does not. The editor HTML was regenerated 3 October 2026; the protocol markdown last changed with the -11 submission, so pin draft-11. Interop with a draft-10 peer fails on typ and endpoint names.",
     },
     {
       title: "typ confusion (fail open)",
-      body: "The editor's copy is explicit: check typ before acting on any AAuth JWT; reject aa-person+jwt where an auth token is required; deployments SHOULD test this because it fails open. Mixing agent, person, resource, and auth tokens in the same slot is the local analogue of using an ID Token as an access token.",
+      body: "Draft-11 §13.11: check typ before acting on any AAuth JWT; MUST reject aa-person+jwt where an auth token is required; deployments SHOULD test this because it fails open. A person token and a PS-issued auth token share iss, dwk, aud, sub, and cnf. Mixing them is the local analogue of using an ID Token as an access token.",
     },
     {
       title: "Sender constraint is the signature",
@@ -209,12 +210,12 @@ export const aauthDeepDive: SpecDeepDive = {
       body: "Auth tokens are audience-restricted to the resource. Resource tokens are audience-restricted to the PS or AS. Presenting an auth token minted for resource A at resource B is a confused-deputy bug. Missions bind intent via s256; do not let the agent swap mission text after approval.",
     },
     {
-      title: "Overbroad act / call chaining",
-      body: "Nested act records parent agents. Attenuate what a sub-agent may do. Draft-10 call chaining was still incomplete in some JS packages at research time. Never expand grants at a hop. Four-party AS policy must see the real agent keys, not a spoofable name.",
+      title: "Call chaining is not nested act",
+      body: "Draft-11 removed act. Earlier revisions recorded the upstream chain there; the draft now says that claim served no reader at the resource. The person server holds the chain. Call chaining uses upstream_token / subagent_token, and the immediate caller signs with its own key. Attenuate what a sub-agent may do. Never expand grants at a hop. Do not import RFC 8693 act into an AAuth auth token.",
     },
     {
       title: "Token replay and lifetime",
-      body: "Resource tokens ~five minutes; auth/person tokens ≤ 1 hour; agent tokens up to ~24 hours in the editor's copy. Revocation is best-effort via endpoints; verifiers check signatures locally and may not hear a revoke. The editor recommends refreshing when fewer than five minutes remain. Clock skew: exp is judged by the verifier with no tolerance in the editor's copy.",
+      body: "Draft-11: resource tokens SHOULD NOT exceed five minutes; person and auth tokens MUST NOT exceed 1 hour; agent tokens SHOULD NOT live longer than 24 hours. An agent SHOULD refresh an agent, person, or auth token when fewer than five minutes remain. exp is judged by the verifier's clock; the document defines no tolerance for clock skew on exp. Revocation is best-effort via endpoints; verifiers check signatures locally and may not hear a revoke.",
     },
     {
       title: "Mix-up of iss / dwk / well-known fetch",
@@ -226,8 +227,8 @@ export const aauthDeepDive: SpecDeepDive = {
     },
   ],
   stabilityDetail: [
-    "Published snapshot: draft-hardt-oauth-aauth-protocol-10, 6 August 2026, expires 7 February 2027, individual Internet-Draft, replaces draft-hardt-aauth-protocol. Author: D. Hardt (Hellō). Datatracker: https://datatracker.ietf.org/doc/draft-hardt-oauth-aauth-protocol/. HTML: draft-hardt-oauth-aauth-protocol-10.",
-    "Editor's copy at https://dickhardt.github.io/AAuth/draft-hardt-oauth-aauth-protocol.html (fetched 15 September 2026) is ahead: five modes, person tokens, endpoint renames. aauth.dev and explorer.aauth.dev track the moving copy. Implementations (TypeScript @aauth/*, .NET AAuth NuGet samples) exist at exploratory maturity.",
+    "Published snapshot: draft-hardt-oauth-aauth-protocol-11, 25 September 2026, expires 29 March 2027, individual Internet-Draft, replaces draft-hardt-aauth-protocol. Author: D. Hardt (Hellō). Datatracker: https://datatracker.ietf.org/doc/draft-hardt-oauth-aauth-protocol/. HTML: draft-hardt-oauth-aauth-protocol-11. Five access modes are in this snapshot.",
+    "Editor HTML at https://dickhardt.github.io/AAuth/draft-hardt-oauth-aauth-protocol.html was regenerated with a 3 October 2026 publication date (expires 6 April 2027). The protocol markdown's last commit is the 25 September -11 submission, so that date stamp is not a newer revision. aauth.dev and explorer.aauth.dev track the moving copy. Implementations (TypeScript @aauth/*, .NET AAuth NuGet samples) exist; this October check did not re-audit their coverage.",
     "What you can ship today: experiment behind a pin; do not bet a compliance program on wire stability. For production user-delegated APIs, ship OAuth 2.1 + RFC 9700 now and keep AAuth in the evaluation track. Re-read datatracker before every release.",
   ],
 };
@@ -354,7 +355,7 @@ export const aauthR3DeepDive: SpecDeepDive = {
     "The resource authors the R3 document and the vocabulary. The person server or access server shows it to the user and puts hashes and granted operations on the auth token. The agent must not be able to swap the document after approval (r3_s256). The resource must enforce the granted set, not trust the agent's memory of the conversation.",
   ],
   mechanics: [
-    "Editor's copy draft-hardt-aauth-r3-latest, published 14 September 2026 (catalog previously cited 3 September), expires 18 March 2027, marked 'Status: Exploratory Draft'. Not obviously on datatracker as a numbered I-D at fetch time — canonical HTML is the GitHub editor's copy.",
+    "Published snapshot draft-hardt-aauth-r3-00, 28 September 2026, expires 1 April 2027. The introduction still marks Status: Exploratory Draft. Datatracker HTML is https://datatracker.ietf.org/doc/html/draft-hardt-aauth-r3-00. The editor HTML was regenerated 3 October 2026; the markdown last changed with the -00 submission.",
     "Resources advertise r3_vocabularies in metadata and annotate individual operations with the credential each requires (so an agent can plan before a 401). Agents include r3_operations when requesting authorization. Auth tokens carry r3_uri, r3_s256, r3_granted, and optional r3_per_call. Fully granted operations execute immediately; per-call operations require a proposal bound to that invocation.",
     "The document addresses five limits of scopes: human comprehension, machine precision, audit completeness (which version was approved), call-specific consequence (parameters and state, not just the operation name), and agent planning (per-operation credential requirements rather than one resource-wide access_mode).",
   ],
@@ -362,7 +363,7 @@ export const aauthR3DeepDive: SpecDeepDive = {
     {
       name: "r3_uri / r3_s256",
       meaning:
-        "Quoted from the R3 editor's copy: content-addressed R3 document in effect at approval time. The hash is the audit provenance.",
+        "Quoted from draft-hardt-aauth-r3-00: content-addressed R3 document in effect at approval time. The hash is the audit provenance.",
       source: "quoted",
     },
     {
@@ -380,7 +381,7 @@ export const aauthR3DeepDive: SpecDeepDive = {
     {
       name: "access_mode per operation (R3 annotation)",
       meaning:
-        "Quoted direction: R3 can state the AAuth access mode for an individual operation. Editor AAuth registry includes per-call as an R3 addition.",
+        "Quoted direction from draft-00: R3 can state the AAuth access mode for an individual operation, so an agent holding a person token can see which operations it can already call.",
       source: "quoted",
     },
   ],
@@ -420,8 +421,8 @@ export const aauthR3DeepDive: SpecDeepDive = {
   ],
   pitfalls: [
     {
-      title: "Exploratory, maybe not on datatracker",
-      body: "Do not treat R3 as a stable IETF document. Confirm whether a given revision is posted to datatracker. Pin the GitHub HTML you implemented.",
+      title: "Exploratory, even though it is on the datatracker",
+      body: "draft-hardt-aauth-r3-00 is posted, and its introduction still says Status: Exploratory Draft. Pin -00. Do not treat it as a stable IETF document.",
     },
     {
       title: "Hash swap",
@@ -433,6 +434,6 @@ export const aauthR3DeepDive: SpecDeepDive = {
     },
   ],
   stabilityDetail: [
-    "Editor's copy https://dickhardt.github.io/AAuth/draft-hardt-aauth-r3.html dated 14 September 2026, exploratory, expires 18 March 2027. Source markdown in the AAuth GitHub repo. Individual work, not a WG item. Ship only in experiments that already pin AAuth.",
+    "draft-hardt-aauth-r3-00, 28 September 2026, expires 1 April 2027, individual, still marked Exploratory Draft. https://datatracker.ietf.org/doc/draft-hardt-aauth-r3/. Source markdown in the AAuth GitHub repo. Not a WG item. Ship only in experiments that already pin AAuth.",
   ],
 };

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type KeyboardEvent } from "react";
 import Link from "next/link";
 import {
   InOneBoard,
@@ -12,6 +12,7 @@ import {
   boardChoiceClass,
   boardFocusClass,
   doorMeta,
+  nextRovingId,
 } from "@/lib/identity-visuals";
 import { cn } from "@/lib/utils";
 
@@ -82,6 +83,7 @@ export function FourCousinsBoard() {
 
   return (
     <InOneBoard
+      id="four-doors"
       kicker="In one board · four doors"
       title="Delegated · AAuth p2p · A2A · did:peer"
       footnote="There is no IETF RFC titled P2P in this cluster. The word is meeting shorthand. Pick one door and stay in it."
@@ -90,6 +92,17 @@ export function FourCousinsBoard() {
         role="tablist"
         aria-label="Four cousin protocols"
         className="grid grid-cols-2 gap-2 lg:grid-cols-4"
+        onKeyDown={(event: KeyboardEvent<HTMLDivElement>) => {
+          const ids = doors.map((item) => item.id);
+          const next = nextRovingId(event.key, ids, id);
+          if (!next) return;
+          event.preventDefault();
+          setId(next);
+          const tabs = event.currentTarget.querySelectorAll<HTMLButtonElement>(
+            '[role="tab"]',
+          );
+          tabs[ids.indexOf(next)]?.focus();
+        }}
       >
         {doors.map((item) => {
           const on = item.id === id;
@@ -100,6 +113,7 @@ export function FourCousinsBoard() {
               type="button"
               role="tab"
               aria-selected={on}
+              tabIndex={on ? 0 : -1}
               onClick={() => setId(item.id)}
               className={cn(
                 "rounded-lg border px-3 py-3 text-left transition-colors",

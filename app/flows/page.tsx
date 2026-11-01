@@ -2,13 +2,9 @@ import Link from "next/link";
 import { PageKicker, PageLead, PageShell, PageTitle } from "@/components/page-shell";
 import { ShareBar } from "@/components/share-bar";
 import { flows } from "@/lib/flows";
-import { ROUTE_META } from "@/lib/seo";
+import { pageMetadata, ROUTE_META } from "@/lib/seo";
 
-export const metadata = {
-  title: "Flows",
-  description:
-    "Sequence-style explanations of user-delegated, p2p, MCP, A2A, on-behalf-of, and CIBA agent patterns.",
-};
+export const metadata = pageMetadata(ROUTE_META.flows);
 
 const patternLabel: Record<(typeof flows)[number]["pattern"], string> = {
   "user-delegated": "User-delegated",
@@ -25,12 +21,10 @@ export default function FlowsIndexPage() {
       <PageKicker>Flows</PageKicker>
       <PageTitle>How an agent actually gets in</PageTitle>
       <PageLead>
-        Sequence-style walkthroughs of the patterns that show up in design
-        reviews: user-delegated API calls, AAuth p2p modes, MCP as an OAuth
-        client, A2A, on-behalf-of chaining, CIBA, and workload-plus-user. Each
-        flow page plays an animated sequence from the same steps, then a
-        transcript. For the other cut — how the agent is deployed, and which
-        protocols attach to that runtime — see{" "}
+        This is where the sequences live. Each page is a full hop-by-hop player:
+        phase labels, a hop list you can click, Now / Why / RFC / chips. The map
+        at home does not replay them. For the other cut — how the agent is
+        deployed, and which protocols attach to that runtime — see{" "}
         <Link
           href="/patterns"
           className="text-primary underline decoration-primary/40 underline-offset-4 hover:decoration-primary"
@@ -47,10 +41,12 @@ export default function FlowsIndexPage() {
           <li key={flow.slug}>
             <Link
               href={`/flows/${flow.slug}`}
-            className="block h-full rounded-xl border border-border bg-card p-5 transition-colors hover:border-primary/40 hover:bg-muted/50"
+              className="block h-full rounded-xl border border-border bg-card p-5 transition-colors hover:border-primary/40 hover:bg-muted/50"
             >
               <p className="font-mono text-[10px] uppercase tracking-wider text-brass">
                 {patternLabel[flow.pattern]}
+                <span className="mx-2 opacity-40">·</span>
+                {flow.steps.length} hops
               </p>
               <h2 className="mt-2 font-heading text-xl">{flow.title}</h2>
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">

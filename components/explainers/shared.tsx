@@ -2,10 +2,11 @@
 
 import type { LucideIcon } from "lucide-react";
 import { Copy, KeyRound, Stamp } from "lucide-react";
-import type { ReactNode } from "react";
+import type { KeyboardEvent, ReactNode } from "react";
 import {
   boardChoiceClass,
   boardFocusClass,
+  nextRovingId,
   pieceMeta,
   tokenMeta,
   type TokenKind,
@@ -196,7 +197,22 @@ export function ModeTabs({
   onChange: (id: string) => void;
 }) {
   return (
-    <div role="tablist" aria-label={label} className="flex flex-wrap gap-1.5">
+    <div
+      role="tablist"
+      aria-label={label}
+      className="flex flex-wrap gap-1.5"
+      onKeyDown={(event: KeyboardEvent<HTMLDivElement>) => {
+        const ids = options.map((option) => option.id);
+        const next = nextRovingId(event.key, ids, value);
+        if (!next) return;
+        event.preventDefault();
+        onChange(next);
+        const tabs = event.currentTarget.querySelectorAll<HTMLButtonElement>(
+          '[role="tab"]',
+        );
+        tabs[ids.indexOf(next)]?.focus();
+      }}
+    >
       {options.map((option) => {
         const selected = option.id === value;
         const Icon = option.icon;
@@ -206,6 +222,7 @@ export function ModeTabs({
             type="button"
             role="tab"
             aria-selected={selected}
+            tabIndex={selected ? 0 : -1}
             title={option.hint}
             className={cn(
               "inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-left text-sm transition-colors",

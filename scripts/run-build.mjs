@@ -30,7 +30,7 @@ const useOpenNext =
 
 const command = useOpenNext ? "opennextjs-cloudflare" : "next";
 const env = { ...process.env };
- if (useOpenNext) {
+if (useOpenNext) {
   env.OPEN_NEXT_INNER = "1";
 }
 

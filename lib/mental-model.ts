@@ -1,5 +1,5 @@
 export const mentalModel = {
-  asOf: "8 October 2026",
+  asOf: "1 November 2026",
   identities: [
     {
       name: "User / person / resource owner",
@@ -144,13 +144,13 @@ export const mentalModel = {
       kind: "Late-stage drafts",
       line: "Close to done. Still cite the revision you implemented.",
       examples:
-        "OAuth 2.1 (WG, Dec 2026 IESG milestone), identity chaining (RFC Editor queue), transaction tokens (write-up), SD-JWT VC (Last Call ended 15 Sep 2026; Waiting for AD Go-Ahead, still -19), CIMD, WIMSE suite, AIMS (WIMSE WG aims-00).",
+        "OAuth 2.1 (draft-17, 31 Oct 2026; Dec 2026 IESG milestone), identity chaining (RFC Editor queue, still Awaiting First editor), transaction tokens (write-up), SD-JWT VC (IESG Evaluation, draft-23, 5 Nov 2026 telechat), CIMD, WIMSE suite, AIMS (WIMSE WG aims-00).",
     },
     {
       kind: "Individual drafts — expect churn",
       line: "The table of modes will move. Pin a snapshot.",
       examples:
-        "AAuth (draft-11, 25 Sep 2026, five modes), HTTP Signature Keys, AAuth R3 (draft-00, 28 Sep 2026, still exploratory), agent-grants, AAP (expired draft-01), WIMSE AI-agent identity (renewed as draft-03, 1 Oct 2026).",
+        "AAuth (draft-11, 25 Sep 2026, five modes), HTTP Signature Keys, AAuth R3 (draft-00, 28 Sep 2026, still exploratory), agent-grants, AAP (expired draft-01), WIMSE AI-agent identity (draft-04, 27 Oct 2026).",
     },
     {
       kind: "Vendor / foundation protocols",
