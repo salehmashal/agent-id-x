@@ -14,6 +14,9 @@ export function SequenceList({ steps }: { steps: FlowStep[] }) {
           </span>
           <div className="rounded-lg border border-border/80 bg-card/50 p-3">
             <p className="font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
+              {step.chapter ? (
+                <span className="mr-2 text-brass">{step.chapter}</span>
+              ) : null}
               {step.from}
               <span className="mx-2 text-primary">→</span>
               {step.to}
