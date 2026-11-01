@@ -125,3 +125,22 @@ export const boardChoiceClass = (selected: boolean) =>
 
 export const boardFocusClass =
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background";
+
+/** Arrow / Home / End for tablists and principal seats. Returns the next id, or null. */
+export function nextRovingId<T extends string>(
+  key: string,
+  ids: readonly T[],
+  current: T,
+): T | null {
+  const index = ids.indexOf(current);
+  if (index < 0 || ids.length === 0) return null;
+  if (key === "ArrowRight" || key === "ArrowDown") {
+    return ids[(index + 1) % ids.length] ?? null;
+  }
+  if (key === "ArrowLeft" || key === "ArrowUp") {
+    return ids[(index - 1 + ids.length) % ids.length] ?? null;
+  }
+  if (key === "Home") return ids[0] ?? null;
+  if (key === "End") return ids[ids.length - 1] ?? null;
+  return null;
+}
