@@ -16,8 +16,8 @@ const modes = [
   {
     id: "identity",
     label: "Identity-based",
-    hint: "Draft-10 §4.1.1 — the AAuth meaning of p2p",
-    draft: "Draft-10",
+    hint: "Draft-11 §4.2.1 — Agent Identity Access, the AAuth meaning of p2p",
+    draft: "Draft-11",
     blurb:
       "Agent and resource only. The resource decides from who the agent is. No person server, no access server, no grant of operations.",
     actors: {
@@ -47,8 +47,8 @@ const modes = [
   {
     id: "two-party",
     label: "Two-party",
-    hint: "Draft-10 §4.1.2 — resource-managed",
-    draft: "Draft-10",
+    hint: "Draft-11 §4.2.2 — resource-managed",
+    draft: "Draft-11",
     blurb:
       "Still no external authorization server. The resource runs its own login (which may wrap OAuth behind the curtain) and issues an opaque session glued to the agent's key.",
     actors: {
@@ -83,8 +83,8 @@ const modes = [
   {
     id: "person",
     label: "Person-identity",
-    hint: "Editor's copy only — not in draft-10's four-mode table",
-    draft: "Editor's copy",
+    hint: "Draft-11 §4.2.3 — identifies, does not authorize",
+    draft: "Draft-11",
     blurb:
       "The person server says who the human is at this resource, without a grant of operations. Federated login, not identity-based p2p.",
     actors: {
@@ -119,13 +119,13 @@ const modes = [
       auth: false,
     },
     punchline:
-      "Identifies, does not authorize. A resource MUST reject aa-person+jwt wherever an auth token is required. Pin the editor's copy if you implement this.",
+      "Identifies, does not authorize. Draft-11 §13.11: a resource MUST reject aa-person+jwt wherever an auth token is required.",
   },
   {
     id: "three",
     label: "Three-party",
-    hint: "Draft-10 §4.1.3 — PS-asserted",
-    draft: "Draft-10",
+    hint: "Draft-11 §4.2.4 — PS authorization",
+    draft: "Draft-11",
     blurb:
       "The resource has no access server. User claims and consent come from the agent's person server. The grant is aa-auth+jwt, sealed to the agent's key.",
     actors: {
@@ -170,8 +170,8 @@ const modes = [
   {
     id: "four",
     label: "Four-party",
-    hint: "Draft-10 §4.1.4 — federated",
-    draft: "Draft-10",
+    hint: "Draft-11 §4.2.5 — federated authorization",
+    draft: "Draft-11",
     blurb:
       "The resource has its own access server. The agent still talks only to the resource and its person server. The PS is the only party that calls the AS.",
     actors: {
@@ -229,7 +229,7 @@ const tokenCatalog = [
   {
     key: "person" as const,
     label: "aa-person+jwt",
-    hint: "Editor only. Identifies the person. Not a grant.",
+    hint: "Identifies the person. Not a grant. In draft-11.",
   },
   {
     key: "resource" as const,
@@ -261,10 +261,10 @@ export function AauthModesBoard() {
       title="Restage the hop"
       footnote={
         <>
-          Draft-10 (6 August 2026) has four modes. Person-identity and{" "}
-          <span className="font-mono text-xs">aa-person+jwt</span> are the
-          editor&apos;s fifth. Individual Internet-Draft — not an RFC, not an
-          OAuth WG document.{" "}
+          Draft-11 (25 September 2026) defines five modes, including
+          person-identity and{" "}
+          <span className="font-mono text-xs">aa-person+jwt</span>. Individual
+          Internet-Draft — not an RFC, not an OAuth WG document.{" "}
           <Link
             href="/compare/aauth-vs-oauth"
             className="text-primary underline decoration-primary/40 underline-offset-4 hover:decoration-primary"
