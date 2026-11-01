@@ -115,11 +115,11 @@ export const foundationSpecs: Spec[] = [
     slug: "oauth-2-1",
     shortName: "OAuth 2.1",
     officialName: "The OAuth 2.1 Authorization Framework",
-    id: "draft-ietf-oauth-v2-1-16",
+    id: "draft-ietf-oauth-v2-1-17",
     status: "wg-draft",
     stability: "draft",
-    date: "3 September 2026",
-    authors: "D. Hardt, A. Parecki, T. Lodderstedt",
+    date: "31 October 2026",
+    authors: "D. Hardt, A. Parecki (ed.), T. Lodderstedt",
     org: "IETF",
     layer: "authz",
     relevance: "foundation",
@@ -158,7 +158,7 @@ export const foundationSpecs: Spec[] = [
       "oidc-core",
     ],
     implementerNotes:
-      "Not an RFC as of September 2026. OAuth WG milestone is to submit it to the IESG in December 2026. MCP's 2026-07-28 authorization spec still cites draft-ietf-oauth-v2-1-13; implement against the current draft-16 text and RFC 9700, not against memory of 2.0. Draft-16's browser-apps section still had a TODO to import RFC 10017 once finalized — RFC 10017 has since been published.",
+      "Not an RFC as of 1 November 2026. OAuth WG milestone is to submit it to the IESG in December 2026. MCP's 2026-07-28 authorization spec still cites draft-ietf-oauth-v2-1-13; implement against draft-17 and RFC 9700, not against memory of 2.0. Draft-17 (31 October 2026, expires 4 May 2027) fills the browser-based applications section with the normative requirements from RFC 10017 and cites that RFC.",
     whyAgentCares:
       "This is the security baseline MCP, FAPI 2.0 thinking, and most 'agent as OAuth client' designs now assume: PKCE always, no implicit, no password grant, no tokens in URLs. If your agent SDK still does implicit or stores refresh tokens unbound in local storage, it is not 2.1-shaped.",
     urls: [
@@ -167,8 +167,8 @@ export const foundationSpecs: Spec[] = [
         href: "https://datatracker.ietf.org/doc/draft-ietf-oauth-v2-1/",
       },
       {
-        label: "HTML of draft-16",
-        href: "https://datatracker.ietf.org/doc/html/draft-ietf-oauth-v2-1-16",
+        label: "HTML of draft-17",
+        href: "https://datatracker.ietf.org/doc/html/draft-ietf-oauth-v2-1-17",
       },
       { label: "oauth.net/2.1", href: "https://oauth.net/2.1/" },
     ],
@@ -185,7 +185,7 @@ export const foundationSpecs: Spec[] = [
     org: "IETF",
     layer: "authn",
     relevance: "foundation",
-    aliases: ["rfc7636", "proof key"],
+    aliases: ["rfc7636", "proof key", "PKCE"],
     problem:
       "Public clients (native apps, many SPAs, many agents) cannot keep a client secret. An attacker who intercepts the authorization code can otherwise redeem it.",
     identityVsAuthnVsAuthz:
@@ -339,7 +339,7 @@ export const foundationSpecs: Spec[] = [
     tokensAndClaims: [],
     related: ["oauth-2-1", "pkce", "oauth-security-bcp"],
     implementerNotes:
-      "OAuth 2.1 draft-16 still had a TODO to import this text; the RFC itself published in August 2026. Confirm the RFC Editor page for the exact author list if citing academically.",
+      "RFC 10017 published in August 2026. OAuth 2.1 draft-17 (31 October 2026) copies its normative browser-app requirements into the 2.1 draft and cites the RFC rather than draft-ietf-oauth-browser-based-apps-27. Cite the RFC for the BCP; cite draft-17 only for the consolidated framework.",
     whyAgentCares:
       "Chat UIs that broker agent OAuth in the browser are browser-based OAuth clients. XSS in the chat page is equivalent to stealing the agent's tokens.",
     urls: [
@@ -381,7 +381,7 @@ export const foundationSpecs: Spec[] = [
     ],
     related: ["token-exchange", "identity-chaining", "xaa", "oauth-2-0"],
     implementerNotes:
-      "draft-ietf-oauth-rfc7523bis was in the RFC Editor queue in 2026 (awaiting first editor). New implementations should watch 7523bis for clarifications, especially around nested JWT handling.",
+      "draft-ietf-oauth-rfc7523bis-11 is still the latest revision (no RFC number). Datatracker was updated 19 October 2026; RFC Editor status on 1 November 2026 is “blocked: Final Approval Pending”, no longer “In Progress (Second Edit)”. New implementations should watch 7523bis for clarifications, especially around nested JWT handling.",
     whyAgentCares:
       "Cross-domain 'agent already has an identity assertion, needs an access token over here' is RFC 8693 then RFC 7523. Without 7523 there is no ID-JAG redemption step.",
     urls: [
