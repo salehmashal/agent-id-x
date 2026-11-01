@@ -1,49 +1,318 @@
-import type { AgentFlow } from "@/lib/types";
+import { egChip, specChip, type AgentFlow, type FlowStep, type PayloadChip } from "@/lib/types";
+
+function hop(
+  from: string,
+  to: string,
+  action: string,
+  extra: {
+    chapter: string;
+    citation: string;
+    now: string;
+    why: string;
+    caption: string;
+    chips: PayloadChip[];
+    note?: string;
+    durationMs?: number;
+    challenge?: boolean;
+    fail?: boolean;
+    held?: { actor: string; label: string }[];
+  },
+): FlowStep {
+  return { from, to, action, ...extra };
+}
 
 export const flows: AgentFlow[] = [
   {
     slug: "user-delegated-api",
     title: "User-delegated agent calling APIs",
+    protocol: "OAuth 2.1",
+    question: "How does a human authorize an agent, as a client, to call an API?",
+    takeaway:
+      "RO consents at the AS. The client redeems a code with PKCE. The pass goes in the Authorization header — glue it to a key with DPoP if you can. The RS still does not see a portable agent instance unless you add AAuth or WIMSE.",
     summary:
       "A human authorizes an agent (as an OAuth client) to call an API. OAuth 2.1 + PKCE + audience-restricted JWT access tokens. This is still the production default.",
     pattern: "user-delegated",
-    actors: ["User", "Agent (OAuth client)", "Authorization server", "Resource server"],
+    actors: [
+      "User",
+      "Agent (OAuth client)",
+      "Authorization server",
+      "Resource server",
+    ],
     steps: [
-      {
-        from: "User",
-        to: "Agent",
-        action: "Asks the agent to do something that needs an API",
-      },
-      {
-        from: "Agent",
-        to: "Authorization server",
-        action:
-          "Authorization Code + PKCE (PAR if the request is rich). scope + resource=API URI",
-        note: "Browser or native-app redirect, or CIBA if the user is on another device",
-      },
-      {
-        from: "User",
-        to: "Authorization server",
-        action: "Authenticates (OIDC) and consents",
-      },
-      {
-        from: "Authorization server",
-        to: "Agent",
-        action: "Issues access token (RFC 9068 JWT) and optional refresh token",
-        note: "Prefer DPoP or mTLS binding so a stolen token is not enough",
-      },
-      {
-        from: "Agent",
-        to: "Resource server",
-        action: "Authorization: Bearer (or DPoP) with aud = this API",
-      },
+      hop(
+        "User",
+        "Agent (OAuth client)",
+        "Asks the client (agent/host) to call an API that needs a pass",
+        {
+          chapter: "Discover",
+          citation: "OAuth 2.1 roles",
+          why: "The resource owner is not the client. Collapsing this into 'the agent logs in' hides who consents and who later holds the token.",
+          now: "The resource owner (RO) asks the OAuth client to reach a resource server (RS). The authorization server (AS) has not been called yet.",
+          caption: "Someone at the desk asks a messenger to fetch a pass for a locked room.",
+          chips: [
+            specChip("resource owner"),
+            specChip("client"),
+            specChip("authorization server"),
+            specChip("resource server"),
+          ],
+        },
+      ),
+      hop(
+        "Agent (OAuth client)",
+        "Resource server",
+        "Calls the API with no Authorization header yet",
+        {
+          chapter: "Discover",
+          citation: "RFC 6750",
+          why: "Optional if the client already knows the RS URI and its AS. Shown so a beginner sees why the 401 and metadata hops exist.",
+          now: "The client hits the resource. There is no access token yet. This is not login.",
+          caption: "Knock on the locked door with empty hands.",
+          chips: [specChip("resource server"), specChip("Authorization", "Absent")],
+        },
+      ),
+      hop(
+        "Resource server",
+        "Agent (OAuth client)",
+        "401 + WWW-Authenticate pointing at resource_metadata",
+        {
+          chapter: "Discover",
+          citation: "RFC 9728",
+          why: "Optional only if the client is already configured with this AS. Otherwise the RS must advertise how to authorize — the client must not guess.",
+          now: "The resource server returns 401. WWW-Authenticate carries a resource_metadata URL for protected resource metadata.",
+          caption: "The door posts the address of the desk that issues passes.",
+          chips: [
+            specChip("WWW-Authenticate"),
+            specChip("resource_metadata"),
+            specChip("401"),
+          ],
+          challenge: true,
+        },
+      ),
+      hop(
+        "Agent (OAuth client)",
+        "Resource server",
+        "GET protected resource metadata (PRM)",
+        {
+          chapter: "Discover",
+          citation: "RFC 9728",
+          why: "Optional if the client already cached PRM. This hop is how it learns authorization_servers and the canonical resource identifier (RFC 8707 resource=).",
+          now: "The client fetches RFC 9728 metadata from the RS. That document lists the authorization server(s) and the resource URI the later token must be audience-restricted to.",
+          caption: "Read the notice on the door: which desk, which room name.",
+          chips: [
+            specChip("protected resource metadata"),
+            specChip("authorization_servers"),
+            specChip("resource"),
+          ],
+        },
+      ),
+      hop(
+        "Agent (OAuth client)",
+        "Authorization server",
+        "GET authorization-server metadata",
+        {
+          chapter: "Discover",
+          citation: "RFC 8414",
+          why: "Optional if the client already knows the authorization and token endpoint URLs. Shown so a stranger can find them without a hardcoded blog snippet.",
+          now: "The client GETs /.well-known/oauth-authorization-server (or the URI PRM named). It learns authorization_endpoint, token_endpoint, and PKCE methods.",
+          caption: "Read the desk's own hours: where to file, where to cash tickets.",
+          chips: [
+            specChip("authorization_endpoint"),
+            specChip("token_endpoint"),
+            specChip("code_challenge_methods_supported"),
+          ],
+        },
+      ),
+      hop(
+        "Agent (OAuth client)",
+        "Agent (OAuth client)",
+        "Generates a PKCE code_verifier and S256 code_challenge",
+        {
+          chapter: "Prove",
+          citation: "RFC 7636",
+          why: "The secret must never appear on the front channel. A static challenge is not PKCE. OAuth 2.1 keeps only S256; plain is gone.",
+          now: "The client creates a fresh high-entropy code_verifier and stores it. It will send only BASE64URL(SHA256(verifier)) as code_challenge.",
+          caption: "Write a secret in the drawer. Only the hash will go in the mail.",
+          chips: [
+            specChip("code_verifier"),
+            specChip("code_challenge"),
+            specChip("S256"),
+          ],
+          held: [{ actor: "Agent (OAuth client)", label: "code_verifier" }],
+        },
+      ),
+      hop(
+        "Agent (OAuth client)",
+        "Authorization server",
+        "POST pushed authorization request (PAR) with the rich parameters",
+        {
+          chapter: "Grant",
+          citation: "RFC 9126",
+          why: "Optional. Skip only if the authorization request is small enough for a query string. FAPI 2.0 and several agent profiles want PAR. Shown so a mission description never silently rides the URL.",
+          now: "The client POSTs the pushed authorization request endpoint: client_id, redirect_uri, scope, resource, code_challenge, code_challenge_method=S256. Confidential clients authenticate here.",
+          caption: "File the long form at the back desk. The postcard will only carry a claim ticket.",
+          chips: [
+            specChip("pushed authorization request endpoint"),
+            specChip("code_challenge"),
+            specChip("resource", "RFC 8707"),
+            specChip("authorization_details", "RAR, if used"),
+          ],
+        },
+      ),
+      hop(
+        "Authorization server",
+        "Agent (OAuth client)",
+        "Returns request_uri (one-time, short-lived)",
+        {
+          chapter: "Grant",
+          citation: "RFC 9126",
+          why: "Optional — only when PAR was used. request_uri is a reference, not an authorization code and not an access token.",
+          now: "The AS returns request_uri and expires_in. The client will put that URI on the front-channel redirect instead of the rich query string.",
+          caption: "A claim ticket for the form you already filed.",
+          chips: [specChip("request_uri"), specChip("expires_in")],
+          held: [{ actor: "Agent (OAuth client)", label: "request_uri" }],
+        },
+      ),
+      hop(
+        "Agent (OAuth client)",
+        "Authorization server",
+        "Redirects the browser to the authorization endpoint: response_type=code, code_challenge, …",
+        {
+          chapter: "Grant",
+          citation: "OAuth 2.1",
+          why: "This is the front channel. If PAR was used, the query is only client_id + request_uri. If not, it carries response_type=code, code_challenge, S256, redirect_uri, scope, resource, and state.",
+          now: "The user-agent is sent to the authorization endpoint. response_type is code — never token. The access token is not requested on this hop.",
+          caption: "Walk the owner to the desk. The postcard must not carry the pass.",
+          chips: [
+            specChip("authorization endpoint"),
+            specChip("response_type=code"),
+            specChip("code_challenge"),
+            specChip("resource", "RFC 8707"),
+          ],
+        },
+      ),
+      hop(
+        "User",
+        "Authorization server",
+        "Authenticates at the authorization server",
+        {
+          chapter: "Grant",
+          citation: "OAuth 2.1",
+          why: "Authentication and consent are different hops. Logging in does not yet grant the client anything. OIDC, if used, happens here as the identity layer — it still does not mint the API pass.",
+          now: "The resource owner proves who they are to the AS. The client does not see the password. The API has not been called.",
+          caption: "The owner shows ID at the desk. The permission slip is still blank.",
+          chips: [specChip("resource owner"), specChip("authentication")],
+        },
+      ),
+      hop(
+        "User",
+        "Authorization server",
+        "Consents to this client for this resource and scope",
+        {
+          chapter: "Grant",
+          citation: "OAuth 2.1",
+          why: "The AS must know the RO approved this client for this resource. Consent is not the API call and not the ID Token.",
+          now: "The resource owner reviews client_id, scope, and resource (or the PAR/RAR details) and approves.",
+          caption: "The owner signs the permission slip for this messenger and this room.",
+          chips: [specChip("consent"), specChip("scope"), specChip("resource")],
+        },
+      ),
+      hop(
+        "Authorization server",
+        "Agent (OAuth client)",
+        "Redirects back with an authorization code — never an access token in the URL",
+        {
+          chapter: "Grant",
+          citation: "OAuth 2.1",
+          why: "Implicit (token in the URL) is gone. The code is a one-time ticket that rides the user-agent — that is why PKCE exists.",
+          now: "The authorization endpoint 302s to redirect_uri with code (and state). The access token is not in this hop.",
+          caption: "A ticket, not the pass — never tape the pass to the URL.",
+          chips: [specChip("code"), specChip("redirect_uri"), specChip("no implicit")],
+        },
+      ),
+      hop(
+        "Agent (OAuth client)",
+        "Authorization server",
+        "POSTs the token endpoint: code + code_verifier (and client auth if confidential)",
+        {
+          chapter: "Grant",
+          citation: "RFC 7636",
+          why: "A stolen code is useless without the verifier the client kept. Confidential clients also authenticate. Public clients send PKCE only. Optional: DPoP proof on this POST.",
+          now: "Back channel: grant_type=authorization_code, code, code_verifier. The browser never sees code_verifier. The AS hashes the verifier with S256 and matches the stored challenge.",
+          caption: "Only the desk that kept the secret can cash the ticket.",
+          chips: [
+            specChip("token endpoint"),
+            specChip("grant_type=authorization_code"),
+            specChip("code"),
+            specChip("code_verifier"),
+            specChip("client authentication", "Confidential clients"),
+          ],
+        },
+      ),
+      hop(
+        "Authorization server",
+        "Agent (OAuth client)",
+        "Returns an access token (RFC 9068 JWT) and optional refresh token",
+        {
+          chapter: "Grant",
+          citation: "RFC 6750",
+          why: "The pass is minted where logs of the URL cannot steal it. A refresh token, if issued, is optional and is used only at the token endpoint — never at the RS.",
+          now: "The token endpoint returns access_token, token_type, expires_in, optional refresh_token. Prefer RFC 9068 JWT access tokens with aud = this RS (RFC 8707).",
+          caption: "The pass is printed in the back office, not on the postcard.",
+          chips: [
+            specChip("access_token"),
+            specChip("token_type"),
+            specChip("refresh_token", "Optional"),
+            specChip("aud", "RFC 9068 / RFC 8707"),
+          ],
+          held: [{ actor: "Agent (OAuth client)", label: "access token" }],
+          note: "Prefer DPoP or mTLS binding so a stolen token is not enough",
+        },
+      ),
+      hop(
+        "Agent (OAuth client)",
+        "Resource server",
+        "Calls the RS with Authorization header, audience-restricted",
+        {
+          chapter: "Call",
+          citation: "RFC 6750",
+          why: "Query-string tokens leak in logs and Referer. Header only. Bearer is a photocopy until you add DPoP or mTLS. The RS authorizes this pass, not an ID Token.",
+          now: "The client calls the resource server with Authorization: Bearer (or DPoP). The token's audience must be this RS. The API sees client_id and user sub — not a portable agent instance.",
+          caption: "Show the pass at the door. Do not photocopy it onto the query string.",
+          chips: [
+            specChip("Authorization"),
+            specChip("Bearer"),
+            specChip("DPoP", "RFC 9449 if sender-constrained"),
+            specChip("aud"),
+          ],
+        },
+      ),
+      hop(
+        "Resource server",
+        "Agent (OAuth client)",
+        "Validates the token (JWT RFC 9068 locally, or introspection) and responds",
+        {
+          chapter: "Call",
+          citation: "RFC 9068",
+          why: "JWT access tokens are checked locally (signature, exp, aud). Opaque tokens use RFC 7662 introspection (RS → AS). Either way the RS must not trust the client to name the user.",
+          now: "The RS verifies the pass is for itself and still valid, then returns the resource. An ID Token, if the client also has one, is not used here.",
+          caption: "The door checks the pass against its own stamp, then opens.",
+          chips: [
+            specChip("aud"),
+            specChip("exp"),
+            specChip("RFC 9068 JWT"),
+            specChip("RFC 7662 introspection", "Opaque tokens"),
+          ],
+        },
+      ),
     ],
     specs: [
       "oauth-2-1",
       "pkce",
+      "par",
       "oidc-core",
       "jwt-access-tokens",
       "resource-indicators",
+      "prm",
       "dpop",
     ],
     caveats:
@@ -57,37 +326,116 @@ export const flows: AgentFlow[] = [
   {
     slug: "p2p-identity-based",
     title: "Peer-to-peer: AAuth identity-based access",
+    protocol: "AAuth",
+    question: "How does an agent prove who it is when there is no authorization server?",
+    takeaway:
+      "Identity-based AAuth has no AS and no person server. Wire is RFC 9421 + Signature-Key (aa-agent+jwt). The resource learns which agent called, not which human it serves.",
     summary:
       "No authorization server in the path. The agent signs the request; the resource decides from cryptographic identity. This is the 'p2p' that sits next to AAuth.",
     pattern: "p2p",
-    actors: ["Agent", "Agent provider (JWKS)", "Resource"],
+    actors: ["Agent", "Agent provider", "Resource"],
     steps: [
-      {
-        from: "Agent provider",
-        to: "Agent",
-        action: "Issues aa-agent+jwt bound to the agent's signing key",
-      },
-      {
-        from: "Agent",
-        to: "Resource",
-        action:
-          "Signed HTTP request: Signature-Key (jwt) + Signature-Input + Signature",
-      },
-      {
-        from: "Resource",
-        to: "Agent provider",
-        action: "Fetches JWKS via iss + dwk well-known document",
-      },
-      {
-        from: "Resource",
-        to: "Agent",
-        action: "Allows or denies based on local policy for that agent identifier",
-        note: "No token exchange, no person server, no OAuth redirect. 401 requirement=agent-token if the signature was missing.",
-      },
+      hop(
+        "Agent provider",
+        "Agent",
+        "Issues aa-agent+jwt bound to the agent's signing key",
+        {
+          chapter: "Discover",
+          citation: "AAuth draft",
+          why: "The provider attests the key. It is not an OAuth AS and mints no Bearer access token.",
+          now: "typ aa-agent+jwt: sub is the agent identifier, cnf binds the signing key. Optional ps is unused in this mode.",
+          caption: "A wax-sealed ID card for the agent — not a photocopied pass.",
+          chips: [
+            specChip("typ: aa-agent+jwt"),
+            specChip("cnf"),
+            specChip("iss / dwk"),
+          ],
+          held: [{ actor: "Agent", label: "aa-agent+jwt" }],
+        },
+      ),
+      hop(
+        "Agent provider",
+        "Agent provider",
+        "Publishes JWKS at {iss}/.well-known/{dwk}",
+        {
+          chapter: "Discover",
+          citation: "AAuth draft",
+          why: "Do not skip this. A stranger cannot verify a first request unless the provider hosts keys at the well-known document named by dwk.",
+          now: "The provider publishes aauth-agent.json (dwk) and JWKS. This is not an OAuth token endpoint.",
+          caption: "Hang the signet on the wall where any door can look it up.",
+          chips: [specChip("iss"), specChip("dwk"), specChip("JWKS")],
+        },
+      ),
+      hop(
+        "Agent",
+        "Resource",
+        "First signed HTTP request: Signature-Key (jwt) + Signature-Input + Signature",
+        {
+          chapter: "Prove",
+          citation: "RFC 9421",
+          why: "A stranger can verify the caller without an AS-issued Bearer token. Cover signature-key in the signature base. There is no authorization server on this hop.",
+          now: "The agent authenticates with HTTP Message Signatures. Signature-Key carries the JWT (scheme=jwt). This is the first request — the resource has never seen this agent.",
+          caption: "Wax seal on the envelope — the key, not a photocopied pass.",
+          chips: [
+            specChip("Signature-Key"),
+            specChip("Signature-Input"),
+            specChip("Signature"),
+            specChip("typ: aa-agent+jwt"),
+          ],
+        },
+      ),
+      hop(
+        "Resource",
+        "Agent provider",
+        "Fetches JWKS via iss + dwk well-known document",
+        {
+          chapter: "Prove",
+          citation: "AAuth draft",
+          why: "Do not skip JWKS fetch. The resource verifies the seal against the provider's published keys. That fetch is a trust-boundary crossing, not an OAuth token request.",
+          now: "Resolve {iss}/.well-known/{dwk} and fetch JWKS.",
+          caption: "Check the wax against the published signet.",
+          chips: [specChip("iss"), specChip("dwk"), specChip("JWKS")],
+        },
+      ),
+      hop(
+        "Resource",
+        "Resource",
+        "Verifies RFC 9421 signature, typ, exp, and cnf.jwk",
+        {
+          chapter: "Prove",
+          citation: "RFC 9421",
+          why: "Signature, JWT type, expiry, and key binding are separate checks. Missing signature → 401 AAuth-Requirement: agent-token.",
+          now: "The resource checks the signature base (including signature-key), typ aa-agent+jwt, exp, and that cnf matches the key that signed.",
+          caption: "Feel the wax, read the card type, check the date, match the signet.",
+          chips: [
+            specChip("typ: aa-agent+jwt"),
+            specChip("cnf"),
+            specChip("exp"),
+            specChip("AAuth-Requirement", "If signature missing"),
+          ],
+        },
+      ),
+      hop(
+        "Resource",
+        "Agent",
+        "Allows or denies based on local policy for that agent identifier",
+        {
+          chapter: "Call",
+          citation: "AAuth draft",
+          why: "Identity-based access answers which agent called — not which human it serves. No token exchange, no person server, no OAuth redirect.",
+          now: "The resource applies local policy to the agent identifier. access_mode=agent-token on resource metadata is advisory.",
+          caption: "The door knows the seal. It does not yet know who sent the messenger.",
+          chips: [
+            specChip("access_mode=agent-token"),
+            specChip("local policy"),
+          ],
+          note: "No token exchange, no person server, no OAuth redirect. 401 requirement=agent-token if the signature was missing.",
+        },
+      ),
     ],
     specs: ["aauth", "http-signature-keys", "http-message-signatures"],
     caveats:
-      "The resource learns who the agent is, not necessarily which human it serves. For user claims, step up to two-party interaction or three-party PS-asserted mode. Individual draft — pin a revision. Draft-10 has four modes; the editor's copy adds person-identity as a fifth.",
+      "The resource learns who the agent is, not necessarily which human it serves. For a person identifier without a grant, use draft-11 person identity. For a grant, use PS authorization. Individual draft — pin draft-11. Five modes, not draft-10's four.",
     detail: [
       "This is the AAuth meaning of p2p: agent and resource, no authorization server, no person server. It is as complete as AAuth two-party for the identity question and weaker for the user question.",
       "It is not A2A (no Agent Card, no tasks). It is not did:peer (the identifier is published at a well-known URL so a stranger can verify a first request). It is not OAuth client-credentials (no client_id, no Bearer access token).",
@@ -98,41 +446,140 @@ export const flows: AgentFlow[] = [
   {
     slug: "p2p-two-party",
     title: "Peer-to-peer: AAuth two-party (resource-managed)",
+    protocol: "AAuth",
+    question: "How does a resource run its own consent without an external AS?",
+    takeaway:
+      "Still no external AS. The resource runs consent, then issues an opaque session bound to the agent's key. Stolen session without the signing key should not replay. The resource's login page may be OIDC — the agent never talks to that AS.",
     summary:
       "Still no external AS. The resource runs consent/account creation itself, then issues an opaque session token for subsequent signed calls.",
     pattern: "p2p",
-    actors: ["Agent", "Resource", "User (at the resource's interaction URL)"],
+    actors: ["Agent", "Agent provider", "Resource", "User (at the resource's interaction URL)"],
     steps: [
-      {
-        from: "Agent",
-        to: "Resource",
-        action: "Signed call with agent token",
-      },
-      {
-        from: "Resource",
-        to: "Agent",
-        action: "401/202 + AAuth-Requirement: interaction",
-        note: "First call can be registration, payment, or consent",
-      },
-      {
-        from: "User",
-        to: "Resource",
-        action: "Completes the resource's own page (or existing OAuth/OIDC behind it)",
-      },
-      {
-        from: "Resource",
-        to: "Agent",
-        action: "AAuth-Access session token (opaque to the agent)",
-      },
-      {
-        from: "Agent",
-        to: "Resource",
-        action: "Subsequent calls: signature + Authorization: AAuth <session>",
-      },
+      hop(
+        "Agent provider",
+        "Agent",
+        "Issues aa-agent+jwt bound to the agent's signing key",
+        {
+          chapter: "Discover",
+          citation: "AAuth draft",
+          why: "Two-party still starts with identity-based proof. The provider is not an OAuth AS.",
+          now: "typ aa-agent+jwt: sub is the agent identifier, cnf binds the signing key.",
+          caption: "A wax-sealed ID card for the agent — not a photocopied pass.",
+          chips: [specChip("typ: aa-agent+jwt"), specChip("cnf")],
+          held: [{ actor: "Agent", label: "aa-agent+jwt" }],
+        },
+      ),
+      hop(
+        "Agent",
+        "Resource",
+        "Signed call with agent token (RFC 9421 + Signature-Key)",
+        {
+          chapter: "Prove",
+          citation: "RFC 9421",
+          why: "First contact is still identity-based: which agent is calling.",
+          now: "The agent presents typ aa-agent+jwt in Signature-Key and signs the request. No Bearer access token.",
+          caption: "Knock with a wax seal. No photocopied pass yet.",
+          chips: [
+            specChip("Signature-Key"),
+            specChip("typ: aa-agent+jwt"),
+          ],
+        },
+      ),
+      hop(
+        "Resource",
+        "Agent provider",
+        "Fetches JWKS and verifies the signature",
+        {
+          chapter: "Prove",
+          citation: "AAuth draft",
+          why: "Do not skip JWKS fetch. The resource must verify the seal before challenging for interaction.",
+          now: "Resolve {iss}/.well-known/{dwk}, fetch JWKS, verify RFC 9421 + typ + cnf.",
+          caption: "Check the wax against the published signet before handing back a form.",
+          chips: [specChip("JWKS"), specChip("cnf")],
+        },
+      ),
+      hop(
+        "Resource",
+        "Agent",
+        "401/202 + AAuth-Requirement: interaction",
+        {
+          chapter: "Grant",
+          citation: "AAuth draft",
+          why: "The resource wants its own consent or account creation before issuing a session.",
+          now: "AAuth-Requirement asks for interaction. First call can be registration, payment, or consent — not an OAuth authorization-code hop from the agent.",
+          caption: "The door hands back a note: come complete our own form.",
+          chips: [
+            specChip("AAuth-Requirement"),
+            specChip("interaction"),
+          ],
+          note: "First call can be registration, payment, or consent",
+          challenge: true,
+        },
+      ),
+      hop(
+        "User (at the resource's interaction URL)",
+        "Resource",
+        "Authenticates at the resource's own page (or existing OAuth/OIDC behind it)",
+        {
+          chapter: "Grant",
+          citation: "AAuth draft",
+          why: "Authentication and consent are different hops. The human talks to the resource, not to the agent. If that page is OIDC, the agent still never talks to that AS.",
+          now: "The user proves who they are at the resource's interaction URL. That MAY wrap ordinary OIDC.",
+          caption: "The owner shows ID at the door's own desk.",
+          chips: [specChip("interaction"), specChip("authentication")],
+        },
+      ),
+      hop(
+        "User (at the resource's interaction URL)",
+        "Resource",
+        "Completes consent, account linking, or payment at the resource",
+        {
+          chapter: "Grant",
+          citation: "AAuth draft",
+          why: "This is the resource-managed grant. It does not make this hop an authorization-code flow from the agent's point of view.",
+          now: "The user finishes the resource's own form. The agent is waiting on the 401/202 interaction.",
+          caption: "The owner signs at the door's own desk.",
+          chips: [specChip("consent"), specChip("OIDC", "Optional wrap behind the resource")],
+        },
+      ),
+      hop(
+        "Resource",
+        "Agent",
+        "Issues an opaque session (AAuth-Access / session-token)",
+        {
+          chapter: "Grant",
+          citation: "AAuth draft",
+          why: "The session is opaque to the agent and should be bound to the agent's key.",
+          now: "Draft-11 returns the opaque credential in AAuth-Access and calls it a session token. The agent cannot inspect it as a JWT grant.",
+          caption: "An opaque stamp, still useless without the wax seal.",
+          chips: [
+            specChip("session-token"),
+            specChip("AAuth-Access"),
+          ],
+          held: [{ actor: "Agent", label: "session" }],
+        },
+      ),
+      hop(
+        "Agent",
+        "Resource",
+        "Subsequent calls: signature + Authorization: AAuth <session>",
+        {
+          chapter: "Call",
+          citation: "RFC 9421",
+          why: "The signature still binds the request. A stolen session without the key should not replay.",
+          now: "Present the opaque session and keep signing. This is still two HTTP parties and no AS in the agent's path.",
+          caption: "Seal plus opaque stamp. Photocopying the stamp is not enough.",
+          chips: [
+            specChip("Authorization: AAuth"),
+            specChip("Signature-Key"),
+            egChip("AAuth <session>", "Illustrative presentation"),
+          ],
+        },
+      ),
     ],
     specs: ["aauth", "http-signature-keys", "oidc-core"],
     caveats:
-      "The resource may wrap an ordinary OAuth token inside the opaque session. Two-party is 'p2p' in the sense of agent↔resource, not in the DIDComm sense. Editor's copy calls the opaque credential a session token (session-token) rather than aauth-access-token.",
+      "The resource may wrap an ordinary OAuth token inside the opaque session. Two-party is 'p2p' in the sense of agent↔resource, not in the DIDComm sense. Draft-11 calls the opaque credential a session token (session-token) and returns it in AAuth-Access.",
     detail: [
       "Compare with identity-based: both are two HTTP parties and no AS. Identity-based stops at 'I know this agent'. Two-party adds 'the resource ran its own consent and issued a session bound to the agent's key'. Stolen session without the signing key should not replay.",
       "Compare with A2A: the resource here is an HTTP API, not an A2A server advertising skills. Compare with did:peer: the resource may never have seen the agent before; discovery is a 401 AAuth-Requirement, not an exchanged DID document.",
@@ -143,32 +590,203 @@ export const flows: AgentFlow[] = [
   {
     slug: "agent-as-client-mcp",
     title: "Agent host as OAuth client (MCP HTTP)",
+    protocol: "MCP HTTP",
+    question: "Who is the OAuth client when a host calls your tools?",
+    takeaway:
+      "The host is the OAuth client. Resource = this MCP server (RFC 9728 PRM). The model never sees the protocol. Photocopy until you add DPoP. Not AAuth p2p.",
     summary:
       "The MCP client discovers how to authorize from Protected Resource Metadata and performs OAuth 2.1. The model never sees a protocol other than 'call this tool'.",
     pattern: "agent-as-client",
-    actors: ["User", "MCP client (agent host)", "MCP server", "Authorization server"],
+    actors: [
+      "User",
+      "MCP client (agent host)",
+      "MCP server",
+      "Authorization server",
+    ],
     steps: [
-      {
-        from: "MCP client",
-        to: "MCP server",
-        action: "Unauthenticated HTTP request",
-      },
-      {
-        from: "MCP server",
-        to: "MCP client",
-        action: "401 + WWW-Authenticate resource_metadata URL (RFC 9728)",
-      },
-      {
-        from: "MCP client",
-        to: "Authorization server",
-        action:
-          "Discover AS (RFC 8414 / OIDC), CIMD or DCR, Authorization Code + PKCE, resource=MCP URI",
-      },
-      {
-        from: "MCP client",
-        to: "MCP server",
-        action: "Authorization: Bearer. Server checks audience == itself",
-      },
+      hop(
+        "MCP client",
+        "MCP server",
+        "Unauthenticated HTTP request",
+        {
+          chapter: "Discover",
+          citation: "MCP auth",
+          why: "The host does not guess the AS. The resource tells it how to authorize.",
+          now: "The MCP host (OAuth client) calls the MCP server (resource). Stdio transports must not use this profile.",
+          caption: "Knock on the tool's door with no pass yet.",
+          chips: [specChip("MCP host"), specChip("MCP server")],
+        },
+      ),
+      hop(
+        "MCP server",
+        "MCP client",
+        "401 + WWW-Authenticate resource_metadata URL (RFC 9728 PRM)",
+        {
+          chapter: "Discover",
+          citation: "RFC 9728",
+          why: "Protected resource metadata is how the client finds the AS and the canonical resource URI. Do not skip this challenge.",
+          now: "WWW-Authenticate points at RFC 9728 PRM. resource = this MCP server, not a portable agent identity.",
+          caption: "The door posts the address of the notice that names the desk.",
+          chips: [
+            specChip("WWW-Authenticate"),
+            specChip("resource_metadata"),
+            specChip("PRM"),
+          ],
+          challenge: true,
+        },
+      ),
+      hop(
+        "MCP client",
+        "MCP server",
+        "GET protected resource metadata — this hop is not optional in MCP HTTP",
+        {
+          chapter: "Discover",
+          citation: "RFC 9728",
+          why: "Do not fold PRM into the 401. The metadata document is a separate GET.",
+          now: "The host fetches PRM from the URL the 401 advertised. That document names authorization_servers and the resource identifier.",
+          caption: "Read the notice on the tool's door: which desk, which room name.",
+          chips: [
+            specChip("protected resource metadata"),
+            specChip("authorization_servers"),
+            specChip("resource"),
+          ],
+        },
+      ),
+      hop(
+        "MCP client",
+        "Authorization server",
+        "GET authorization-server metadata, then CIMD (preferred) or DCR",
+        {
+          chapter: "Discover",
+          citation: "RFC 8414",
+          why: "Same discovery as OAuth 2.1. CIMD is preferred; DCR is deprecated in MCP 2026-07-28. Optional if the host is already registered.",
+          now: "The host learns authorization_endpoint and token_endpoint, then gets a client_id at this AS. The model is not the client.",
+          caption: "The host — not the model — takes a number at this desk.",
+          chips: [specChip("RFC 8414"), specChip("CIMD"), specChip("client_id")],
+        },
+      ),
+      hop(
+        "MCP client",
+        "MCP client",
+        "Generates PKCE code_verifier and S256 code_challenge",
+        {
+          chapter: "Prove",
+          citation: "RFC 7636",
+          why: "Identical to OAuth 2.1 Prove. Shown so MCP is not a different login.",
+          now: "The host stores a fresh code_verifier. Only the S256 hash will go to the AS.",
+          caption: "Drawer secret — same as the OAuth 2.1 hop.",
+          chips: [specChip("code_verifier"), specChip("S256")],
+          held: [{ actor: "MCP client", label: "code_verifier" }],
+        },
+      ),
+      hop(
+        "MCP client",
+        "Authorization server",
+        "Authorization request: response_type=code, code_challenge, resource= this MCP URI",
+        {
+          chapter: "Grant",
+          citation: "OAuth 2.1",
+          why: "Identical grant to OAuth 2.1, plus RFC 8707 resource= bound to this MCP server.",
+          now: "The host sends the user-agent to the authorization endpoint. resource= is this MCP server's canonical URI from PRM.",
+          caption: "Walk the owner to the desk for a pass to this one tool.",
+          chips: [
+            specChip("response_type=code"),
+            specChip("PKCE"),
+            specChip("resource=", "RFC 8707"),
+          ],
+        },
+      ),
+      hop(
+        "User",
+        "Authorization server",
+        "Authenticates at the authorization server",
+        {
+          chapter: "Grant",
+          citation: "OAuth 2.1",
+          why: "Identical to OAuth 2.1. Login is not consent and not the tool call.",
+          now: "The resource owner authenticates at the AS. The MCP server has not been called with a token yet.",
+          caption: "The owner shows ID at the pass desk.",
+          chips: [specChip("authentication")],
+        },
+      ),
+      hop(
+        "User",
+        "Authorization server",
+        "Consents. OIDC if the tool needs who — ID Token is not the MCP Bearer",
+        {
+          chapter: "Grant",
+          citation: "OIDC Core",
+          why: "A human still approves the grant. An ID Token, if issued, stays with the host.",
+          now: "The resource owner consents at the AS. The MCP server will later see an access token, not an ID Token.",
+          caption: "The owner signs the slip for this tool, not a nametag for the API.",
+          chips: [specChip("consent"), specChip("ID Token", "Not the API Bearer")],
+        },
+      ),
+      hop(
+        "Authorization server",
+        "MCP client",
+        "Redirects back with an authorization code — not an access token in the URL",
+        {
+          chapter: "Grant",
+          citation: "OAuth 2.1",
+          why: "Identical to OAuth 2.1. MCP does not revive implicit.",
+          now: "The host receives a code. The MCP Bearer is not in this hop.",
+          caption: "A ticket for this tool's desk.",
+          chips: [specChip("code"), specChip("no implicit")],
+        },
+      ),
+      hop(
+        "MCP client",
+        "Authorization server",
+        "POSTs the token endpoint: code + code_verifier",
+        {
+          chapter: "Grant",
+          citation: "RFC 7636",
+          why: "Identical to OAuth 2.1 back-channel redemption.",
+          now: "grant_type=authorization_code, code, code_verifier. Prefer DPoP on this POST if you can.",
+          caption: "Cash the ticket with the drawer secret.",
+          chips: [
+            specChip("token endpoint"),
+            specChip("code"),
+            specChip("code_verifier"),
+          ],
+        },
+      ),
+      hop(
+        "Authorization server",
+        "MCP client",
+        "Returns an access token with aud = this MCP server",
+        {
+          chapter: "Grant",
+          citation: "RFC 8707",
+          why: "Audience is this resource. Forwarding the pass to another MCP server is a mix-up. Still a Bearer photocopy until you add DPoP.",
+          now: "The token endpoint returns an access token to the host. The model never sees it.",
+          caption: "A pass for this door, held by the host.",
+          chips: [
+            specChip("access token"),
+            specChip("aud"),
+            specChip("Bearer"),
+          ],
+          held: [{ actor: "MCP client", label: "Bearer (this server)" }],
+        },
+      ),
+      hop(
+        "MCP client",
+        "MCP server",
+        "Authorization: Bearer. Server checks audience == itself and responds",
+        {
+          chapter: "Call",
+          citation: "RFC 6750",
+          why: "Audience validation is the difference between a calendar token and a payments incident. Not AAuth signed HTTP. Not an Agent Card.",
+          now: "The host calls this MCP server with the access token in the Authorization header. Do not forward it to another server. The server validates aud (RFC 9068 JWT or introspection).",
+          caption: "Show the pass at this tool's door. Do not photocopy it to the next tool.",
+          chips: [
+            specChip("Authorization: Bearer"),
+            specChip("aud"),
+            specChip("RFC 9068"),
+          ],
+        },
+      ),
     ],
     specs: ["mcp-auth", "oauth-2-1", "prm", "cimd", "resource-indicators"],
     caveats:
@@ -181,27 +799,80 @@ export const flows: AgentFlow[] = [
   {
     slug: "agent-as-resource",
     title: "Agent as resource (others call it)",
+    protocol: "A2A / PRM",
+    question: "How do callers authenticate to an agent that exposes an API or skill?",
+    takeaway:
+      "Fetch the Agent Card or RFC 9728 metadata. Request auth is whatever securitySchemes or PRM advertised — obtained out of band. A signed card is tamper evidence, not a login.",
     summary:
       "Your agent exposes an HTTP API or A2A skill. Callers authenticate using whatever the Agent Card or Protected Resource Metadata advertises.",
     pattern: "agent-as-resource",
     actors: ["Calling agent", "Your agent (RS)", "Optional AS"],
     steps: [
-      {
-        from: "Calling agent",
-        to: "Your agent",
-        action: "Fetches Agent Card or RFC 9728 metadata",
-      },
-      {
-        from: "Calling agent",
-        to: "AS or your agent",
-        action:
-          "Obtains credentials: OAuth client credentials, mTLS, AAuth identity-based, or API key (last resort)",
-      },
-      {
-        from: "Calling agent",
-        to: "Your agent",
-        action: "Authenticated task/API request (A2A-Version or signed HTTP)",
-      },
+      hop(
+        "Calling agent",
+        "Your agent (RS)",
+        "Fetches Agent Card (A2A) or RFC 9728 protected resource metadata",
+        {
+          chapter: "Discover",
+          citation: "RFC 9728",
+          why: "The catalog declares how to authenticate. It does not authenticate the request. Do not skip the card or the PRM document.",
+          now: "GET Agent Card (A2A) or PRM (OAuth resource). If both exist, read both — they are different catalogs.",
+          caption: "Read the catalog on the door before asking for a pass.",
+          chips: [
+            specChip("Agent Card"),
+            specChip("securitySchemes"),
+            specChip("PRM"),
+          ],
+          held: [{ actor: "Calling agent", label: "catalog" }],
+        },
+      ),
+      hop(
+        "Calling agent",
+        "Calling agent",
+        "Reads securitySchemes (or authorization_servers) and the advertised endpoint",
+        {
+          chapter: "Discover",
+          citation: "A2A v1.0",
+          why: "Do not skip this read. Calling a guessed URL without reading the catalog is not the flow.",
+          now: "securitySchemes / authorization_servers tell the caller what to obtain out of band. url (A2A) or the resource identifier (PRM) is where the later call goes.",
+          caption: "Read the menu: which pass, which kitchen.",
+          chips: [specChip("securitySchemes"), specChip("url"), specChip("authorization_servers")],
+        },
+      ),
+      hop(
+        "Calling agent",
+        "Optional AS",
+        "Obtains credentials: OAuth client credentials, mTLS, AAuth identity-based, or API key (last resort)",
+        {
+          chapter: "Grant",
+          citation: "OAuth 2.1",
+          why: "Optional if the card named mTLS or AAuth instead of OAuth. A2A does not invent a p2p login. Implicit and password grants are the wrong answer.",
+          now: "Out of band. If the card says OAuth, talk to an AS (full code+PKCE is the OAuth 2.1 sequence). If you choose AAuth, that is signed HTTP — a different scheme.",
+          caption: "Go to the desk the catalog named — or seal the envelope if AAuth is what it asked.",
+          chips: [
+            specChip("client credentials"),
+            specChip("mTLS"),
+            specChip("aa-agent+jwt", "If AAuth"),
+          ],
+        },
+      ),
+      hop(
+        "Calling agent",
+        "Your agent (RS)",
+        "HTTP to the advertised endpoint: authenticated task/API request",
+        {
+          chapter: "Call",
+          citation: "A2A v1.0",
+          why: "A signed Agent Card is not a request credential. Still require a request-level scheme. Call the url the catalog named.",
+          now: "Present whatever the catalog asked for (A2A-Version or signed HTTP). Do not confuse A2A tasks with AAuth identity-based p2p.",
+          caption: "Place the order with the pass the menu asked for.",
+          chips: [
+            specChip("A2A-Version"),
+            specChip("Authorization"),
+            specChip("Signature-Key", "If AAuth"),
+          ],
+        },
+      ),
     ],
     specs: ["a2a", "prm", "aauth", "mtls", "oauth-2-1"],
     caveats:
@@ -210,26 +881,85 @@ export const flows: AgentFlow[] = [
   {
     slug: "a2a-agent-to-agent",
     title: "Agent-to-agent tasks (A2A)",
+    protocol: "A2A",
+    question: "Is the Agent Card a login?",
+    takeaway:
+      "The card is a catalog (skills + securitySchemes). Request auth is ordinary HTTP, obtained out of band. This is p2p communication, not AAuth p2p.",
     summary:
       "Discovery and task delegation between opaque agents. Authentication is declared, not invented: OAuth, OIDC, mTLS, or API keys.",
     pattern: "p2p",
     actors: ["Client agent", "Server agent", "Enterprise AS (optional)"],
     steps: [
-      {
-        from: "Server agent",
-        to: "Client agent",
-        action: "GET /.well-known/agent-card.json (optionally verify JWS)",
-      },
-      {
-        from: "Client agent",
-        to: "AS",
-        action: "If the card says OAuth/OIDC, obtain a token out of band",
-      },
-      {
-        from: "Client agent",
-        to: "Server agent",
-        action: "Authenticated A2A operation on a supported interface",
-      },
+      hop(
+        "Client agent",
+        "Server agent",
+        "GET /.well-known/agent-card.json — do not skip the card",
+        {
+          chapter: "Discover",
+          citation: "A2A v1.0",
+          why: "The card is how you learn the advertised URL, skills, and securitySchemes. Calling a guessed endpoint without reading the card is not A2A.",
+          now: "The client fetches the Agent Card. This GET is discovery, not login. A JWS, if present, is tamper evidence — not a request credential.",
+          caption: "Take the catalog off the door before you try to order.",
+          chips: [
+            specChip("Agent Card"),
+            specChip("/.well-known/agent-card.json"),
+            specChip("JWS", "Optional tamper evidence"),
+          ],
+          held: [{ actor: "Client agent", label: "Agent Card" }],
+        },
+      ),
+      hop(
+        "Client agent",
+        "Client agent",
+        "Reads securitySchemes, skills, and the advertised endpoint URL",
+        {
+          chapter: "Discover",
+          citation: "A2A v1.0",
+          why: "Do not skip this read. securitySchemes declare OAuth, OIDC, mTLS, or API keys — obtained out of band.",
+          now: "Parse the card: skills, securitySchemes, url. Nothing has authenticated yet. This is not AAuth Signature-Key.",
+          caption: "Read the menu: hours, dishes, and which pass the kitchen wants.",
+          chips: [
+            specChip("securitySchemes"),
+            specChip("skills"),
+            specChip("url"),
+          ],
+        },
+      ),
+      hop(
+        "Client agent",
+        "Enterprise AS (optional)",
+        "If the card says OAuth/OIDC, obtain a token out of band",
+        {
+          chapter: "Grant",
+          citation: "OAuth 2.1",
+          why: "Optional if securitySchemes named mTLS or an API key instead. A2A does not invent a credential format. Implicit and password flows on Agent Cards are deprecated. Full code+PKCE is the OAuth 2.1 sequence.",
+          now: "Talk to an enterprise AS if the card said OAuth. Client credentials here have no user — that is still not AAuth identity-based access.",
+          caption: "Go to the ordinary desk for the pass the catalog asked for.",
+          chips: [
+            specChip("securitySchemes"),
+            specChip("out of band"),
+            specChip("OAuth / OIDC / mTLS"),
+          ],
+        },
+      ),
+      hop(
+        "Client agent",
+        "Server agent",
+        "HTTP to the advertised endpoint: authenticated A2A operation + A2A-Version",
+        {
+          chapter: "Call",
+          citation: "A2A v1.0",
+          why: "The request goes to the url the card advertised. Do not forward caller credentials in-band down a chain (A2A §7.6.3).",
+          now: "JSON-RPC / gRPC / HTTP+JSON plus A2A-Version. If the card said authorization code, this hop became user-delegated while still being A2A communication.",
+          caption: "Place the order at the kitchen the menu named, with the pass the menu asked for.",
+          chips: [
+            specChip("A2A-Version"),
+            specChip("url"),
+            specChip("task"),
+            specChip("not AAuth p2p"),
+          ],
+        },
+      ),
     ],
     specs: ["a2a", "oauth-2-0", "oidc-core", "mtls"],
     caveats:
@@ -244,41 +974,237 @@ export const flows: AgentFlow[] = [
   {
     slug: "three-party-aauth",
     title: "AAuth three-party (PS-asserted user claims)",
+    protocol: "AAuth",
+    question: "How does a resource accept user claims without running an AS?",
+    takeaway:
+      "The resource has no AS of its own. It challenges with aa-resource+jwt (aud = person server) and later verifies aa-auth+jwt. Identity-based AAuth still has no AS; four-party would add a resource-side access server the agent never talks to.",
     summary:
       "The resource has no AS of its own. It accepts identity claims from the agent's person server after the user consents at the PS.",
     pattern: "user-delegated",
-    actors: ["Agent", "Resource", "Person server", "User"],
+    actors: ["Agent", "Agent provider", "Resource", "Person server", "User"],
     steps: [
-      {
-        from: "Agent",
-        to: "Resource",
-        action: "Signed request; resource sees ps claim on the agent token",
-      },
-      {
-        from: "Resource",
-        to: "Agent",
-        action: "401 requirement=auth-token plus resource token (aud = PS)",
-      },
-      {
-        from: "Agent",
-        to: "Person server",
-        action: "Signed POST of the resource token to token_endpoint",
-        note: "May 202 + interaction if the user must approve a mission or scope",
-      },
-      {
-        from: "Person server",
-        to: "Agent",
-        action: "aa-auth+jwt with user claims and consent",
-      },
-      {
-        from: "Agent",
-        to: "Resource",
-        action: "Retry with auth token; resource applies its own policy to (iss, sub)",
-      },
+      hop(
+        "Agent provider",
+        "Agent",
+        "Issues aa-agent+jwt bound to the agent's signing key (ps names the person server)",
+        {
+          chapter: "Discover",
+          citation: "AAuth draft",
+          why: "Three-party still starts with an agent token. The provider is not an OAuth AS. Do not start at the 401.",
+          now: "typ aa-agent+jwt: sub is the agent identifier, cnf binds the key, ps names the person server.",
+          caption: "A wax-sealed ID card plus a pointer to the owner's notary.",
+          chips: [
+            specChip("typ: aa-agent+jwt"),
+            specChip("cnf"),
+            specChip("ps"),
+          ],
+          held: [{ actor: "Agent", label: "aa-agent+jwt" }],
+        },
+      ),
+      hop(
+        "Agent provider",
+        "Agent provider",
+        "Publishes JWKS at {iss}/.well-known/{dwk}",
+        {
+          chapter: "Discover",
+          citation: "AAuth draft",
+          why: "Do not skip JWKS. The resource will fetch these keys on the first signed request.",
+          now: "The provider hosts aauth-agent.json and JWKS. This is not an OAuth token endpoint.",
+          caption: "Hang the signet on the wall.",
+          chips: [specChip("iss"), specChip("dwk"), specChip("JWKS")],
+        },
+      ),
+      hop(
+        "Agent",
+        "Resource",
+        "Signed request; resource sees ps claim on the agent token",
+        {
+          chapter: "Prove",
+          citation: "RFC 9421",
+          why: "The resource knows which agent called and which person server can speak for a user. There is still no authorization server on the resource.",
+          now: "Signature-Key carries aa-agent+jwt with a ps claim. Wire is still signed HTTP.",
+          caption: "Wax seal plus a pointer to the owner's notary.",
+          chips: [
+            specChip("Signature-Key"),
+            specChip("typ: aa-agent+jwt"),
+            specChip("ps"),
+          ],
+        },
+      ),
+      hop(
+        "Resource",
+        "Agent provider",
+        "Fetches JWKS and verifies the agent signature",
+        {
+          chapter: "Prove",
+          citation: "AAuth draft",
+          why: "Do not skip JWKS fetch before the 401. The resource must know the seal is real before asking for user claims.",
+          now: "Resolve {iss}/.well-known/{dwk}, fetch JWKS, verify RFC 9421 + typ aa-agent+jwt + cnf.",
+          caption: "Check the messenger's seal before asking for the owner's slip.",
+          chips: [specChip("JWKS"), specChip("cnf")],
+        },
+      ),
+      hop(
+        "Resource",
+        "Agent",
+        "401 AAuth-Requirement: auth-token plus resource token (aud = PS)",
+        {
+          chapter: "Grant",
+          citation: "AAuth draft",
+          why: "Challenges replace browser redirects. The resource token describes what needs authorizing. This is not WWW-Authenticate: Bearer.",
+          now: "401 carries AAuth-Requirement (requirement=auth-token) and typ aa-resource+jwt whose aud is the person server — not an OAuth AS. Draft-11 sends this only after a person token or an auth token was verified; otherwise the challenge is requirement=person-token.",
+          caption: "The door hands back a short note: go get the owner's permission slip.",
+          chips: [
+            specChip("AAuth-Requirement"),
+            specChip("requirement=auth-token"),
+            specChip("typ: aa-resource+jwt"),
+            specChip("aud=person server"),
+          ],
+          challenge: true,
+          held: [{ actor: "Agent", label: "aa-resource+jwt" }],
+        },
+      ),
+      hop(
+        "Agent",
+        "Person server",
+        "Signed POST of the resource token to the person-server auth_token_endpoint",
+        {
+          chapter: "Grant",
+          citation: "AAuth draft",
+          why: "Only the person server speaks for the user. The agent never presents a password to the resource. The agent does not call an OAuth authorization endpoint.",
+          now: "Draft-11: POST aa-resource+jwt to the PS auth_token_endpoint, still signed with the agent key. The resource issues that resource token only after it has verified a person token or an auth token.",
+          caption: "Take the door's note to the owner's notary.",
+          chips: [
+            specChip("auth_token_endpoint"),
+            specChip("typ: aa-resource+jwt"),
+          ],
+          note: "May 202 + interaction if the user must approve a mission or scope",
+        },
+      ),
+      hop(
+        "Person server",
+        "Agent",
+        "May 202 + interaction if the user must approve",
+        {
+          chapter: "Grant",
+          citation: "AAuth draft",
+          why: "Optional only if the user already approved this mission/scope. Do not skip the wait: without this hop a beginner thinks the auth token arrives instantly.",
+          now: "If consent is needed, the PS returns 202 with interaction instructions. The agent still has no aa-auth+jwt.",
+          caption: "The notary says: wait — I have to ask the owner.",
+          chips: [specChip("202"), specChip("interaction")],
+          challenge: true,
+        },
+      ),
+      hop(
+        "Person server",
+        "User",
+        "Notifies the user that this agent wants a grant at this resource",
+        {
+          chapter: "Grant",
+          citation: "AAuth draft",
+          why: "The user must see what is being asked. This is not an OAuth front-channel redirect from the agent.",
+          now: "The person server contacts the user. The resource is not in this hop.",
+          caption: "A ping from the owner's notary: is this the errand you meant?",
+          chips: [specChip("person server"), specChip("user")],
+        },
+      ),
+      hop(
+        "User",
+        "Person server",
+        "Authenticates at the person server",
+        {
+          chapter: "Grant",
+          citation: "AAuth draft",
+          why: "Authentication and consent are different hops. That page MAY wrap ordinary OIDC — the agent still never talks to that OP.",
+          now: "The user proves who they are at the person server. No password is given to the agent or to the resource.",
+          caption: "The owner shows ID at their own desk, not at the door.",
+          chips: [specChip("authentication"), specChip("person server")],
+        },
+      ),
+      hop(
+        "User",
+        "Person server",
+        "Consents to the mission or scope at the person server",
+        {
+          chapter: "Grant",
+          citation: "AAuth draft",
+          why: "User consent lives at the PS, not at an OAuth authorization endpoint on this hop.",
+          now: "The user approves the grant (scope or R3 / mission). This is the three-party authorization decision.",
+          caption: "The owner signs the permission slip at their own desk.",
+          chips: [specChip("consent"), specChip("mission / scope")],
+        },
+      ),
+      hop(
+        "Person server",
+        "Agent",
+        "Issues aa-auth+jwt with user claims, cnf-bound to the agent key, aud = resource",
+        {
+          chapter: "Grant",
+          citation: "AAuth draft",
+          why: "The grant names the user at this PS and is glued to the agent's key (lifetime ≤ 1 hour). Not a Bearer access token from an AS.",
+          now: "typ aa-auth+jwt: iss is the PS, aud is the resource, cnf matches the agent. sub is directed per issuer.",
+          caption: "A permission slip wax-sealed to this messenger's key.",
+          chips: [
+            specChip("typ: aa-auth+jwt"),
+            specChip("sub"),
+            specChip("cnf"),
+            specChip("aud=resource"),
+          ],
+          held: [{ actor: "Agent", label: "aa-auth+jwt" }],
+        },
+      ),
+      hop(
+        "Agent",
+        "Resource",
+        "Retries signed HTTP with the auth token",
+        {
+          chapter: "Call",
+          citation: "RFC 9421",
+          why: "Every call is still signed. Presenting aa-auth+jwt without a signature is the wrong cousin of Bearer.",
+          now: "The agent retries the resource request. The resource must verify again — do not reuse the identity-based decision.",
+          caption: "Seal plus permission slip. Back to the same door.",
+          chips: [
+            specChip("Signature-Key"),
+            specChip("typ: aa-auth+jwt"),
+          ],
+        },
+      ),
+      hop(
+        "Resource",
+        "Person server",
+        "Fetches the person server's JWKS to verify the auth token",
+        {
+          chapter: "Call",
+          citation: "AAuth draft",
+          why: "Do not skip this. The auth token is signed by the PS, not by the agent provider. A cached agent JWKS is the wrong keyring. Four-party would verify against a resource-side access server — the agent still would not talk to that AS.",
+          now: "The resource resolves the PS well-known (iss / dwk on aa-auth+jwt) and fetches JWKS.",
+          caption: "Check the permission slip against the notary's published signet.",
+          chips: [specChip("iss"), specChip("dwk"), specChip("JWKS")],
+        },
+      ),
+      hop(
+        "Resource",
+        "Agent",
+        "Verifies signature + aa-auth+jwt and applies policy to (iss, sub)",
+        {
+          chapter: "Call",
+          citation: "AAuth draft",
+          why: "The resource still verifies the HTTP signature. The auth token adds which user, at which PS. (iss, sub) is directed — the same email from two person servers is two subjects.",
+          now: "Checks: RFC 9421 signature, typ aa-auth+jwt, aud = this resource, cnf matches the signing key, exp ≤ 1 hour. Then local policy on (iss, sub).",
+          caption: "Seal plus permission slip. The door decides from both.",
+          chips: [
+            specChip("typ: aa-auth+jwt"),
+            specChip("iss"),
+            specChip("sub"),
+            specChip("cnf"),
+            specChip("aud"),
+          ],
+        },
+      ),
     ],
     specs: ["aauth", "http-signature-keys", "oidc-core"],
     caveats:
-      "sub is directed per issuer. The same email from two person servers is two subjects. Draft-10 vs editor's copy may differ on person tokens and a fifth mode. Editor's copy splits token_endpoint into person_token_endpoint and auth_token_endpoint.",
+      "sub is directed per issuer. The same email from two person servers is two subjects. Draft-11 has five modes, including person identity, and splits the old token_endpoint into person_token_endpoint and auth_token_endpoint. A resource token is issued only after a person token or auth token has been verified.",
     detail: [
       "This is user-delegated AAuth, not p2p. The agent still signs every HTTP call; the grant comes from the PS as aa-auth+jwt (≤ 1 hour, cnf-bound to the agent key, aud = resource).",
       "Four-party adds a resource-side access server. The agent still only talks to the resource and its PS; the PS federates. That federation is not OpenID Federation and not OAuth identity chaining.",
@@ -288,39 +1214,137 @@ export const flows: AgentFlow[] = [
   {
     slug: "multi-hop-obo",
     title: "Multi-hop on-behalf-of (Token Exchange + chaining)",
+    protocol: "RFC 8693",
+    question: "How does an actor get a new pass without becoming the user?",
+    takeaway:
+      "subject_token is who the call is for; actor_token is who is holding it. Nested act is a chain of hands. Never expand scope. Cross-domain needs identity chaining (8693+7523), not 8693 alone.",
     summary:
       "The user authorizes Agent A. A calls Service B. B must call API C in another domain without pretending to be the user or widening scope.",
     pattern: "multi-hop",
     actors: ["User", "Agent A", "AS A", "AS B", "API C"],
     steps: [
-      {
-        from: "User",
-        to: "AS A",
-        action: "Delegates to Agent A (OAuth 2.1 / OIDC)",
-      },
-      {
-        from: "Agent A",
-        to: "AS A",
-        action:
-          "Token exchange: subject = user token, actor = agent, attenuated scope, aud toward B",
-        note: "RFC 8693 act claim records the agent",
-      },
-      {
-        from: "Agent A",
-        to: "AS A",
-        action:
-          "If crossing domains: exchange for a JWT grant aud=AS B (identity chaining)",
-      },
-      {
-        from: "Agent A",
-        to: "AS B",
-        action: "RFC 7523 JWT bearer grant → access token for API C",
-      },
-      {
-        from: "Agent A",
-        to: "API C",
-        action: "Present audience-restricted, preferably PoP-bound token",
-      },
+      hop(
+        "User",
+        "AS A",
+        "Authenticates at AS A (ordinary user-delegated grant)",
+        {
+          chapter: "Discover",
+          citation: "OAuth 2.1",
+          why: "Do not start at the exchange. The authorization-code + PKCE hops are the OAuth 2.1 sequence; we show login and consent so subject_token has a pedigree.",
+          now: "The user authenticates at AS A. Agent A is the client, not the user.",
+          caption: "Alice shows ID. The messenger is not Alice.",
+          chips: [specChip("resource owner"), specChip("authentication")],
+        },
+      ),
+      hop(
+        "User",
+        "AS A",
+        "Consents to Agent A calling APIs on her behalf",
+        {
+          chapter: "Grant",
+          citation: "OAuth 2.1",
+          why: "Consent is the original grant. Token exchange later must not widen what she approved.",
+          now: "Alice approves Agent A for a scope. That scope is the ceiling for every later act hop.",
+          caption: "Alice signs the first permission slip.",
+          chips: [specChip("consent"), specChip("scope")],
+        },
+      ),
+      hop(
+        "AS A",
+        "Agent A",
+        "Issues Alice's access token. sub is Alice. No act yet",
+        {
+          chapter: "Grant",
+          citation: "OAuth 2.1",
+          why: "This string is the subject_token the exchange will present.",
+          now: "Ordinary delegated grant. subject_token later will be this access token. sub is the user; no act yet.",
+          caption: "Alice's pass is issued. The name on it is still Alice.",
+          chips: [specChip("access token"), specChip("sub"), specChip("subject_token")],
+          held: [{ actor: "Agent A", label: "subject_token" }],
+        },
+      ),
+      hop(
+        "Agent A",
+        "AS A",
+        "Presents subject_token at the token endpoint (token exchange)",
+        {
+          chapter: "Grant",
+          citation: "RFC 8693",
+          why: "Mint a new pass for a new audience or tighter scope, and record who is acting. Do not reuse Alice's original token at API C.",
+          now: "grant_type=urn:ietf:params:oauth:grant-type:token-exchange. subject_token = user token, actor_token = agent, attenuated scope, aud toward B.",
+          caption: "Ask the desk for a new pass: same owner, this messenger, a smaller door.",
+          chips: [
+            specChip("subject_token"),
+            specChip("actor_token"),
+            specChip("act"),
+          ],
+          note: "RFC 8693 act claim records the agent",
+        },
+      ),
+      hop(
+        "AS A",
+        "Agent A",
+        "Returns a new token with act appended. sub is still Alice",
+        {
+          chapter: "Grant",
+          citation: "RFC 8693",
+          why: "act records the actor. sub must not flip to the agent. The new token is a different string.",
+          now: "The issued token keeps sub=user and adds act naming Agent A.",
+          caption: "The pass still says Alice. A footnote names the hand holding it.",
+          chips: [specChip("sub"), specChip("act")],
+          held: [{ actor: "Agent A", label: "act: agent-A" }],
+        },
+      ),
+      hop(
+        "Agent A",
+        "AS A",
+        "If crossing domains: exchange for a JWT grant aud=AS B (identity chaining)",
+        {
+          chapter: "Grant",
+          citation: "RFC 7523",
+          why: "Optional inside one domain. RFC 8693 alone does not define cross-domain trust. Identity chaining profiles 8693 with a JWT bearer grant. Shown so a beginner does not think 8693 hops the ocean unaided.",
+          now: "AS A mints a JWT authorization grant whose audience is AS B. Still do not widen scope.",
+          caption: "A letter of introduction to the next desk — not a photocopy of Alice.",
+          chips: [
+            specChip("JWT bearer grant"),
+            specChip("aud=AS B"),
+          ],
+        },
+      ),
+      hop(
+        "Agent A",
+        "AS B",
+        "Presents the JWT bearer grant at AS B's token endpoint",
+        {
+          chapter: "Grant",
+          citation: "RFC 7523",
+          why: "AS B issues a pass for its resource, not a copy of AS A's token.",
+          now: "grant_type=jwt-bearer. Get an access token whose aud is API C.",
+          caption: "The foreign desk prints its own pass. Do not widen what it unlocks.",
+          chips: [
+            specChip("grant_type=jwt-bearer"),
+            specChip("access_token"),
+            specChip("aud=API C"),
+          ],
+        },
+      ),
+      hop(
+        "Agent A",
+        "API C",
+        "Presents audience-restricted, preferably PoP-bound token",
+        {
+          chapter: "Call",
+          citation: "RFC 6750",
+          why: "Authorization header, not query. Prefer DPoP/mTLS so the chain cannot be photocopied. Nested act (if present) is a chain of hands, not a new user sub.",
+          now: "Call API C with the new pass. Inside one domain, Txn-Tokens carry immutable purpose instead.",
+          caption: "Show the pass at door C. Glue it to a key if you can.",
+          chips: [
+            specChip("Authorization"),
+            specChip("aud"),
+            specChip("DPoP", "RFC 9449"),
+          ],
+        },
+      ),
     ],
     specs: [
       "token-exchange",
@@ -335,32 +1359,124 @@ export const flows: AgentFlow[] = [
   {
     slug: "ciba-hitl",
     title: "Human-in-the-loop via CIBA",
+    protocol: "CIBA",
+    question: "How does an unattended client get approval on another device?",
+    takeaway:
+      "Backchannel authentication returns auth_req_id. Delivery is ping, poll, or push. CIBA authenticates and consents a grant — it does not replace resource-server policy.",
     summary:
       "The agent is unattended. It needs a specific approval on the user's phone before a sensitive tool runs.",
     pattern: "consent",
     actors: ["Agent", "OpenID provider", "User (authentication device)"],
     steps: [
-      {
-        from: "Agent",
-        to: "OpenID provider",
-        action:
-          "Backchannel authorize: login_hint, scope, binding_message describing the action",
-      },
-      {
-        from: "OpenID provider",
-        to: "User",
-        action: "Push / app notification with the binding message",
-      },
-      {
-        from: "User",
-        to: "OpenID provider",
-        action: "Approve or deny",
-      },
-      {
-        from: "Agent",
-        to: "OpenID provider",
-        action: "Poll token endpoint with grant_type CIBA + auth_req_id",
-      },
+      hop(
+        "Agent",
+        "OpenID provider",
+        "POSTs a backchannel authentication request: login_hint, scope, binding_message",
+        {
+          chapter: "Discover",
+          citation: "OpenID CIBA",
+          why: "There is no front-channel redirect. The client is unattended. This is not the authorization endpoint used by code+PKCE.",
+          now: "POST the backchannel authentication endpoint with a hint for which user, the scope, and a binding_message the user will see.",
+          caption: "The unattended desk phones the notary instead of sending a browser link.",
+          chips: [
+            specChip("backchannel_authentication_endpoint"),
+            specChip("login_hint"),
+            specChip("binding_message"),
+          ],
+        },
+      ),
+      hop(
+        "OpenID provider",
+        "Agent",
+        "Returns auth_req_id (and expires_in, interval)",
+        {
+          chapter: "Grant",
+          citation: "OpenID CIBA",
+          why: "auth_req_id is the handle the client uses at the token endpoint (poll) or correlates with ping/push. It is not an access token.",
+          now: "The OP returns auth_req_id. Delivery mode was declared at registration: poll (default in this sequence), ping, or push.",
+          caption: "A ticket number for a grant that does not exist yet.",
+          chips: [specChip("auth_req_id"), specChip("expires_in"), specChip("interval")],
+          held: [{ actor: "Agent", label: "auth_req_id" }],
+        },
+      ),
+      hop(
+        "OpenID provider",
+        "User (authentication device)",
+        "Notifies the authentication device with the same binding_message",
+        {
+          chapter: "Grant",
+          citation: "OpenID CIBA",
+          why: "The user must see the same binding message the client showed. Do not skip notify.",
+          now: "The OP contacts the authentication device. The client holds auth_req_id and still has no token.",
+          caption: "A ping on the phone: is this the action you meant?",
+          chips: [
+            specChip("binding_message"),
+            specChip("authentication device"),
+          ],
+        },
+      ),
+      hop(
+        "User (authentication device)",
+        "OpenID provider",
+        "Authenticates on the authentication device",
+        {
+          chapter: "Grant",
+          citation: "OpenID CIBA",
+          why: "Authentication and consent are different hops. Unlocking the phone is not yet an approval.",
+          now: "The user proves who they are on the other device. The client still has only auth_req_id.",
+          caption: "The owner unlocks the phone. The permission slip is still blank.",
+          chips: [specChip("authentication")],
+        },
+      ),
+      hop(
+        "User (authentication device)",
+        "OpenID provider",
+        "Consents — approves or denies — on the authentication device",
+        {
+          chapter: "Grant",
+          citation: "OpenID CIBA",
+          why: "Consent happens off the agent's screen. That is the point of CIBA.",
+          now: "The user authenticates and consents on the other device. The client has not been told yet.",
+          caption: "The owner signs on the phone, not in the agent's window.",
+          chips: [specChip("consent")],
+        },
+      ),
+      hop(
+        "Agent",
+        "OpenID provider",
+        "Polls the token endpoint: grant_type CIBA + auth_req_id — authorization_pending",
+        {
+          chapter: "Grant",
+          citation: "OpenID CIBA",
+          why: "Do not skip the wait. Poll is the default shown here. Ping: OP POSTs the client notification endpoint, then the client polls once. Push: OP POSTs the tokens. Mentioning ping/push in Why is not a substitute for this hop.",
+          now: "grant_type=urn:openid:params:grant-type:ciba with auth_req_id. Response is authorization_pending. The client still has no access token.",
+          caption: "Ask again with the ticket number. The pass has not been printed.",
+          chips: [
+            specChip("token endpoint"),
+            specChip("grant_type=ciba"),
+            specChip("auth_req_id"),
+            specChip("authorization_pending"),
+            specChip("ping / push", "Alternatives to poll"),
+          ],
+        },
+      ),
+      hop(
+        "Agent",
+        "OpenID provider",
+        "Polls again after the wait — the user has now consented; OP delivers tokens",
+        {
+          chapter: "Grant",
+          citation: "OpenID CIBA",
+          why: "CIBA mints a grant. The RS still enforces audience and policy. If delivery were push, this hop is the OP POSTing tokens instead — same result, different transport.",
+          now: "The client receives the access token (and maybe an ID Token). Never send auth_req_id to the API.",
+          caption: "The pass arrives after the phone said yes.",
+          chips: [
+            specChip("access_token"),
+            specChip("ID Token", "If OIDC scope"),
+          ],
+          held: [{ actor: "Agent", label: "access token" }],
+        },
+      ),
     ],
     specs: ["ciba", "oidc-core", "step-up", "fapi-2"],
     caveats:
@@ -369,26 +1485,99 @@ export const flows: AgentFlow[] = [
   {
     slug: "workload-then-user",
     title: "Workload identity plus user delegation",
+    protocol: "WIMSE + OAuth",
+    question: "Who is calling at this hop — the binary, or the user?",
+    takeaway:
+      "WIT/WPT (or SPIFFE) name the binary. OAuth names the user. Each hop re-binds the workload proof. Do not stuff the user into the SPIFFE ID. Do not put WIT in Authorization: Bearer.",
     summary:
       "SPIFFE/WIMSE proves which agent binary is calling. OAuth proves which user it may act for. Both are required in production meshes.",
     pattern: "multi-hop",
     actors: ["SPIRE", "Agent workload", "OAuth AS", "Tool"],
     steps: [
-      {
-        from: "SPIRE",
-        to: "Agent",
-        action: "Issues X.509-SVID or WIT+WPT material",
-      },
-      {
-        from: "Agent",
-        to: "OAuth AS",
-        action: "Client authentication via SPIFFE (or mTLS RFC 8705) + user grant",
-      },
-      {
-        from: "Agent",
-        to: "Tool",
-        action: "mTLS (workload) + access token (user) or Txn-Token context",
-      },
+      hop(
+        "SPIRE",
+        "Agent workload",
+        "Issues X.509-SVID or WIT credential. sub is the binary, not a user",
+        {
+          chapter: "Discover",
+          citation: "WIMSE",
+          why: "Workload identity answers which binary in which trust domain — not which human.",
+          now: "WIT (or an X.509-SVID) names the workload. sub is the binary, not a user sub.",
+          caption: "A badge for the machine, not a nametag for Alice.",
+          chips: [
+            specChip("WIT"),
+            specChip("X.509-SVID"),
+            specChip("sub=workload"),
+          ],
+          held: [{ actor: "Agent workload", label: "WIT" }],
+        },
+      ),
+      hop(
+        "Agent workload",
+        "Agent workload",
+        "Mints a WPT bound to this hop (workload → OAuth AS or tool)",
+        {
+          chapter: "Prove",
+          citation: "WIMSE WPT",
+          why: "Do not skip the bind. Never put WIT in Authorization: Bearer. WPT (or mTLS) is the proof for this hop.",
+          now: "The workload creates a proof token bound to the next hop. User context is a different ticket.",
+          caption: "Glue this hop's wax to the machine badge.",
+          chips: [specChip("WPT"), specChip("this hop")],
+          held: [{ actor: "Agent workload", label: "WPT" }],
+        },
+      ),
+      hop(
+        "Agent workload",
+        "OAuth AS",
+        "Client authentication via SPIFFE (or mTLS RFC 8705) + user grant",
+        {
+          chapter: "Grant",
+          citation: "OAuth 2.1",
+          why: "The AS should know which binary is asking, then mint a user-delegated pass. Do not put the user into the SPIFFE ID.",
+          now: "SPIFFE client auth (or mTLS) proves the workload. The user grant is a separate OAuth/OIDC ticket (authorization code + PKCE, or CIBA).",
+          caption: "Show the machine badge at the OAuth desk, then collect Alice's pass.",
+          chips: [
+            specChip("SPIFFE client auth"),
+            specChip("mTLS", "RFC 8705"),
+            specChip("authorization code / CIBA"),
+          ],
+        },
+      ),
+      hop(
+        "Agent workload",
+        "Tool",
+        "Presents WIT+WPT (this hop) + access token or Txn-Token (user)",
+        {
+          chapter: "Call",
+          citation: "WIMSE",
+          why: "Two proofs on one call. A stolen user token presented by a different binary is a different incident. Workload proof re-binds at this hop.",
+          now: "Workload proof is bound to this hop. User context rides in another header. Never Authorization: Bearer with a WIT.",
+          caption: "Wax seal of this binary, plus Alice's pass as a second paper.",
+          chips: [
+            specChip("WIT / WPT"),
+            specChip("mTLS"),
+            specChip("access token"),
+            specChip("Txn-Token"),
+          ],
+        },
+      ),
+      hop(
+        "Agent workload",
+        "Tool",
+        "Next hop: mint a new WPT bound to that hop — do not forward the last WPT",
+        {
+          chapter: "Call",
+          citation: "WIMSE",
+          why: "Each hop re-binds. Forwarding the previous WPT (or WIT as Bearer) would let the chain silently widen. Nested act (RFC 8693) is a different chain.",
+          now: "If this workload calls onward, it authenticates as itself with a new WPT. A's identity is not forwarded.",
+          caption: "New wax for the next doorway. Tear off the last hop's glue.",
+          chips: [
+            specChip("WPT"),
+            specChip("hop re-bind"),
+            specChip("not user sub"),
+          ],
+        },
+      ),
     ],
     specs: ["spiffe", "wimse-arch", "spiffe-client-auth", "oauth-2-1", "transaction-tokens"],
     caveats:
@@ -404,7 +1593,15 @@ export function searchFlows(query: string): AgentFlow[] {
   const q = query.trim().toLowerCase();
   if (!q) return flows;
   return flows.filter((flow) =>
-    [flow.title, flow.summary, flow.caveats, ...flow.actors, ...(flow.detail ?? [])]
+    [
+      flow.title,
+      flow.summary,
+      flow.caveats,
+      flow.question ?? "",
+      flow.takeaway ?? "",
+      ...flow.actors,
+      ...(flow.detail ?? []),
+    ]
       .join(" ")
       .toLowerCase()
       .includes(q),
