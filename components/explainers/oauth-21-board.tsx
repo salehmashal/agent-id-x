@@ -48,8 +48,8 @@ export function Oauth21Board() {
       title="What got banned"
       footnote={
         <>
-          OAuth 2.1 is still a working-group draft as of September 2026 (
-          <span className="font-mono text-xs">draft-ietf-oauth-v2-1-16</span>
+          OAuth 2.1 is still a working-group draft as of 1 November 2026 (
+          <span className="font-mono text-xs">draft-ietf-oauth-v2-1-17</span>
           ) — not an RFC. It is 2.0 with the unsafe bits removed, not a new
           protocol.{" "}
           <Link
