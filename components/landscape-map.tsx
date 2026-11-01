@@ -1,151 +1,135 @@
-import type { ReactNode } from "react";
 import Link from "next/link";
-import { Fingerprint, KeyRound, LayoutGrid, Scale, Shield } from "lucide-react";
+import { Fingerprint, GitBranch, KeyRound, LayoutGrid, Shield } from "lucide-react";
 
-function Box({
+function LayerCard({
   title,
-  children,
+  remember,
+  specs,
   href,
   icon: Icon,
 }: {
   title: string;
-  children: ReactNode;
-  href?: string;
+  remember: string;
+  specs: string;
+  href: string;
   icon: typeof Fingerprint;
 }) {
-  const inner = (
-    <div className="rounded-lg border border-border bg-card p-3 transition-colors hover:border-primary/40 hover:bg-muted/50">
+  return (
+    <Link
+      href={href}
+      className="block rounded-xl border border-border bg-card p-5 transition-colors hover:border-primary/40 hover:bg-muted/40"
+    >
       <p className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.16em] text-brass">
         <Icon className="size-3.5 text-primary" aria-hidden />
         {title}
       </p>
-      <div className="mt-2 text-sm leading-relaxed text-muted-foreground">
-        {children}
-      </div>
-    </div>
+      <p className="mt-3 text-base leading-relaxed text-foreground/90">{remember}</p>
+      <p className="mt-3 font-mono text-xs text-muted-foreground">{specs}</p>
+    </Link>
   );
-  if (href) {
-    return (
-      <Link href={href} className="block">
-        {inner}
-      </Link>
-    );
-  }
-  return inner;
 }
+
+const nestFloors = [
+  {
+    layer: "Foundation",
+    remember: "OAuth 2.1 is how a client gets a pass. OIDC is who the user is.",
+    href: "/specs/oauth-2-1",
+    detail: "JWT profiles carry claims. Discovery is RFC 8414 and RFC 9728.",
+  },
+  {
+    layer: "Delegation",
+    remember: "Token exchange and chaining move that pass across hops — no new protocol.",
+    href: "/specs/token-exchange",
+    detail: "Identity chaining, XAA, transaction tokens sit on this floor.",
+  },
+  {
+    layer: "Workload",
+    remember: "SPIFFE and WIMSE name the binary. They do not replace the user.",
+    href: "/specs/spiffe",
+    detail: "Workload identity sits beside user delegation, never instead of it.",
+  },
+  {
+    layer: "Agent-native",
+    remember: "AAuth gives the agent a key a stranger's API can verify. Pin the draft.",
+    href: "/specs/aauth",
+    detail: "Including identity-based and two-party “p2p” modes. Individual or early WG work.",
+  },
+  {
+    layer: "Application",
+    remember: "MCP is an OAuth 2.1 profile. A2A is how agents talk. Neither is “p2p OAuth”.",
+    href: "/specs/mcp-auth",
+    detail: "GNAP is a finished IETF alternative to OAuth, not the default path.",
+  },
+] as const;
 
 export function LandscapeMap() {
   return (
-    <section aria-label="Landscape map" className="space-y-4">
-      <div className="grid gap-3 md:grid-cols-3">
-        <Box title="Identity — who" href="/catalog?layer=identity" icon={Fingerprint}>
-          <p>
-            User / person. Agent instance. Workload. Tool/resource. Four names,
-            four identifiers. Do not collapse them.
-          </p>
-          <p className="mt-2 font-mono text-xs text-foreground/80">
-            OIDC sub · AAuth agent token · SPIFFE/WIMSE · RFC 9728 resource
-          </p>
-        </Box>
-        <Box title="Authentication — proof" href="/catalog?layer=authn" icon={KeyRound}>
-          <p>
-            Prove control of a key or a session. Redirects and CIBA for humans.
-            Seals, mTLS, DPoP, WPT for machines. Bearer is a photocopy; DPoP
-            glues the pass to a key.
-          </p>
-          <p className="mt-2 font-mono text-xs text-foreground/80">
-            RFC 9421 · DPoP · mTLS · OIDC · CIBA
-          </p>
-        </Box>
-        <Box title="Authorization — may" href="/catalog?layer=authz" icon={Shield}>
-          <p>
-            Grants, audiences, attenuation, missions, human approval. What the
-            agent is allowed to do after you know who it is.
-          </p>
-          <p className="mt-2 font-mono text-xs text-foreground/80">
-            OAuth 2.1 · RFC 8693 · RAR · AAuth missions · FAPI 2.0
-          </p>
-        </Box>
+    <section aria-label="How the specs nest" className="space-y-8">
+      <div className="grid gap-4 md:grid-cols-3">
+        <LayerCard
+          title="Identity — who"
+          href="/catalog?layer=identity"
+          icon={Fingerprint}
+          remember="Four names, four identifiers. Do not collapse them."
+          specs="OIDC sub · AAuth agent token · SPIFFE/WIMSE · RFC 9728 resource"
+        />
+        <LayerCard
+          title="Authentication — proof"
+          href="/catalog?layer=authn"
+          icon={KeyRound}
+          remember="Prove a key or a session. Bearer is a photocopy; DPoP glues the pass to a key."
+          specs="RFC 9421 · DPoP · mTLS · OIDC · CIBA"
+        />
+        <LayerCard
+          title="Authorization — may"
+          href="/catalog?layer=authz"
+          icon={Shield}
+          remember="What the agent may do after you know who it is."
+          specs="OAuth 2.1 · RFC 8693 · RAR · AAuth missions · FAPI 2.0"
+        />
       </div>
 
-      <div className="rounded-xl border border-border bg-card p-4 md:p-5">
-        <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-brass">
-          How the specs nest
-        </p>
-        <ol className="mt-4 space-y-3">
-          <li className="rounded-md border border-dashed border-primary/25 bg-muted/40 p-3">
-            <p className="font-heading text-sm">Foundation</p>
-            <p className="mt-1 text-sm text-muted-foreground">
-              OAuth 2.0 as constrained by RFC 9700, heading toward{" "}
-              <Link className="text-primary underline-offset-4 hover:underline" href="/specs/oauth-2-1">
-                OAuth 2.1
-              </Link>
-              .{" "}
-              <Link className="text-primary underline-offset-4 hover:underline" href="/specs/oidc-core">
-                OIDC
-              </Link>{" "}
-              answers who the user is. JWT profiles carry claims. Discovery via
-              RFC 8414 and RFC 9728.
-            </p>
+      <ol className="relative space-y-4 border-l-2 border-ink-rule pl-6 md:pl-8">
+        {nestFloors.map((floor, index) => (
+          <li key={floor.layer} className="relative">
+            <span
+              className="absolute -left-[1.7rem] top-5 size-3 rounded-full border-2 border-brass bg-card md:-left-[2.2rem]"
+              aria-hidden
+            />
+            <Link
+              href={floor.href}
+              className="block rounded-xl border border-border bg-card p-5 transition-colors hover:border-primary/40 hover:bg-muted/40"
+            >
+              <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-brass">
+                Floor {String(index + 1).padStart(2, "0")} · {floor.layer}
+              </p>
+              <p className="mt-2 font-heading text-lg text-foreground">
+                {floor.remember}
+              </p>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                {floor.detail}
+              </p>
+            </Link>
           </li>
-          <li className="rounded-md border border-dashed border-primary/25 bg-muted/40 p-3 md:ml-4">
-            <p className="font-heading text-sm">Delegation extensions</p>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Token exchange, identity chaining, XAA, transaction tokens — how
-              an agent acts for a user across hops and domains without minting a
-              new protocol.
-            </p>
-          </li>
-          <li className="rounded-md border border-dashed border-workload/35 bg-workload/8 p-3 md:ml-8">
-            <p className="font-heading text-sm">Workload identity</p>
-            <p className="mt-1 text-sm text-muted-foreground">
-              SPIFFE and WIMSE name the binary. They do not replace user
-              delegation; they sit beside it.
-            </p>
-          </li>
-          <li className="rounded-md border border-agent/40 bg-agent/10 p-3 md:ml-12">
-            <p className="font-heading text-sm">Agent-native drafts</p>
-            <p className="mt-1 text-sm text-muted-foreground">
-              <Link className="text-primary underline-offset-4 hover:underline" href="/specs/aauth">
-                AAuth
-              </Link>{" "}
-              (including its two-party / identity-based “p2p” modes), AIMS, R3.
-              Individual or early WG work. Pin revisions.
-            </p>
-          </li>
-          <li className="rounded-md border border-resource/40 bg-resource/10 p-3 md:ml-16">
-            <p className="font-heading text-sm">Application protocols</p>
-            <p className="mt-1 text-sm text-muted-foreground">
-              MCP authorization is an OAuth 2.1 profile. A2A is how agents
-              talk; it reuses OAuth/OIDC/mTLS. GNAP is a finished IETF
-              alternative to OAuth, not the default path.
-            </p>
-          </li>
-        </ol>
-      </div>
+        ))}
+      </ol>
 
-      <div className="grid gap-3 md:grid-cols-2">
-        <Box title="Deployment → protocol" href="/patterns" icon={LayoutGrid}>
-          <p>
-            How the agent actually runs decides which of those specs apply: product
-            UI, headless worker, MCP host, mesh sidecar, AAuth p2p HTTP. Not the
-            same cut as the sequence diagrams under Flows.
-          </p>
-          <p className="mt-2 font-mono text-xs text-foreground/80">
-            Interactive delegated · MCP host · AAuth p2p · sidecar
-          </p>
-        </Box>
-        <Box title="Four doors named p2p" href="/compare/delegated-vs-p2p" icon={Scale}>
-          <p>
-            Delegated OAuth, AAuth identity-based / two-party, A2A tasking, and
-            did:peer are four different doors. Click through which has an AS,
-            which token shows up, and which cousin people mix in.
-          </p>
-          <p className="mt-2 font-mono text-xs text-foreground/80">
-            AS in path? · what token? · wrong cousin
-          </p>
-        </Box>
-      </div>
+      <p className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
+        <Link
+          href="/patterns"
+          className="inline-flex items-center gap-1.5 text-primary underline decoration-primary/40 underline-offset-4 hover:decoration-primary"
+        >
+          <LayoutGrid className="size-3.5" aria-hidden />
+          Deployment decides which floor you are on
+        </Link>
+        <Link
+          href="/flows"
+          className="inline-flex items-center gap-1.5 text-muted-foreground underline decoration-border underline-offset-4 hover:text-foreground hover:decoration-primary"
+        >
+          <GitBranch className="size-3.5" aria-hidden />
+          Sequences live on Flows, not on this map
+        </Link>
+      </p>
     </section>
   );
 }
