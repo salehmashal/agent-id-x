@@ -57,7 +57,8 @@ export const workloadSpecs: Spec[] = [
     slug: "wimse-identifier",
     shortName: "WIMSE identifier",
     officialName: "Workload Identifier",
-    id: "draft-ietf-wimse-identifier-03",
+    id: "draft-ietf-wimse-identifier-04",
+    date: "23 October 2026",
     status: "wg-draft",
     stability: "draft",
     org: "IETF",
@@ -82,8 +83,8 @@ export const workloadSpecs: Spec[] = [
       "Gives the agent a stable name that is not a hostname and not an OAuth client_id.",
     urls: [
       {
-        label: "HTML of draft-03",
-        href: "https://datatracker.ietf.org/doc/html/draft-ietf-wimse-identifier",
+        label: "HTML of draft-04",
+        href: "https://datatracker.ietf.org/doc/html/draft-ietf-wimse-identifier-04",
       },
     ],
   },
@@ -91,10 +92,10 @@ export const workloadSpecs: Spec[] = [
     slug: "wimse-creds",
     shortName: "WIMSE credentials",
     officialName: "WIMSE Workload Credentials",
-    id: "draft-ietf-wimse-workload-creds-02",
+    id: "draft-ietf-wimse-workload-creds-03",
     status: "wg-draft",
     stability: "draft",
-    date: "2 July 2026",
+    date: "30 October 2026",
     org: "IETF",
     layer: "identity",
     relevance: "agent-specific",
@@ -116,8 +117,8 @@ export const workloadSpecs: Spec[] = [
       "This is the 'agent identity document' in the WIMSE world, analogous to AAuth's agent token but scoped to workload trust domains.",
     urls: [
       {
-        label: "HTML of draft-02",
-        href: "https://datatracker.ietf.org/doc/html/draft-ietf-wimse-workload-creds-02",
+        label: "HTML of draft-03",
+        href: "https://datatracker.ietf.org/doc/html/draft-ietf-wimse-workload-creds-03",
       },
     ],
   },
@@ -160,12 +161,12 @@ export const workloadSpecs: Spec[] = [
   {
     slug: "wimse-ai-agent",
     shortName: "WIMSE for AI agents",
-    officialName: "WIMSE applicability to Agentic AI (AI Agent Identity)",
-    id: "draft-ni-wimse-ai-agent-identity-02",
+    officialName: "WIMSE Applicability for AI Agents",
+    id: "draft-ni-wimse-ai-agent-identity-04",
     status: "individual-draft",
     stability: "draft",
-    date: "28 February 2026 (expires 1 September 2026)",
-    authors: "Y. Ni (Huawei)",
+    date: "27 October 2026",
+    authors: "Y. Ni, C. P. Liu (Huawei), M. Richardson (Sandelman Software Works), B. Wang (CESI)",
     org: "IETF",
     layer: "identity",
     relevance: "agent-specific",
@@ -174,8 +175,8 @@ export const workloadSpecs: Spec[] = [
       "A WIMSE workload identity names the agent process but not its owner. Agents that act for a human or organization need a credential that cryptographically binds agent identity to owner identity.",
     identityVsAuthnVsAuthz:
       "Identity binding (agent + owner). Authorization still needs OAuth/AAuth/policy on top.",
-    actors: ["Owner", "Agent", "Issuer / identity server"],
-    flow: "Three issuance models: owner-mediated (gateway), and server-mediated (challenge-response), plus a third mediation point described in the draft. Trust anchors for the owner's key are pre-provisioned.",
+    actors: ["Owner", "Agent", "Identity proxy", "Identity server"],
+    flow: "Draft-04 keeps the three issuance models from draft-03: agent-mediated (owner-pre-signed), owner-mediated (gateway), and server-mediated (challenge-response). An identity proxy sits between the agent and the identity server. Trust anchors for the owner's key are pre-provisioned.",
     tokensAndClaims: [
       {
         name: "dual-identity credential",
@@ -184,13 +185,13 @@ export const workloadSpecs: Spec[] = [
     ],
     related: ["wimse-arch", "aims", "aauth"],
     implementerNotes:
-      "Expired 1 September 2026 and was not renewed as of 18 September 2026 (still draft-02). Informational individual draft, not a WG item. Useful as a problem statement more than as a wire protocol.",
+      "Draft-04 (27 October 2026, expires 30 April 2027) adds B. Wang (CESI) and does not change the three issuance models. Draft-02 had expired 1 September 2026; draft-03 renewed it on 1 October 2026. Still an informational individual draft, not a WG item. Useful as a problem statement more than as a wire protocol.",
     whyAgentCares:
       "States clearly why SPIFFE-style 'the binary is payment-api' is insufficient for 'this agent is Alice's tax bot'.",
     urls: [
       {
-        label: "HTML of draft-02",
-        href: "https://datatracker.ietf.org/doc/html/draft-ni-wimse-ai-agent-identity-02",
+        label: "HTML of draft-04",
+        href: "https://datatracker.ietf.org/doc/html/draft-ni-wimse-ai-agent-identity-04",
       },
     ],
   },
@@ -230,7 +231,7 @@ export const workloadSpecs: Spec[] = [
       "aauth",
     ],
     implementerNotes:
-      "WIMSE working-group draft as of 15 September 2026 (replaces individual draft-klrc-aiagent-auth-03). Informational BCP-style map — still not a protocol RFC and it still does not mint an 'AIMS token'. Read this before inventing an agent-auth standard; it will tell you which existing RFC you are duplicating.",
+      "WIMSE working-group draft as of 15 September 2026 (replaces individual draft-klrc-aiagent-auth-03); still draft-ietf-wimse-aims-00 when re-checked 1 November 2026. Informational BCP-style map — still not a protocol RFC and it still does not mint an 'AIMS token'. Read this before inventing an agent-auth standard; it will tell you which existing RFC you are duplicating.",
     whyAgentCares:
       "Best current map of 'use this RFC for that agent problem'. Complementary to AAuth: AIMS says compose the old tools; AAuth says the old tools are insufficient for open-world HTTP clients.",
     urls: [
@@ -259,7 +260,7 @@ export const workloadSpecs: Spec[] = [
     layer: "identity",
     relevance: "foundation",
     featured: true,
-    aliases: ["spire", "svid"],
+    aliases: ["spire", "svid", "SPIFFE", "spiffe"],
     problem:
       "Workloads need automatically provisioned, short-lived cryptographic identities without bootstrap secrets, attested from platform properties (Kubernetes service account, Unix process, …).",
     identityVsAuthnVsAuthz:
@@ -354,7 +355,7 @@ export const workloadSpecs: Spec[] = [
     ],
     related: ["oauth-2-0", "token-exchange", "spiffe", "aims"],
     implementerNotes:
-      "Not the same document as draft-fane-opena2a-aap (OpenA2A Agent Authorization Protocol), which is a brokered capability-grant protocol. The acronym collision is real; always cite the draft name. Draft-01 expired 11 August 2026 — confirm datatracker for a renewal before implementing.",
+      "Not the same document as draft-fane-opena2a-aap-02 (2 October 2026, OpenA2A Agent Authorization Protocol), which is a brokered capability-grant protocol. The acronym collision is real; always cite the draft name. Draft-01 expired 11 August 2026 and was still expired without a -02 as of 1 November 2026 — confirm datatracker for a renewal before implementing.",
     whyAgentCares:
       "Another 'profile OAuth' proposal. Compare carefully with draft-mishra-oauth-agent-grants before implementing either.",
     urls: [
@@ -368,10 +369,10 @@ export const workloadSpecs: Spec[] = [
     slug: "txntokens-agents",
     shortName: "Txn-Tokens for agents",
     officialName: "Transaction Tokens For Agents",
-    id: "draft-araut-oauth-transaction-tokens-for-agents-02",
+    id: "draft-araut-oauth-transaction-tokens-for-agents-03",
     status: "individual-draft",
     stability: "draft",
-    date: "21 May 2026",
+    date: "31 October 2026",
     org: "IETF",
     layer: "mixed",
     relevance: "agent-specific",
@@ -381,13 +382,17 @@ export const workloadSpecs: Spec[] = [
     identityVsAuthnVsAuthz:
       "Context propagation of identity and authorization purpose, not a user login protocol.",
     actors: ["Agent workloads", "Transaction Token Service", "Tools"],
-    flow: "Same TTS issuance as the WG transaction-tokens draft, with agent-specific guidance for purpose and context fields.",
+    flow: "Same TTS issuance as the WG transaction-tokens draft. Draft-03 carries chain metadata in the agentic_ctx claim (originator, proximate agent, hop count, optional minimum assurance) and looks agents up in an Agent Attribute Store.",
     tokensAndClaims: [
-      { name: "tctx / purp", meaning: "Immutable task context and purpose." },
+      {
+        name: "agentic_ctx",
+        meaning:
+          "Chain metadata: originator, proximate_agent, hop tracking, optional min_assurance_level. Parent Txn-Token claims such as tctx and purp stay in the WG draft.",
+      },
     ],
     related: ["transaction-tokens", "aims", "a2a"],
     implementerNotes:
-      "Individual draft. The WG document is the one that will likely become the RFC; this is a usage profile.",
+      "Pin draft-03 (31 October 2026, expires 4 May 2027). It renames the lookup role from Agent Registry to Agent Attribute Store and the current actor field to proximate_agent. The WG transaction-tokens draft is still the document that will likely become the RFC; this is a usage profile.",
     whyAgentCares:
       "Helps when you already run Txn-Tokens internally and the caller is now an LLM agent instead of a microservice.",
     urls: [
