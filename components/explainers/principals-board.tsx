@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type KeyboardEvent } from "react";
 import Link from "next/link";
 import { mentalModel } from "@/lib/mental-model";
 import {
   boardChoiceClass,
   boardFocusClass,
+  nextRovingId,
   principalMeta,
 } from "@/lib/identity-visuals";
 import { cn } from "@/lib/utils";
@@ -98,16 +99,30 @@ export function PrincipalsBoard() {
     <InOneBoard
       id="principals"
       kicker="Mental model · four seats"
-      title="Four principals — click one"
+      title="Click a seat"
       footnote="One HTTP call can prove more than one of these. Do not smash them into a single string. Tokens are passes; signatures are wax seals."
     >
       <p className="mb-4 max-w-3xl text-sm leading-relaxed text-muted-foreground">
         Most broken agent-auth designs collapse these four names. Keep them
-        separate, then pick a proof for each. This board is the map; the catalog
-        is the shelf.
+        separate, then pick a proof for each. Arrow keys move the seats.
       </p>
 
-      <div className="relative grid gap-3 sm:grid-cols-2">
+      <div
+        role="radiogroup"
+        aria-label="Four principals"
+        className="relative grid gap-3 sm:grid-cols-2"
+        onKeyDown={(event: KeyboardEvent<HTMLDivElement>) => {
+          const ids = seats.map((item) => item.id);
+          const next = nextRovingId(event.key, ids, selected);
+          if (!next) return;
+          event.preventDefault();
+          setSelected(next);
+          const radios = event.currentTarget.querySelectorAll<HTMLButtonElement>(
+            '[role="radio"]',
+          );
+          radios[ids.indexOf(next)]?.focus();
+        }}
+      >
         {seats.map((item, index) => {
           const on = item.id === selected;
           const Icon = principalMeta[item.id].icon;
@@ -115,7 +130,9 @@ export function PrincipalsBoard() {
             <button
               key={item.id}
               type="button"
-              aria-pressed={on}
+              role="radio"
+              aria-checked={on}
+              tabIndex={on ? 0 : -1}
               onClick={() => setSelected(item.id)}
               className={cn(
                 "relative rounded-xl border p-4 text-left transition-colors",
